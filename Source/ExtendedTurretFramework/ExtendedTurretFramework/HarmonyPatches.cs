@@ -74,6 +74,20 @@ namespace ExtendedTurretFramework
                 }
             }
 
+            if (extensionValues.shootingAccuracy < 0 || extensionValues.shootingAccuracy > 1)
+            {
+                string turretDefName = turret.def.defName;
+                if (extensionValues.shootingAccuracy < 0)
+                {
+                    Log.ErrorOnce(String.Format("Turret (defName={0}) has a shootingAccuracy value of less than 0. Defaulting to 0.96...", turretDefName), 614927384);
+                }
+                else
+                {
+                    Log.ErrorOnce(String.Format("Turret (defName={0}) has a shootingAccuracy value of greater than 1. Defaulting to 0.96...", turretDefName), 614927385);
+                }
+                return 0.96f;
+            }
+
             return extensionValues.shootingAccuracy;
         }
 
