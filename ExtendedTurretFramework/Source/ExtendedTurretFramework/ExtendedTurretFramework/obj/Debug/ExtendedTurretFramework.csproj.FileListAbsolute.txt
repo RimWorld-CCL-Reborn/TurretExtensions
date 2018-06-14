@@ -1,0 +1,4 @@
+E:\Documents\My RimWorld Mods\B18\ExtendedTurretFramework\Assemblies\ExtendedTurretFramework.dll
+E:\Documents\My RimWorld Mods\B18\ExtendedTurretFramework\Source\ExtendedTurretFramework\ExtendedTurretFramework\obj\Debug\ExtendedTurretFramework.csprojAssemblyReference.cache
+E:\Documents\My RimWorld Mods\B18\ExtendedTurretFramework\Source\ExtendedTurretFramework\ExtendedTurretFramework\obj\Debug\ExtendedTurretFramework.csproj.CoreCompileInputs.cache
+E:\Documents\My RimWorld Mods\B18\ExtendedTurretFramework\Source\ExtendedTurretFramework\ExtendedTurretFramework\obj\Debug\ExtendedTurretFramework.dll
