@@ -29,6 +29,9 @@ namespace ExtendedTurretFramework
             h.Patch(AccessTools.Method(typeof(Building_TurretGun), "TryStartShootSomething"), null,
                 new HarmonyMethod(patchType, "PostfixTryStartShootSomething"));
 
+            h.Patch(AccessTools.Property(typeof(Building_TurretGun), "CanSetForcedTarget").GetGetMethod(true),
+                null, new HarmonyMethod(patchType, "PostfixCanSetForcedTarget"));
+
         }
 
         public static IEnumerable<CodeInstruction> TranspileTurretAccuracy(IEnumerable<CodeInstruction> instructions)
@@ -64,19 +67,26 @@ namespace ExtendedTurretFramework
         {
             var extensionValues = turret.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
             CompMannable mannableComp = turret.TryGetComp<CompMannable>();
+            string turretDefName = turret.def.defName;
 
-            if (mannableComp != null && extensionValues.useMannerShootingAccuracy)
+            if (extensionValues.useMannerShootingAccuracy)
             {
-                Pawn manningPawn = mannableComp.ManningPawn;
-                if (manningPawn != null)
+                if (mannableComp != null)
                 {
-                    return manningPawn.GetStatValue(StatDefOf.ShootingAccuracy);
+                    Pawn manningPawn = mannableComp.ManningPawn;
+                    if (manningPawn != null)
+                    {
+                        return manningPawn.GetStatValue(StatDefOf.ShootingAccuracy);
+                    }
+                }
+                else
+                {
+                    Log.Warning(String.Format("Turret (defName={0}) has useMannerShootingAccuracy set to true but doesn't have CompMannable.", turretDefName));
                 }
             }
 
             if (extensionValues.shootingAccuracy < 0 || extensionValues.shootingAccuracy > 1)
             {
-                string turretDefName = turret.def.defName;
                 if (extensionValues.shootingAccuracy < 0)
                 {
                     Log.ErrorOnce(String.Format("Turret (defName={0}) has a shootingAccuracy value of less than 0. Defaulting to 0.96...", turretDefName), 614927384);
@@ -94,6 +104,8 @@ namespace ExtendedTurretFramework
         public static void PostfixTryStartShootSomething(Building_TurretGun __instance)
         {
             var extensionValues = __instance.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
+            string turretDefName = __instance.def.defName;
+
             if (extensionValues.useMannerAimingDelayFactor)
             {
                 CompMannable mannableComp = __instance.TryGetComp<CompMannable>();
@@ -107,6 +119,32 @@ namespace ExtendedTurretFramework
                         burstWarmupTicksLeft = (int)Math.Round(burstWarmupTicksLeft * mannerAimingDelayFactor);
                         Traverse.Create(__instance).Field("burstWarmupTicksLeft").SetValue(burstWarmupTicksLeft);
                     }
+                }
+                else
+                {
+                    Log.Warning(String.Format("Turret (defName={0}) has useMannerAimingDelayFactor set to true but doesn't have CompMannable.", turretDefName));
+                }
+            }
+        }
+
+        public static void PostfixCanSetForcedTarget(Building_TurretGun __instance, ref bool __result)
+        {
+            var extensionValues = __instance.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
+            string turretDefName = __instance.def.defName;
+
+            if (extensionValues.canForceAttack)
+            {
+                CompMannable mannableComp = __instance.TryGetComp<CompMannable>();
+                if (mannableComp == null)
+                {
+                    if (__instance.Faction == Faction.OfPlayer)
+                    {
+                        __result = true;
+                    }
+                }
+                else
+                {
+                    Log.Warning(String.Format("Turret (defName={0}) has canForceAttack set to true and CompMannable. canForceAttack is redundant in this case.", turretDefName));
                 }
             }
         }

@@ -19,6 +19,8 @@ namespace ExtendedTurretFramework
 
         public bool useMannerAimingDelayFactor = false;
 
+        public bool canForceAttack = false;
+
         public float shootingAccuracy = 0.96f;
     }
 
