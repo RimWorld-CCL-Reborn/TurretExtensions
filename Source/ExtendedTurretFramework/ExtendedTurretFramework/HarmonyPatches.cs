@@ -29,8 +29,11 @@ namespace ExtendedTurretFramework
             h.Patch(AccessTools.Method(typeof(Building_TurretGun), "TryStartShootSomething"), null,
                 new HarmonyMethod(patchType, "PostfixTryStartShootSomething"));
 
-            h.Patch(AccessTools.Property(typeof(Building_TurretGun), "CanSetForcedTarget").GetGetMethod(true),
-                null, new HarmonyMethod(patchType, "PostfixCanSetForcedTarget"));
+            h.Patch(AccessTools.Property(typeof(Building_TurretGun), "CanSetForcedTarget").GetGetMethod(true), null,
+                new HarmonyMethod(patchType, "PostfixCanSetForcedTarget"));
+
+            h.Patch(AccessTools.Method(typeof(ThingDef), "SpecialDisplayStats"), null,
+                new HarmonyMethod(patchType, "PostfixSpecialDisplayStats"));
 
         }
 
@@ -145,6 +148,129 @@ namespace ExtendedTurretFramework
                 else
                 {
                     Log.Warning(String.Format("Turret (defName={0}) has canForceAttack set to true and CompMannable. canForceAttack is redundant in this case.", turretDefName));
+                }
+            }
+        }
+
+        public static void PostfixSpecialDisplayStats(ThingDef __instance, ref IEnumerable<StatDrawEntry> __result)
+        {
+            if (__instance.building != null && __instance.building.IsTurret)
+            {
+                var extensionValues = __instance.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
+
+                // Building stats
+                float turretBurstWarmupTime = __instance.building.turretBurstWarmupTime;
+                float turretBurstCooldownTime = __instance.building.turretBurstCooldownTime;
+                float turretShootingAccuracy = extensionValues.shootingAccuracy;
+                bool turretUsesMannerShootingAccuracy = extensionValues.useMannerShootingAccuracy;
+                string turretShootingAccuracyString = turretShootingAccuracy.ToStringPercent();
+                if (turretUsesMannerShootingAccuracy)
+                {
+                    turretShootingAccuracyString = "TurretUserDependent".Translate();
+                }
+                StringBuilder turretSAExplanationBuilder = new StringBuilder();
+                turretSAExplanationBuilder.AppendLine(StatDefOf.ShootingAccuracy.description);
+                if (!turretUsesMannerShootingAccuracy)
+                {
+                    turretSAExplanationBuilder.AppendLine();
+                    turretSAExplanationBuilder.AppendLine(String.Concat(new string[]
+                    {
+                        StatDefOf.ShootingAccuracy.label.CapitalizeFirst(),
+                        ": ",
+                        turretShootingAccuracy.ToStringPercent()
+                    }));
+                    turretSAExplanationBuilder.AppendLine();
+                    for (int i = 5; i <= 45; i += 5)
+                    {
+                        turretSAExplanationBuilder.AppendLine(String.Concat(new string[]
+                        {
+                        "distance".Translate().CapitalizeFirst(),
+                        " ",
+                        i.ToString(),
+                        ": ",
+                        Mathf.Pow(turretShootingAccuracy, (float)i).ToStringPercent()
+                        }));
+                    }
+                }
+                string turretSAExplanation = turretSAExplanationBuilder.ToString();
+
+                // Turret gun stats
+                ThingDef turretGunDef = __instance.building.turretGunDef;
+                float turretGunAccuracyTouch = turretGunDef.statBases.GetStatValueFromList(StatDefOf.AccuracyTouch, StatDefOf.AccuracyTouch.defaultBaseValue);
+                float turretGunAccuracyShort = turretGunDef.statBases.GetStatValueFromList(StatDefOf.AccuracyShort, StatDefOf.AccuracyShort.defaultBaseValue);
+                float turretGunAccuracyMedium = turretGunDef.statBases.GetStatValueFromList(StatDefOf.AccuracyMedium, StatDefOf.AccuracyMedium.defaultBaseValue);
+                float turretGunAccuracyLong = turretGunDef.statBases.GetStatValueFromList(StatDefOf.AccuracyLong, StatDefOf.AccuracyLong.defaultBaseValue);
+
+                // Verb stats
+                List<VerbProperties> turretGunVerbPropList = turretGunDef.Verbs;
+                VerbProperties turretGunVerbProps = turretGunVerbPropList[0];
+                float turretGunRange = turretGunVerbProps.range;
+                int turretBurstShotCount = turretGunVerbProps.burstShotCount;
+                float turretBurstShotFireRate = 60f / turretGunVerbProps.ticksBetweenBurstShots.TicksToSeconds();
+
+                if (turretBurstWarmupTime > 0)
+                {
+                    StatDrawEntry warmupSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, "WarmupTime".Translate(), turretBurstWarmupTime.ToString("0.##") + " s", 40);
+                    __result = __result.Add(warmupSDE);
+                }
+                if (turretBurstCooldownTime > 0)
+                {
+                    StatDrawEntry cooldownSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, "CooldownTime".Translate(), turretBurstCooldownTime.ToString("0.##") + " s", 40);
+                    __result = __result.Add(cooldownSDE);
+                }
+                StatDrawEntry rangeSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, "Range".Translate(), turretGunRange.ToString("0"), 10);
+                StatDrawEntry turrShootingAccSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, StatDefOf.ShootingAccuracy.label, turretShootingAccuracyString, 15, turretSAExplanation);
+                __result = __result.Add(rangeSDE);
+                __result = __result.Add(turrShootingAccSDE);
+                if (turretGunAccuracyTouch != StatDefOf.AccuracyTouch.defaultBaseValue || turretGunAccuracyShort != StatDefOf.AccuracyShort.defaultBaseValue ||
+                    turretGunAccuracyMedium != StatDefOf.AccuracyMedium.defaultBaseValue || turretGunAccuracyLong != StatDefOf.AccuracyLong.defaultBaseValue)
+                {
+                    StatDrawEntry accTouchSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, StatDefOf.AccuracyTouch.label, turretGunAccuracyTouch.ToStringPercent(), 14);
+                    StatDrawEntry accShortSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, StatDefOf.AccuracyShort.label, turretGunAccuracyShort.ToStringPercent(), 13);
+                    StatDrawEntry accMediumSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, StatDefOf.AccuracyMedium.label, turretGunAccuracyMedium.ToStringPercent(), 12);
+                    StatDrawEntry accLongSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, StatDefOf.AccuracyLong.label, turretGunAccuracyLong.ToStringPercent(), 11);
+                    __result = __result.Add(accTouchSDE);
+                    __result = __result.Add(accShortSDE);
+                    __result = __result.Add(accMediumSDE);
+                    __result = __result.Add(accLongSDE);
+                }
+
+                if (turretBurstShotCount > 1)
+                {
+                    StatDrawEntry burstShotFireRateSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, "BurstShotFireRate".Translate(), turretBurstShotFireRate.ToString("0.##") + " rpm", 19);
+                    StatDrawEntry burstShotCountSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, "BurstShotCount".Translate(), turretBurstShotCount.ToString(), 20);
+                    __result = __result.Add(burstShotFireRateSDE);
+                    __result = __result.Add(burstShotCountSDE);
+                }
+
+                // Projectile stats
+                ThingDef turretGunProjectile = turretGunVerbProps.defaultProjectile;
+                string damage = "MortarShellDependent".Translate();
+                if (turretGunProjectile != null)
+                {
+                    damage = turretGunProjectile.projectile.DamageAmount.ToString();
+                }
+
+                StatDrawEntry damageSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, "Damage".Translate(), damage, 21);
+                __result = __result.Add(damageSDE);
+
+            }
+            if (__instance.IsShell)
+            {
+                ProjectileProperties shellProps = __instance.projectileWhenLoaded.projectile;
+                int shellDamage = shellProps.DamageAmount;
+                string shellDamageDef = shellProps.damageDef.label.CapitalizeFirst();
+                float shellExplosionRadius = shellProps.explosionRadius;
+
+                StatDrawEntry damageSDE = new StatDrawEntry(ETF_StatCategoryDefOf.TurretAmmo, "Damage".Translate(), shellDamage.ToString(), 20);
+                StatDrawEntry damageDefSDE = new StatDrawEntry(ETF_StatCategoryDefOf.TurretAmmo, "ShellDamageType".Translate(), shellDamageDef, 19);
+                __result = __result.Add(damageSDE);
+                __result = __result.Add(damageDefSDE);
+
+                if (shellExplosionRadius > 0f)
+                {
+                    StatDrawEntry explosionRadSDE = new StatDrawEntry(ETF_StatCategoryDefOf.TurretAmmo, "ShellExplosionRadius".Translate(), shellExplosionRadius.ToString(), 18);
+                    __result = __result.Add(explosionRadSDE);
                 }
             }
         }

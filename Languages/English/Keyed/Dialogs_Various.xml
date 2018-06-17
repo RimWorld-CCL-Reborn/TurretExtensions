@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+
+    <TurretUserDependent>Depends on user</TurretUserDependent>
+    <MortarShellDependent>Depends on ammo</MortarShellDependent>
+    <ShellDamageType>Damage type</ShellDamageType>
+    <ShellExplosionRadius>Explosion radius</ShellExplosionRadius>
+
+</LanguageData>

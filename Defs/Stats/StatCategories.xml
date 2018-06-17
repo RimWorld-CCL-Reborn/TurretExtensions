@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+    <StatCategoryDef>
+        <defName>Turret</defName>
+        <label>Turret</label>
+        <displayOrder>40</displayOrder>
+    </StatCategoryDef>
+
+    <StatCategoryDef>
+        <defName>TurretAmmo</defName>
+        <label>Turret ammunition</label>
+        <displayOrder>40</displayOrder>
+    </StatCategoryDef>
+
+</Defs>
