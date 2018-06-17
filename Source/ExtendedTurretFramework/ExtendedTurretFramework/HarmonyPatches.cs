@@ -21,10 +21,13 @@ namespace ExtendedTurretFramework
         {
             HarmonyInstance h = HarmonyInstance.Create("XeoNovaDan.ExtendedTurretFramework");
 
-            //HarmonyInstance.DEBUG = true;
+            HarmonyInstance.DEBUG = true;
 
             h.Patch(AccessTools.Method(typeof(ShotReport), "HitReportFor"), null, null,
                 new HarmonyMethod(patchType, "TranspileTurretAccuracy"));
+
+            h.Patch(AccessTools.Method(typeof(Building_TurretGun), "GetInspectString"), null, null,
+                new HarmonyMethod(patchType, "TranspileGetInspectString"));
 
             h.Patch(AccessTools.Method(typeof(Building_TurretGun), "TryStartShootSomething"), null,
                 new HarmonyMethod(patchType, "PostfixTryStartShootSomething"));
@@ -102,6 +105,23 @@ namespace ExtendedTurretFramework
             }
 
             return extensionValues.shootingAccuracy;
+        }
+
+        public static IEnumerable<CodeInstruction> TranspileGetInspectString(IEnumerable<CodeInstruction> instructions)
+        {
+            List<CodeInstruction> instructionList = instructions.ToList();
+
+            for (int i = 0; i < instructionList.Count; i++)
+            {
+                CodeInstruction instruction = instructionList[i];
+
+                if (instruction.opcode == OpCodes.Ldc_R4 && (float)instruction.operand == 5)
+                {
+                    instruction.operand = 0;
+                }
+
+                yield return instruction;
+            }
         }
 
         public static void PostfixTryStartShootSomething(Building_TurretGun __instance)

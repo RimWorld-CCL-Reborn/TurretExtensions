@@ -13,7 +13,6 @@ namespace ExtendedTurretFramework
 
     public class TurretFrameworkExtension : DefModExtension
     {
-
         public static readonly TurretFrameworkExtension defaultValues = new TurretFrameworkExtension();
 
         public bool useMannerShootingAccuracy = false;

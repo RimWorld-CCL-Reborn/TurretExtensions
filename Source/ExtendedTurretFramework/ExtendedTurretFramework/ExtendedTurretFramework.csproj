@@ -52,6 +52,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="WorkGiver_UpgradeTurret.cs" />
+    <None Include="JobDriver_UpgradeTurret.cs" />
+    <None Include="CompUpgradable.cs" />
+    <None Include="CompProperties_Upgradable.cs" />
     <Compile Include="ETF_StatCategoryDefOf.cs" />
     <Compile Include="TurretFrameworkExtension.cs" />
     <Compile Include="HarmonyPatches.cs" />
