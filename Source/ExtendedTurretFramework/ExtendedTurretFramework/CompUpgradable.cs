@@ -6,7 +6,7 @@ using UnityEngine;
 using Verse;
 using RimWorld;
 
-namespace ExtendedTurretFramework
+namespace TurretExtensions
 {
     class CompUpgradable : ThingComp
     {

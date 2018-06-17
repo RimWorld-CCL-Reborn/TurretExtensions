@@ -8,7 +8,7 @@ using Verse;
 using Harmony;
 using UnityEngine;
 
-namespace ExtendedTurretFramework
+namespace TurretExtensions
 {
 
     public class TurretFrameworkExtension : DefModExtension

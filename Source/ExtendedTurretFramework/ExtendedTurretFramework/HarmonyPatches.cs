@@ -9,7 +9,7 @@ using Verse;
 using Harmony;
 using UnityEngine;
 
-namespace ExtendedTurretFramework
+namespace TurretExtensions
 {
     [StaticConstructorOnStartup]
     static class HarmonyPatches
@@ -21,7 +21,7 @@ namespace ExtendedTurretFramework
         {
             HarmonyInstance h = HarmonyInstance.Create("XeoNovaDan.ExtendedTurretFramework");
 
-            HarmonyInstance.DEBUG = true;
+            // HarmonyInstance.DEBUG = true;
 
             h.Patch(AccessTools.Method(typeof(ShotReport), "HitReportFor"), null, null,
                 new HarmonyMethod(patchType, "TranspileTurretAccuracy"));
@@ -230,25 +230,25 @@ namespace ExtendedTurretFramework
 
                 if (turretBurstWarmupTime > 0)
                 {
-                    StatDrawEntry warmupSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, "WarmupTime".Translate(), turretBurstWarmupTime.ToString("0.##") + " s", 40);
+                    StatDrawEntry warmupSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, "WarmupTime".Translate(), turretBurstWarmupTime.ToString("0.##") + " s", 40);
                     __result = __result.Add(warmupSDE);
                 }
                 if (turretBurstCooldownTime > 0)
                 {
-                    StatDrawEntry cooldownSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, "CooldownTime".Translate(), turretBurstCooldownTime.ToString("0.##") + " s", 40);
+                    StatDrawEntry cooldownSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, "CooldownTime".Translate(), turretBurstCooldownTime.ToString("0.##") + " s", 40);
                     __result = __result.Add(cooldownSDE);
                 }
-                StatDrawEntry rangeSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, "Range".Translate(), turretGunRange.ToString("0"), 10);
-                StatDrawEntry turrShootingAccSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, StatDefOf.ShootingAccuracy.label, turretShootingAccuracyString, 15, turretSAExplanation);
+                StatDrawEntry rangeSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, "Range".Translate(), turretGunRange.ToString("0"), 10);
+                StatDrawEntry turrShootingAccSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.ShootingAccuracy.label, turretShootingAccuracyString, 15, turretSAExplanation);
                 __result = __result.Add(rangeSDE);
                 __result = __result.Add(turrShootingAccSDE);
                 if (turretGunAccuracyTouch != StatDefOf.AccuracyTouch.defaultBaseValue || turretGunAccuracyShort != StatDefOf.AccuracyShort.defaultBaseValue ||
                     turretGunAccuracyMedium != StatDefOf.AccuracyMedium.defaultBaseValue || turretGunAccuracyLong != StatDefOf.AccuracyLong.defaultBaseValue)
                 {
-                    StatDrawEntry accTouchSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, StatDefOf.AccuracyTouch.label, turretGunAccuracyTouch.ToStringPercent(), 14);
-                    StatDrawEntry accShortSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, StatDefOf.AccuracyShort.label, turretGunAccuracyShort.ToStringPercent(), 13);
-                    StatDrawEntry accMediumSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, StatDefOf.AccuracyMedium.label, turretGunAccuracyMedium.ToStringPercent(), 12);
-                    StatDrawEntry accLongSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, StatDefOf.AccuracyLong.label, turretGunAccuracyLong.ToStringPercent(), 11);
+                    StatDrawEntry accTouchSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.AccuracyTouch.label, turretGunAccuracyTouch.ToStringPercent(), 14);
+                    StatDrawEntry accShortSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.AccuracyShort.label, turretGunAccuracyShort.ToStringPercent(), 13);
+                    StatDrawEntry accMediumSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.AccuracyMedium.label, turretGunAccuracyMedium.ToStringPercent(), 12);
+                    StatDrawEntry accLongSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.AccuracyLong.label, turretGunAccuracyLong.ToStringPercent(), 11);
                     __result = __result.Add(accTouchSDE);
                     __result = __result.Add(accShortSDE);
                     __result = __result.Add(accMediumSDE);
@@ -257,8 +257,8 @@ namespace ExtendedTurretFramework
 
                 if (turretBurstShotCount > 1)
                 {
-                    StatDrawEntry burstShotFireRateSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, "BurstShotFireRate".Translate(), turretBurstShotFireRate.ToString("0.##") + " rpm", 19);
-                    StatDrawEntry burstShotCountSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, "BurstShotCount".Translate(), turretBurstShotCount.ToString(), 20);
+                    StatDrawEntry burstShotFireRateSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, "BurstShotFireRate".Translate(), turretBurstShotFireRate.ToString("0.##") + " rpm", 19);
+                    StatDrawEntry burstShotCountSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, "BurstShotCount".Translate(), turretBurstShotCount.ToString(), 20);
                     __result = __result.Add(burstShotFireRateSDE);
                     __result = __result.Add(burstShotCountSDE);
                 }
@@ -271,7 +271,7 @@ namespace ExtendedTurretFramework
                     damage = turretGunProjectile.projectile.DamageAmount.ToString();
                 }
 
-                StatDrawEntry damageSDE = new StatDrawEntry(ETF_StatCategoryDefOf.Turret, "Damage".Translate(), damage, 21);
+                StatDrawEntry damageSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, "Damage".Translate(), damage, 21);
                 __result = __result.Add(damageSDE);
 
             }
@@ -282,14 +282,14 @@ namespace ExtendedTurretFramework
                 string shellDamageDef = shellProps.damageDef.label.CapitalizeFirst();
                 float shellExplosionRadius = shellProps.explosionRadius;
 
-                StatDrawEntry damageSDE = new StatDrawEntry(ETF_StatCategoryDefOf.TurretAmmo, "Damage".Translate(), shellDamage.ToString(), 20);
-                StatDrawEntry damageDefSDE = new StatDrawEntry(ETF_StatCategoryDefOf.TurretAmmo, "ShellDamageType".Translate(), shellDamageDef, 19);
+                StatDrawEntry damageSDE = new StatDrawEntry(TE_StatCategoryDefOf.TurretAmmo, "Damage".Translate(), shellDamage.ToString(), 20);
+                StatDrawEntry damageDefSDE = new StatDrawEntry(TE_StatCategoryDefOf.TurretAmmo, "ShellDamageType".Translate(), shellDamageDef, 19);
                 __result = __result.Add(damageSDE);
                 __result = __result.Add(damageDefSDE);
 
                 if (shellExplosionRadius > 0f)
                 {
-                    StatDrawEntry explosionRadSDE = new StatDrawEntry(ETF_StatCategoryDefOf.TurretAmmo, "ShellExplosionRadius".Translate(), shellExplosionRadius.ToString(), 18);
+                    StatDrawEntry explosionRadSDE = new StatDrawEntry(TE_StatCategoryDefOf.TurretAmmo, "ShellExplosionRadius".Translate(), shellExplosionRadius.ToString(), 18);
                     __result = __result.Add(explosionRadSDE);
                 }
             }

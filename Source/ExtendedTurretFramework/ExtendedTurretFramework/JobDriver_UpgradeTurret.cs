@@ -7,7 +7,7 @@ using Verse;
 using Verse.AI;
 using RimWorld;
 
-namespace ExtendedTurretFramework
+namespace TurretExtensions
 {
     class JobDriver_UpgradeTurret : JobDriver
     {

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-	<name>Extended Turret Framework</name>
+	<name>[XND] Turret Extensions</name>
 	<author>XeoNovaDan</author>
-	<url></url>
+	<url>https://ludeon.com/forums/index.php?topic=41790.0</url>
 	<targetVersion>1.0.0</targetVersion>
-	<description>Current Version: v1.0 (17th June 2018)\n\nA resource which allows modders to create turret mods with more flexibility.</description>
+	<description>Current Version: v1.0b (17th June 2018)\n\nA resource which allows modders to create turret mods with more flexibility, and a quality of life mod for turrets.</description>
 </ModMetaData>

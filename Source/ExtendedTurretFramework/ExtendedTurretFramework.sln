@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2018
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtendedTurretFramework", "ExtendedTurretFramework\ExtendedTurretFramework.csproj", "{511E0C12-97E5-4CA0-8AB4-4118D42B4F1E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TurretExtensions", "ExtendedTurretFramework\TurretExtensions.csproj", "{511E0C12-97E5-4CA0-8AB4-4118D42B4F1E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
