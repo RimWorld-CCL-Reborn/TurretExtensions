@@ -1,4 +1,0 @@
-E:\Documents\My RimWorld Mods\V1.0\TurretExtensions\Assemblies\TurretExtensions.dll
-E:\Documents\My RimWorld Mods\V1.0\TurretExtensions\Source\ExtendedTurretFramework\ExtendedTurretFramework\obj\Debug\TurretExtensions.csprojAssemblyReference.cache
-E:\Documents\My RimWorld Mods\V1.0\TurretExtensions\Source\ExtendedTurretFramework\ExtendedTurretFramework\obj\Debug\TurretExtensions.csproj.CoreCompileInputs.cache
-E:\Documents\My RimWorld Mods\V1.0\TurretExtensions\Source\ExtendedTurretFramework\ExtendedTurretFramework\obj\Debug\TurretExtensions.dll
