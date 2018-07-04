@@ -52,13 +52,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="WorkGiver_UpgradeTurret.cs" />
-    <None Include="JobDriver_UpgradeTurret.cs" />
-    <None Include="CompUpgradable.cs" />
-    <None Include="CompProperties_Upgradable.cs" />
-    <Compile Include="TE_StatCategoryDefOf.cs" />
-    <Compile Include="TurretFrameworkExtension.cs" />
-    <Compile Include="HarmonyPatches.cs" />
+    <Compile Include="Classes\Designators\Designator_UpgradeTurret.cs" />
+    <Compile Include="Classes\StatParts\StatPart_FlammabilityFromUpgrade.cs" />
+    <Compile Include="Classes\StatParts\StatPart_HealthFromUpgrade.cs" />
+    <Compile Include="Classes\StatParts\StatPart_ValueFromUpgrade.cs" />
+    <Compile Include="Classes\DefOfs\TE_DesignationDefOf.cs" />
+    <Compile Include="Classes\DefOfs\TE_JobDefOf.cs" />
+    <Compile Include="Classes\DefOfs\TE_RecordDefOf.cs" />
+    <Compile Include="Classes\AI\WorkGiver_UpgradeTurret.cs" />
+    <Compile Include="Classes\AI\JobDriver_UpgradeTurret.cs" />
+    <Compile Include="Classes\Main\CompUpgradable.cs" />
+    <Compile Include="Classes\Main\CompProperties_Upgradable.cs" />
+    <Compile Include="Classes\StatParts\StatPart_FromMannableTurret.cs" />
+    <Compile Include="Classes\DefOfs\TE_StatCategoryDefOf.cs" />
+    <Compile Include="Classes\Main\TurretFrameworkExtension.cs" />
+    <Compile Include="Classes\HarmonyPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+
+    <!-- Designators -->
+    <DesignatorUpgradeTurret>Upgrade turret</DesignatorUpgradeTurret>
+    <DesignatorUpgradeTurretDesc>Mark turrets to be upgraded to enhance their combat performance.</DesignatorUpgradeTurretDesc>
+
+    <!-- Dialogs_Various -->
+    <UpgradedTurretShootingAccuracy>Upgraded shooting accuracy</UpgradedTurretShootingAccuracy>
+    <UserShootingAccuracy>User's shooting accuracy</UserShootingAccuracy>
+
+    <TurretUserDependent>Depends on user</TurretUserDependent>
+    <MortarShellDependent>Depends on ammo</MortarShellDependent>
+    <ShellDamageType>Damage type</ShellDamageType>
+    <ShellExplosionRadius>Explosion radius</ShellExplosionRadius>
+
+    <Upgradable>Upgradable</Upgradable>
+    <TurretUpgradeBenefitsMain>Whether or not a turret can be upgraded to enhance its combat performance.</TurretUpgradeBenefitsMain>
+    <TurretResourceRequirements>Resources required</TurretResourceRequirements>
+    <TurretMinimumUpgradeSkill>Construction skill required</TurretMinimumUpgradeSkill>
+    <TurretResearchRequirements>Research required</TurretResearchRequirements>
+    <TurretUpgradeBenefitsUpgradable>This turret's modified stats are as follows when upgraded</TurretUpgradeBenefitsUpgradable>
+    <TurretUpgradeBenefitsNotUpgradable>This turret cannot be upgraded.</TurretUpgradeBenefitsNotUpgradable>
+
+    <EffectiveBarrelDurability>Effective barrel durability</EffectiveBarrelDurability>
+    <TurretManuallyAimable>Turret becomes directly controllable by you</TurretManuallyAimable>
+
+    <!-- Messages -->
+    <ConstructionSkillTooLowMessage>None of your {0} have a high enough construction skill to upgrade {1}.</ConstructionSkillTooLowMessage>
+    <UpgradeResearchNotMetMessage>Missing research that's required to upgrade {0}</UpgradeResearchNotMetMessage>
+    <TurretUpgradeCostMessage>Resource cost to upgrade {0}</TurretUpgradeCostMessage>
+    <UpgradeFailMinorMessage>{0} failed while upgrading {1}.</UpgradeFailMinorMessage>
+    <UpgradeFailMajorMessage>{0} failed while upgrading {1}, damaging it in the process.</UpgradeFailMajorMessage>
+
+    <UpgradeFailResourceLossSmall>Most resources were successfully recovered.</UpgradeFailResourceLossSmall>
+    <UpgradeFailResourceLossMedium>Some resources have been lost.</UpgradeFailResourceLossMedium>
+    <UpgradeFailResourceLossHigh>Most resources couldn't be recovered.</UpgradeFailResourceLossHigh>
+    <UpgradeFailResourceLossTotal>No resources could be recovered.</UpgradeFailResourceLossTotal>
+
+    <!-- Misc_Gameplay -->
+    <TextMote_UpgradeFail>Upgrade failed</TextMote_UpgradeFail>
+    <TurretUpgradedText>upgraded</TurretUpgradedText>
+    <TurretUpgradeProgress>Work to upgrade</TurretUpgradeProgress>
+
+</LanguageData>

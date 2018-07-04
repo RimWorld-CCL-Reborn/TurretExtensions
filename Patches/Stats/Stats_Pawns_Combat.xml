@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+    <Operation Class="PatchOperationSequence">
+        <success>Always</success>
+        <operations>
+            <li Class="PatchOperationTest">
+                <xpath>*/StatDef[defName="ShootingAccuracy"]/parts</xpath>
+                <success>Invert</success>
+            </li>
+            <li Class="PatchOperationAdd">
+                <xpath>*/StatDef[defName="ShootingAccuracy"]</xpath>
+                <value>
+                    <parts/>
+                </value>
+            </li>
+        </operations>
+    </Operation>
+
+    <Operation Class="PatchOperationAdd">
+        <xpath>*/StatDef[defName="ShootingAccuracy"]/parts</xpath>
+        <value>
+            <li Class="TurretExtensions.StatPart_FromMannableTurret"/>
+        </value>
+    </Operation>
+
+</Patch>
