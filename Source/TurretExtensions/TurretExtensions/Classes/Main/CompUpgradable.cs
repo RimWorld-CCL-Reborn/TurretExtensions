@@ -84,13 +84,6 @@ namespace TurretExtensions
             }
         }
 
-        public float ShootingAccuracy(Thing turret, TurretFrameworkExtension extensionValues)
-        {
-            if (upgraded) return Mathf.Clamp01(extensionValues.shootingAccuracy + Props.shootingAccuracyOffset);
-
-            return extensionValues.shootingAccuracy;
-        }
-
         public Dictionary<string, int> GetTurretUpgradeCost(List<ThingDefCountClass> upgradeCost)
         {
             Dictionary<string, int> costDict = new Dictionary<string, int>();

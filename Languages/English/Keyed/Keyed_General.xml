@@ -5,11 +5,20 @@
     <DesignatorUpgradeTurret>Upgrade turret</DesignatorUpgradeTurret>
     <DesignatorUpgradeTurretDesc>Mark turrets to be upgraded to enhance their combat performance.</DesignatorUpgradeTurretDesc>
 
+    <!-- Dialogs_StatReports -->
+    <MannableTurretAccuracyDepends>Accuracy depends on the pawn that's operating this turret.</MannableTurretAccuracyDepends>
+    <MannableTurretNotManned>No operator</MannableTurretNotManned>
+    <MannableTurretIsManned>From operator</MannableTurretIsManned>
+
     <!-- Dialogs_Various -->
     <UpgradedTurretShootingAccuracy>Upgraded shooting accuracy</UpgradedTurretShootingAccuracy>
     <UserShootingAccuracy>User's shooting accuracy</UserShootingAccuracy>
 
-    <TurretUserDependent>Depends on user</TurretUserDependent>
+    <MannedTurretUsesShooterAccuracy>Uses operator's accuracy</MannedTurretUsesShooterAccuracy>
+    <MannedTurretUsesShooterAccuracyExplanation>Whether or not this manning turret uses the manning pawn's shooting accuracy.</MannedTurretUsesShooterAccuracyExplanation>
+    <MannedTurretUsesShooterAccuracyBonus>The operator's accuracy gets increased by {0} when using {1}.</MannedTurretUsesShooterAccuracyBonus>
+    <MannedTurretUsesShooterAccuracyPenalty>The operator's accuracy gets decreased by {0} when using {1}.</MannedTurretUsesShooterAccuracyPenalty>
+    <MannedTurretUsesShooterAccuracyNoChange>The {0} doesn't modify the operator's accuracy in any way.</MannedTurretUsesShooterAccuracyNoChange>
     <MortarShellDependent>Depends on ammo</MortarShellDependent>
     <ShellDamageType>Damage type</ShellDamageType>
     <ShellExplosionRadius>Explosion radius</ShellExplosionRadius>
@@ -38,7 +47,7 @@
     <UpgradeFailResourceLossTotal>No resources could be recovered.</UpgradeFailResourceLossTotal>
 
     <!-- Misc_Gameplay -->
-    <TextMote_UpgradeFail>Upgrade failed</TextMote_UpgradeFail>
+    <TextMote_UpgradeFail>Upgrade botched</TextMote_UpgradeFail>
     <TurretUpgradedText>upgraded</TurretUpgradedText>
     <TurretUpgradeProgress>Work to upgrade</TurretUpgradeProgress>
 

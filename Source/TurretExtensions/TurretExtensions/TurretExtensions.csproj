@@ -53,8 +53,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Designators\Designator_UpgradeTurret.cs" />
+    <Compile Include="Classes\StatParts\StatPart_AccuracyFromCompMannable.cs" />
     <Compile Include="Classes\StatParts\StatPart_FlammabilityFromUpgrade.cs" />
     <Compile Include="Classes\StatParts\StatPart_HealthFromUpgrade.cs" />
+    <Compile Include="Classes\StatParts\StatPart_AccuracyFromUpgrade.cs" />
     <Compile Include="Classes\StatParts\StatPart_ValueFromUpgrade.cs" />
     <Compile Include="Classes\DefOfs\TE_DesignationDefOf.cs" />
     <Compile Include="Classes\DefOfs\TE_JobDefOf.cs" />

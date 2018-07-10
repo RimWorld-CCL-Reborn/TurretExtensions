@@ -24,9 +24,6 @@ namespace TurretExtensions
 
             // HarmonyInstance.DEBUG = true;
 
-            h.Patch(AccessTools.Method(typeof(ShotReport), "HitReportFor"), null, null,
-                new HarmonyMethod(patchType, "TranspileTurretAccuracy"));
-
             h.Patch(AccessTools.Method(typeof(Building_TurretGun), "GetInspectString"), null, null,
                 new HarmonyMethod(patchType, "TranspileGetInspectString"));
 
@@ -59,63 +56,7 @@ namespace TurretExtensions
 
         }
 
-        public static IEnumerable<CodeInstruction> TranspileTurretAccuracy(IEnumerable<CodeInstruction> instructions)
-        {
-            List<CodeInstruction> instructionList = instructions.ToList();
-            MethodInfo accGetterInfo = AccessTools.Method(patchType, nameof(GetTurretAccuracy));
-
-            bool foundInstruction = false;
-            bool done = false;
-            
-            for (int i = 0; i < instructionList.Count; i++)
-            {
-                CodeInstruction instruction = instructionList[i];
-
-                if (foundInstruction && !done)
-                {
-                    yield return new CodeInstruction(OpCodes.Ldarg_0);
-                    yield return new CodeInstruction(OpCodes.Call, accGetterInfo);
-                    done = true;
-                }
-
-                if (instruction.opcode == OpCodes.Ldc_R4 && !done && !foundInstruction)
-                {
-                    instruction.opcode = OpCodes.Nop;
-                    foundInstruction = true;
-                }
-
-                yield return instruction;
-            }
-        }
-
-        private static float GetTurretAccuracy(Thing turret)
-        {
-            var extensionValues = turret.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
-            CompMannable mannableComp = turret.TryGetComp<CompMannable>();
-            CompUpgradable upgradableComp = turret.TryGetComp<CompUpgradable>();
-            string turretDefName = turret.def.defName;
-
-            if (extensionValues.useMannerShootingAccuracy)
-            {
-                if (mannableComp != null)
-                {
-                    Pawn manningPawn = mannableComp.ManningPawn;
-                    if (manningPawn != null)
-                    {
-                        return manningPawn.GetStatValue(StatDefOf.ShootingAccuracy);
-                    }
-                }
-                else
-                {
-                    Log.Warning(String.Format("Turret (defName={0}) has useMannerShootingAccuracy set to true but doesn't have CompMannable.", turretDefName));
-                }
-            }
-
-            else if (upgradableComp != null) return upgradableComp.ShootingAccuracy(turret, extensionValues);
-
-            return extensionValues.shootingAccuracy;
-        }
-
+        #region TranspileGetInspectString
         public static IEnumerable<CodeInstruction> TranspileGetInspectString(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
@@ -132,7 +73,9 @@ namespace TurretExtensions
                 yield return instruction;
             }
         }
+        #endregion
 
+        #region PrefixConsumeFuel
         public static void PrefixConsumeFuel(CompRefuelable __instance, ref float amount)
         {
             CompUpgradable upgradableComp = __instance.parent.TryGetComp<CompUpgradable>();
@@ -141,7 +84,9 @@ namespace TurretExtensions
                 amount /= upgradableComp.Props.effectiveBarrelDurabilityFactor;
             }
         }
+        #endregion
 
+        #region PrefixDesignateThing
         public static void PrefixDesignateThing(Thing t)
         {
             if (t.TryGetComp<CompUpgradable>() is CompUpgradable upgradableComp)
@@ -154,7 +99,9 @@ namespace TurretExtensions
                 }
             }
         }
+        #endregion
 
+        #region PostfixBurstCooldownTime
         public static void PostfixBurstCooldownTime(Building_TurretGun __instance, ref float __result)
         {
             CompUpgradable upgradableComp = __instance.TryGetComp<CompUpgradable>();
@@ -163,7 +110,9 @@ namespace TurretExtensions
                 __result *= upgradableComp.Props.turretBurstCooldownTimeFactor;
             }
         }
+        #endregion
 
+        #region PostfixTryStartShootSomething
         public static void PostfixTryStartShootSomething(Building_TurretGun __instance, ref int ___burstWarmupTicksLeft)
         {
             var extensionValues = __instance.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
@@ -192,7 +141,9 @@ namespace TurretExtensions
                 ___burstWarmupTicksLeft = (int)Math.Round(___burstWarmupTicksLeft * upgradableComp.Props.turretBurstWarmupTimeFactor);
             }
         }
+        #endregion
 
+        #region PostfixCanSetForcedTarget
         public static void PostfixCanSetForcedTarget(Building_TurretGun __instance, ref bool __result)
         {
             var extensionValues = __instance.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
@@ -215,7 +166,9 @@ namespace TurretExtensions
                 }
             }
         }
+        #endregion
 
+        #region PostfixSpecialDisplayStats
         public static void PostfixSpecialDisplayStats(ThingDef __instance, ref IEnumerable<StatDrawEntry> __result)
         {
             if (__instance.building != null && __instance.building.IsTurret)
@@ -232,56 +185,12 @@ namespace TurretExtensions
                 // Building stats
                 float turretBurstWarmupTime = __instance.building.turretBurstWarmupTime;
                 float turretBurstCooldownTime = __instance.building.turretBurstCooldownTime;
-                float turretShootingAccuracy = extensionValues.shootingAccuracy;
+                float turretShootingAccuracy = __instance.GetStatValueAbstract(StatDefOf.ShootingAccuracyTurret);
                 bool turretUsesMannerShootingAccuracy = extensionValues.useMannerShootingAccuracy;
-                string turretShootingAccuracyString = turretShootingAccuracy.ToStringPercent("0.##");
-                if (turretUsesMannerShootingAccuracy)
-                {
-                    turretShootingAccuracyString = "TurretUserDependent".Translate();
-                }
-                StringBuilder turretSAExplanationBuilder = new StringBuilder();
-                turretSAExplanationBuilder.AppendLine(StatDefOf.ShootingAccuracy.description);
-                turretSAExplanationBuilder.AppendLine();
-                if (!turretUsesMannerShootingAccuracy)
-                {
-                    turretSAExplanationBuilder.AppendLine(StatDefOf.ShootingAccuracy.label.CapitalizeFirst() + ": " + turretShootingAccuracy.ToStringPercent("0.##"));
-                    turretSAExplanationBuilder.AppendLine();
-                    for (int i = 5; i <= 45; i += 5)
-                    {
-                        turretSAExplanationBuilder.AppendLine(String.Concat(new string[]
-                        {
-                        "distance".Translate().CapitalizeFirst(),
-                        " ",
-                        i.ToString(),
-                        ": ",
-                        Mathf.Pow(turretShootingAccuracy, i).ToStringPercent()
-                        }));
-                    }
-                    if (__instance.HasComp(typeof(CompUpgradable)))
-                    {
-                        float upgradedTurretShootingAccuracy = Mathf.Clamp01(turretShootingAccuracy + __instance.GetCompProperties<CompProperties_Upgradable>().shootingAccuracyOffset);
-                        turretSAExplanationBuilder.AppendLine();
-                        turretSAExplanationBuilder.AppendLine();
-                        turretSAExplanationBuilder.AppendLine("UpgradedTurretShootingAccuracy".Translate() + ": " + upgradedTurretShootingAccuracy.ToStringPercent("0.##"));
-                        turretSAExplanationBuilder.AppendLine();
-                        for (int i = 5; i <= 45; i += 5)
-                        {
-                            turretSAExplanationBuilder.AppendLine("distance".Translate().CapitalizeFirst() + " " + i.ToString() + ": " +
-                                Mathf.Pow(upgradedTurretShootingAccuracy, i).ToStringPercent());
-                        }
-                    }
-                }
-                else
-                {
-                    string mannedTurretAccStr = StatDefOf.ShootingAccuracy.label.CapitalizeFirst() + ": " + "UserShootingAccuracy".Translate() + " ";
-                    if (extensionValues.mannerShootingAccuracyOffset > 0f) mannedTurretAccStr += "+" + extensionValues.mannerShootingAccuracyOffset.ToString();
-                    else if (extensionValues.mannerShootingAccuracyOffset < 0f) mannedTurretAccStr += extensionValues.mannerShootingAccuracyOffset.ToString();
-                    turretSAExplanationBuilder.AppendLine(mannedTurretAccStr);
-                }
-                string turretSAExplanation = turretSAExplanationBuilder.ToString();
 
                 // Turret gun stats
                 ThingDef turretGunDef = __instance.building.turretGunDef;
+                Thing turretGunThing = ThingMaker.MakeThing(turretGunDef);
                 float turretGunAccuracyTouch = turretGunDef.statBases.GetStatValueFromList(StatDefOf.AccuracyTouch, StatDefOf.AccuracyTouch.defaultBaseValue);
                 float turretGunAccuracyShort = turretGunDef.statBases.GetStatValueFromList(StatDefOf.AccuracyShort, StatDefOf.AccuracyShort.defaultBaseValue);
                 float turretGunAccuracyMedium = turretGunDef.statBases.GetStatValueFromList(StatDefOf.AccuracyMedium, StatDefOf.AccuracyMedium.defaultBaseValue);
@@ -315,21 +224,36 @@ namespace TurretExtensions
 
                 if (turretGunMissRadius == 0f)
                 {
-                    StatDrawEntry turrShootingAccSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.ShootingAccuracy.label, turretShootingAccuracyString, 15, turretSAExplanation);
-                    __result = __result.Add(turrShootingAccSDE);
-                }
+                    // Whether or not the turret uses the manning pawn's shooting accuracy
+                    if (__instance.HasComp(typeof(CompMannable)))
+                    {
+                        string shootingAccExplanation = "MannedTurretUsesShooterAccuracyExplanation".Translate();
+                        if (turretUsesMannerShootingAccuracy)
+                        {
+                            shootingAccExplanation += "\n\n";
+                            if (extensionValues.mannerShootingAccuracyOffset != 0f)
+                                shootingAccExplanation += ((extensionValues.mannerShootingAccuracyOffset > 0f) ? "MannedTurretUsesShooterAccuracyBonus".Translate(new object[] { extensionValues.mannerShootingAccuracyOffset.ToString("0.#"), __instance.label }) : "MannedTurretUsesShooterAccuracyPenalty".Translate(new object[] { extensionValues.mannerShootingAccuracyOffset.ToString("0.#"), __instance.label }));
+                            else
+                                shootingAccExplanation += "MannedTurretUsesShooterAccuracyNoChange".Translate(__instance.label);
+                        }
+                            StatDrawEntry turrShootingAccSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, "MannedTurretUsesShooterAccuracy".Translate(),
+                            (extensionValues.useMannerShootingAccuracy) ? "Yes".Translate() : "No".Translate(), 15, shootingAccExplanation);
+                        __result = __result.Add(turrShootingAccSDE);
+                    }
 
-                if (turretGunMissRadius == 0f && (turretGunAccuracyTouch != StatDefOf.AccuracyTouch.defaultBaseValue || turretGunAccuracyShort != StatDefOf.AccuracyShort.defaultBaseValue ||
-                    turretGunAccuracyMedium != StatDefOf.AccuracyMedium.defaultBaseValue || turretGunAccuracyLong != StatDefOf.AccuracyLong.defaultBaseValue))
-                {
-                    StatDrawEntry accTouchSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.AccuracyTouch.label, turretGunAccuracyTouch.ToStringPercent(), 14, StatDefOf.AccuracyTouch.description);
-                    StatDrawEntry accShortSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.AccuracyShort.label, turretGunAccuracyShort.ToStringPercent(), 13, StatDefOf.AccuracyShort.description);
-                    StatDrawEntry accMediumSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.AccuracyMedium.label, turretGunAccuracyMedium.ToStringPercent(), 12, StatDefOf.AccuracyMedium.description);
-                    StatDrawEntry accLongSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.AccuracyLong.label, turretGunAccuracyLong.ToStringPercent(), 11, StatDefOf.AccuracyLong.description);
-                    __result = __result.Add(accTouchSDE);
-                    __result = __result.Add(accShortSDE);
-                    __result = __result.Add(accMediumSDE);
-                    __result = __result.Add(accLongSDE);
+                    // Accuracy for weapon
+                    if (turretGunAccuracyTouch != StatDefOf.AccuracyTouch.defaultBaseValue || turretGunAccuracyShort != StatDefOf.AccuracyShort.defaultBaseValue ||
+                    turretGunAccuracyMedium != StatDefOf.AccuracyMedium.defaultBaseValue || turretGunAccuracyLong != StatDefOf.AccuracyLong.defaultBaseValue)
+                    {
+                        StatDrawEntry accTouchSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.AccuracyTouch.label, turretGunAccuracyTouch.ToStringPercent(), 14, StatDefOf.AccuracyTouch.description);
+                        StatDrawEntry accShortSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.AccuracyShort.label, turretGunAccuracyShort.ToStringPercent(), 13, StatDefOf.AccuracyShort.description);
+                        StatDrawEntry accMediumSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.AccuracyMedium.label, turretGunAccuracyMedium.ToStringPercent(), 12, StatDefOf.AccuracyMedium.description);
+                        StatDrawEntry accLongSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, StatDefOf.AccuracyLong.label, turretGunAccuracyLong.ToStringPercent(), 11, StatDefOf.AccuracyLong.description);
+                        __result = __result.Add(accTouchSDE);
+                        __result = __result.Add(accShortSDE);
+                        __result = __result.Add(accMediumSDE);
+                        __result = __result.Add(accLongSDE);
+                    }
                 }
                 else if (turretGunMissRadius > 0f)
                 {
@@ -350,8 +274,8 @@ namespace TurretExtensions
 
                 // Projectile stats
                 ThingDef turretGunProjectile = turretGunVerbProps.defaultProjectile;
-                string damage = (turretGunProjectile != null) ? turretGunProjectile.projectile.DamageAmount.ToString() : "MortarShellDependent".Translate();
-                string armorPenetration = (turretGunProjectile != null) ? turretGunProjectile.projectile.ArmorPenetration.ToStringPercent() : "MortarShellDependent".Translate();
+                string damage = (turretGunProjectile != null) ? turretGunProjectile.projectile.GetDamageAmount(turretGunThing).ToString() : "MortarShellDependent".Translate();
+                string armorPenetration = (turretGunProjectile != null) ? turretGunProjectile.projectile.GetArmorPenetration(turretGunThing).ToStringPercent() : "MortarShellDependent".Translate();
                 string stoppingPower = (turretGunProjectile != null) ? turretGunProjectile.projectile.StoppingPower.ToString() : "MortarShellDependent".Translate();
 
                 StatDrawEntry damageSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, "Damage".Translate(), damage, 23);
@@ -364,13 +288,15 @@ namespace TurretExtensions
                     StatDrawEntry stoppingPowerSDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, "StoppingPower".Translate(), stoppingPower, 21, "StoppingPowerExplanation".Translate());
                     __result = __result.Add(stoppingPowerSDE);
                 }
+                turretGunThing.Destroy();
 
             }
             if (__instance.IsShell)
             {
+                Thing shellThing = ThingMaker.MakeThing(__instance.projectileWhenLoaded);
                 ProjectileProperties shellProps = __instance.projectileWhenLoaded.projectile;
-                int shellDamage = shellProps.DamageAmount;
-                float shellArmorPenetration = shellProps.ArmorPenetration;
+                int shellDamage = shellProps.GetDamageAmount(shellThing);
+                float shellArmorPenetration = shellProps.GetArmorPenetration(shellThing);
                 float shellStoppingPower = shellProps.StoppingPower;
                 string shellDamageDef = shellProps.damageDef.label.CapitalizeFirst();
                 float shellExplosionRadius = shellProps.explosionRadius;
@@ -483,8 +409,9 @@ namespace TurretExtensions
                 // Damage, AP, Stopping Power, Burst Count and Burst Ticks
                 if(upgradedGunDef != null)
                 {
-                    string newDamage = (upgradedGunProjectile != null) ? upgradedGunProjectile.projectile.DamageAmount.ToString() : "MortarShellDependent".Translate();
-                    string newArmorPenetration = (upgradedGunProjectile != null) ? upgradedGunProjectile.projectile.ArmorPenetration.ToStringPercent() : "MortarShellDependent".Translate();
+                    Thing upgradedGunThing = ThingMaker.MakeThing(upgradedGunDef);
+                    string newDamage = (upgradedGunProjectile != null) ? upgradedGunProjectile.projectile.GetDamageAmount(upgradedGunThing).ToString() : "MortarShellDependent".Translate();
+                    string newArmorPenetration = (upgradedGunProjectile != null) ? upgradedGunProjectile.projectile.GetArmorPenetration(upgradedGunThing).ToStringPercent() : "MortarShellDependent".Translate();
                     string newStoppingPower = (upgradedGunProjectile != null) ? upgradedGunProjectile.projectile.StoppingPower.ToString() : "MortarShellDependent".Translate();
                     upgradabilityExplanation.AppendLine("Damage".Translate() + ": " + newDamage);
                     upgradabilityExplanation.AppendLine("ArmorPenetration".Translate() + ": " + newArmorPenetration);
@@ -498,6 +425,7 @@ namespace TurretExtensions
                         upgradabilityExplanation.AppendLine("BurstShotCount".Translate() + ": " + newBurstCount.ToString());
                         upgradabilityExplanation.AppendLine("BurstShotFireRate".Translate() + ": " + newBurstFireRate.ToString("0.##") + " rpm");
                     }
+                    upgradedGunThing.Destroy();
                 }
 
                 // Shooting accuracy
@@ -508,10 +436,10 @@ namespace TurretExtensions
                     if (newShootAcc >= 0f) upgradabilityExplanation.AppendLine("UserShootingAccuracy".Translate() + ": +" + newShootAcc.ToString("0.#"));
                     else upgradabilityExplanation.AppendLine("UserShootingAccuracy".Translate() + ": " + newShootAcc.ToString("0.#"));
                 }
-                else if (upgradeProps.shootingAccuracyOffset != defaultValues.shootingAccuracyOffset)
+                else if (upgradeProps.ShootingAccuracyTurretOffset != defaultValues.ShootingAccuracyTurretOffset)
                 {
-                    float newShootAcc = Mathf.Clamp01(extensionValues.shootingAccuracy + upgradeProps.shootingAccuracyOffset);
-                    upgradabilityExplanation.AppendLine(StatDefOf.ShootingAccuracy.label.CapitalizeFirst() + ": " + newShootAcc.ToStringPercent("0.##"));
+                    float newShootAcc = Mathf.Clamp01(def.GetStatValueAbstract(StatDefOf.ShootingAccuracyTurret) + upgradeProps.ShootingAccuracyTurretOffset);
+                    upgradabilityExplanation.AppendLine(StatDefOf.ShootingAccuracyTurret.label.CapitalizeFirst() + ": " + newShootAcc.ToStringPercent("0.##"));
                 }
 
                 // Accuracy (touch, short, medium and long) and Range
@@ -554,12 +482,16 @@ namespace TurretExtensions
 
             return upgradabilityExplanation.ToString();
         }
+        #endregion
 
+        #region PostfixInitDesignators
         public static void PostfixInitDesignators(ReverseDesignatorDatabase __instance, List<Designator> ___desList)
         {
             ___desList.Add(new Designator_UpgradeTurret());
         }
+        #endregion
 
+        #region PostfixPowerOutput
         public static void PostfixPowerOutput(CompPowerTrader __instance, ref float __result)
         {
             if (__instance.parent.TryGetComp<CompUpgradable>() is CompUpgradable upgradableComp && upgradableComp.upgraded)
@@ -567,6 +499,7 @@ namespace TurretExtensions
                 __result *= upgradableComp.Props.basePowerConsumptionFactor;
             }
         }
+        #endregion
 
     }
 

@@ -65,6 +65,8 @@ namespace TurretExtensions
 
         public float FlammabilityFactor = 1f;
 
+        public float ShootingAccuracyTurretOffset = 0f;
+
         public float basePowerConsumptionFactor = 1f;
 
         public ThingDef turretGunDef;
@@ -72,8 +74,6 @@ namespace TurretExtensions
         public float turretBurstWarmupTimeFactor = 1f;
 
         public float turretBurstCooldownTimeFactor = 1f;
-
-        public float shootingAccuracyOffset = 0f;
 
         public float mannerShootingAccuracyOffsetOffset = 0f;
 
