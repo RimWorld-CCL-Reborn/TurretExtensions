@@ -389,7 +389,7 @@ namespace TurretExtensions
                 if (upgradeProps.effectiveBarrelDurabilityFactor != defaultValues.effectiveBarrelDurabilityFactor && def.HasComp(typeof(CompRefuelable)))
                 {
                     float effDurability = Mathf.Ceil(def.GetCompProperties<CompProperties_Refuelable>().fuelCapacity * upgradeProps.effectiveBarrelDurabilityFactor);
-                    upgradabilityExplanation.AppendLine("EffectiveBarrelDurability".Translate() + ": " + effDurability.ToString());
+                    upgradabilityExplanation.AppendLine("Effective".Translate() + " " + def.GetCompProperties<CompProperties_Refuelable>().fuelGizmoLabel.UncapitalizeFirst() + ": " + effDurability.ToString());
                 }
 
                 // Cooldown time

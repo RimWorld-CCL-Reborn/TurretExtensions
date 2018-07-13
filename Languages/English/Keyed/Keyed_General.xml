@@ -31,7 +31,7 @@
     <TurretUpgradeBenefitsUpgradable>This turret's modified stats are as follows when upgraded</TurretUpgradeBenefitsUpgradable>
     <TurretUpgradeBenefitsNotUpgradable>This turret cannot be upgraded.</TurretUpgradeBenefitsNotUpgradable>
 
-    <EffectiveBarrelDurability>Effective barrel durability</EffectiveBarrelDurability>
+    <Effective>Effective</Effective>
     <TurretManuallyAimable>Turret becomes directly controllable by you</TurretManuallyAimable>
 
     <!-- Messages -->
