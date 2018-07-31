@@ -188,7 +188,6 @@ namespace TurretExtensions
         public override void PostExposeData()
         {
             base.PostExposeData();
-            Scribe_Deep.Look(ref upgradeCostListFinalized, "upgradeCostListFinalized", new object[] { this });
             Scribe_Deep.Look(ref innerContainer, "innerContainer", new object[] { this });
             Scribe_Values.Look(ref upgraded, "upgraded", false);
             Scribe_Values.Look(ref upgradeWorkDone, "upgradeWorkDone", 0f, true);

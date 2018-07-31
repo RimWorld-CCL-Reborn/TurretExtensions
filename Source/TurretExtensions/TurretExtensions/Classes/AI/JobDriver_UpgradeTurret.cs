@@ -16,9 +16,9 @@ namespace TurretExtensions
 
         private const TargetIndex TurretInd = TargetIndex.A;
 
-        public override bool TryMakePreToilReservations()
+        public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(job.targetA, job);
+            return pawn.Reserve(job.targetA, job, errorOnFailed: errorOnFailed);
         }
 
         protected override IEnumerable<Toil> MakeNewToils()
