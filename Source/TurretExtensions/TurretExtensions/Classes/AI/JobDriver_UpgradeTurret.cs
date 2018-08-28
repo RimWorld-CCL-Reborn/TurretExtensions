@@ -30,11 +30,6 @@ namespace TurretExtensions
             Toil upgrade = new Toil();
             upgrade.initAction = delegate
             {
-                //float upgradeWorkFactor = (UpgradableComp.Props.upgradeWorkFactorStuff && TargetThingA.def.MadeFromStuff) ?
-                //    TargetThingA.Stuff.stuffProps.statFactors.GetStatFactorFromList(StatDefOf.WorkToBuild) : 1f;
-                //float upgradeWorkOffset = (UpgradableComp.Props.upgradeWorkFactorStuff && TargetThingA.def.MadeFromStuff) ?
-                //    TargetThingA.Stuff.stuffProps.statOffsets.GetStatOffsetFromList(StatDefOf.WorkToBuild) : 0f;
-                //UpgradableComp.upgradeWorkTotal = (UpgradableComp.Props.workToUpgrade + upgradeWorkOffset) * upgradeWorkFactor;
                 UpgradableComp.ResolveWorkToUpgrade();
             };
             upgrade.tickAction = delegate
@@ -72,13 +67,13 @@ namespace TurretExtensions
         private void FailUpgrade(Pawn worker, float successChance, Thing building)
         {
             MoteMaker.ThrowText(building.DrawPos, building.Map, "TextMote_UpgradeFail".Translate(), 6f);
-            string upgradeFailMessage = "UpgradeFailMinorMessage".Translate(new object[] { worker.LabelShort, building.Label });
+            string upgradeFailMessage = "UpgradeFailMinorMessage".Translate(worker.LabelShort, building.Label);
             float resourceRefund = UpgradableComp.Props.upgradeFailMinorResourcesRecovered;
 
             // Critical failure (2x construct fail chance by default)
             if (Rand.Value < (1f - successChance) * UpgradableComp.Props.upgradeFailMajorChanceFactor || UpgradableComp.Props.upgradeFailAlwaysMajor)
             {
-                upgradeFailMessage = "UpgradeFailMajorMessage".Translate(new object[] { worker.LabelShort, building.Label });
+                upgradeFailMessage = "UpgradeFailMajorMessage".Translate(worker.LabelShort, building.Label);
                 resourceRefund = UpgradableComp.Props.upgradeFailMajorResourcesRecovered;
 
                 int maxHealth = building.MaxHitPoints;

@@ -14,21 +14,9 @@ namespace TurretExtensions
 
         private ThingDefCountClass firstMissingIngredient = new ThingDefCountClass();
 
-        protected DesignationDef Designation
-        {
-            get
-            {
-                return TE_DesignationDefOf.UpgradeTurret;
-            }
-        }
+        private DesignationDef Designation => TE_DesignationDefOf.UpgradeTurret;
 
-        public override PathEndMode PathEndMode
-        {
-            get
-            {
-                return PathEndMode.Touch;
-            }
-        }
+        public override PathEndMode PathEndMode => PathEndMode.Touch;
 
         public override Danger MaxPathDanger(Pawn pawn)
         {
@@ -38,10 +26,8 @@ namespace TurretExtensions
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
             foreach (Designation des in pawn.Map.designationManager.SpawnedDesignationsOfDef(Designation))
-            {
                 yield return des.target.Thing;
-            }
-            yield break;
+            //yield break;
         }
 
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
@@ -51,7 +37,8 @@ namespace TurretExtensions
             CompUpgradable upgradableComp = turret?.TryGetComp<CompUpgradable>();
             float workerSuccessChance = pawn.GetStatValue(StatDefOf.ConstructSuccessChance);
 
-            if (upgradableComp != null) Initialize(upgradableComp);
+            // Using the check as an initialisor
+            if (upgradableComp != null) CheckTurretIsReadyToUpgrade(upgradableComp);
 
             // Conditions to return false
             if (turret == null) return false;
@@ -62,19 +49,25 @@ namespace TurretExtensions
                 && turret.HitPoints <= Mathf.Floor(turret.MaxHitPoints * 0.5f)) return false;
             else if (upgradableComp.upgraded) return false;
             else if (upgradableComp.upgradeCostListFinalized != null && ClosestMissingIngredient(pawn) == null) return false;
-            else if (upgradableComp.Props.researchPrerequisites != null)
+            //else if (upgradableComp.Props.researchPrerequisites != null)
+            //{
+            //    foreach (ResearchProjectDef research in upgradableComp.Props.researchPrerequisites)
+            //        if (!research.IsFinished)
+            //            return false;
+            //    return (pawn.CanReserve(turret, 1, -1, null, forced) && !turret.IsBurning());
+            //}
+
+            //else return (pawn.CanReserve(turret, 1, -1, null, forced) && !turret.IsBurning());
+
+            // Final condition set - the only set that can return true
+            else
             {
-                foreach (ResearchProjectDef research in upgradableComp.Props.researchPrerequisites)
-                {
-                    if (!research.IsFinished)
-                    {
-                        return false;
-                    }
-                }
+                if (upgradableComp.Props.researchPrerequisites != null)
+                    foreach (ResearchProjectDef research in upgradableComp.Props.researchPrerequisites)
+                        if (!research.IsFinished)
+                            return false;
                 return (pawn.CanReserve(turret, 1, -1, null, forced) && !turret.IsBurning());
             }
-
-            else return (pawn.CanReserve(turret, 1, -1, null, forced) && !turret.IsBurning());
         }
 
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
@@ -82,48 +75,46 @@ namespace TurretExtensions
             bool readyToUpgrade = CheckTurretIsReadyToUpgrade(t.TryGetComp<CompUpgradable>());
             if (readyToUpgrade) return new Job(TE_JobDefOf.UpgradeTurret, t);
             else
-            {
                 return new Job(JobDefOf.HaulToContainer, ClosestMissingIngredient(pawn), t)
                 {
                     count = firstMissingIngredient.count,
                     haulMode = HaulMode.ToContainer
                 };
-            }
         }
 
-        private void Initialize(CompUpgradable c)
-        {
-            // basically CheckTurretIsReadyToUpgrade but doesn't return anything
+        //private void Initialize(CompUpgradable c)
+        //{
+        //    // basically CheckTurretIsReadyToUpgrade but doesn't return anything
 
-            List<ThingDefCountClass> upgradeCost = c.upgradeCostListFinalized;
-            if (upgradeCost != null)
-            {
-                Dictionary<string, int> upgradeCostDict = c.GetTurretUpgradeCost(upgradeCost);
-                Dictionary<string, int> storedMatsDict = c.GetTurretHeldItems(c.GetDirectlyHeldThings());
-                List<string> requiredDefs = new List<string>(upgradeCostDict.Keys);
+        //    List<ThingDefCountClass> upgradeCost = c.upgradeCostListFinalized;
+        //    if (upgradeCost != null)
+        //    {
+        //        Dictionary<string, int> upgradeCostDict = c.GetTurretUpgradeCost(upgradeCost);
+        //        Dictionary<string, int> storedMatsDict = c.GetTurretHeldItems(c.GetDirectlyHeldThings());
+        //        List<string> requiredDefs = new List<string>(upgradeCostDict.Keys);
 
-                int i = 0;
+        //        int i = 0;
 
-                while (i < requiredDefs.Count)
-                {
-                    string curDef = requiredDefs[i];
-                    try
-                    {
-                        if (storedMatsDict[curDef] < upgradeCostDict[curDef])
-                        {
-                            UpdateFirstMissingIngredient(curDef, upgradeCostDict[curDef], storedMatsDict[curDef]);
-                            break;
-                        }
-                        i++;
-                    }
-                    catch (KeyNotFoundException)
-                    {
-                        UpdateFirstMissingIngredient(curDef, upgradeCostDict[curDef]);
-                        break;
-                    }
-                }
-            }
-        }
+        //        while (i < requiredDefs.Count)
+        //        {
+        //            string curDef = requiredDefs[i];
+        //            try
+        //            {
+        //                if (storedMatsDict[curDef] < upgradeCostDict[curDef])
+        //                {
+        //                    UpdateFirstMissingIngredient(curDef, upgradeCostDict[curDef], storedMatsDict[curDef]);
+        //                    break;
+        //                }
+        //                i++;
+        //            }
+        //            catch (KeyNotFoundException)
+        //            {
+        //                UpdateFirstMissingIngredient(curDef, upgradeCostDict[curDef]);
+        //                break;
+        //            }
+        //        }
+        //    }
+        //}
 
         private bool CheckTurretIsReadyToUpgrade(CompUpgradable c)
         {

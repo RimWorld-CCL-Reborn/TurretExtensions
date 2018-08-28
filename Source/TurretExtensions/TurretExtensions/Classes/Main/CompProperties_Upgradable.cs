@@ -18,9 +18,23 @@ namespace TurretExtensions
 
         public override IEnumerable<string> ConfigErrors(ThingDef parentDef)
         {
+            foreach (string e in base.ConfigErrors(parentDef))
+                yield return e;
+
+            if (upgradeFailMajorDmgPctMin > upgradeFailMajorDmgPctMax)
+            {
+                yield return "upgradeFailMajorDmgPctMin is greater than upgradeFailMajorDmgPctMax. Resetting to defaults...";
+                upgradeFailMajorDmgPctMin = defaultValues.upgradeFailMajorDmgPctMin;
+                upgradeFailMajorDmgPctMax = defaultValues.upgradeFailMajorDmgPctMax;
+            }
+            if (!parentDef.MadeFromStuff && costStuffCount > 0)
+            {
+                yield return "costStuffCount is greater than 0 but isn't stuffed";
+                costStuffCount = 0;
+            }
             if (constructionSkillPrerequisite < 0 || constructionSkillPrerequisite > 20)
             {
-                yield return "Construction skill prerequisite must be between 0 and 20. Resetting to 0...";
+                yield return "constructionSkillPrerequisite must be between 0 and 20. Resetting to 0...";
                 constructionSkillPrerequisite = 0;
             }
         }

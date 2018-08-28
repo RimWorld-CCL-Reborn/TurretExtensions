@@ -11,7 +11,7 @@ namespace TurretExtensions
     public class Designator_UpgradeTurret : Designator
     {
 
-        private List<Building_TurretGun> designatedTurrets = new List<Building_TurretGun>();
+        private List<Building_Turret> designatedTurrets = new List<Building_Turret>();
 
         public Designator_UpgradeTurret()
         {
@@ -24,9 +24,9 @@ namespace TurretExtensions
             soundSucceeded = SoundDefOf.Designate_Haul;
         }
 
-        protected override DesignationDef Designation { get { return TE_DesignationDefOf.UpgradeTurret; } }
+        protected override DesignationDef Designation => TE_DesignationDefOf.UpgradeTurret;
 
-        public override int DraggableDimensions { get { return 2; } }
+        public override int DraggableDimensions => 2;
 
         public override AcceptanceReport CanDesignateCell(IntVec3 loc)
         {
@@ -37,7 +37,7 @@ namespace TurretExtensions
 
         public override AcceptanceReport CanDesignateThing(Thing t)
         {
-            Building_TurretGun turret = t.GetInnerIfMinified() as Building_TurretGun;
+            Building_Turret turret = t.GetInnerIfMinified() as Building_Turret;
             CompUpgradable upgradableComp = turret?.TryGetComp<CompUpgradable>();
 
             if (turret == null) return false;
@@ -53,10 +53,9 @@ namespace TurretExtensions
             foreach (Thing t in UpgradableTurretsInSelection(c))
             {
                 if (DebugSettings.godMode)
-                {
                     t.TryGetComp<CompUpgradable>().upgraded = true;
-                }
-                else { DesignateThing(t); }
+                else
+                    DesignateThing(t);;
             }
         }
 
@@ -67,28 +66,22 @@ namespace TurretExtensions
                 CompUpgradable upgradableComp = t.TryGetComp<CompUpgradable>();
                 upgradableComp.ResolveUpgrade();
                 if (upgradableComp.upgradeCostListFinalized != null)
-                {
                     foreach (ThingDefCountClass thing in upgradableComp.upgradeCostListFinalized)
-                    {
                         for (int i = 0; i < thing.count; i++)
-                        {
                             upgradableComp.innerContainer.TryAdd(ThingMaker.MakeThing(thing.thingDef));
-                        }
-                    }
-                }
                 upgradableComp.ResolveWorkToUpgrade(true);
             }
             else
             {
                 Map.designationManager.AddDesignation(new Designation(t, Designation));
-                designatedTurrets.Add((Building_TurretGun)t);
+                designatedTurrets.Add((Building_Turret)t);
             }
         }
 
         protected override void FinalizeDesignationSucceeded()
         {
 
-            foreach (Building_TurretGun turret in designatedTurrets)
+            foreach (Building_Turret turret in designatedTurrets)
             {
                 NotifyPlayerOfInsufficientSkill(turret);
                 NotifyPlayerOfInsufficientResearch(turret);
@@ -156,17 +149,14 @@ namespace TurretExtensions
             }
         }
 
-        private IEnumerable<Building_TurretGun> UpgradableTurretsInSelection(IntVec3 c)
+        private IEnumerable<Building_Turret> UpgradableTurretsInSelection(IntVec3 c)
         {
-            if (c.Fogged(Map)) { yield break; }
-            List<Thing> thingList = c.GetThingList(Map);
-            for (int i = 0; i < thingList.Count; i++)
-            {
-                if (CanDesignateThing(thingList[i]).Accepted)
-                {
-                    yield return (Building_TurretGun)thingList[i];
-                }
-            }
+            if (c.Fogged(Map))
+                yield break;
+
+            foreach (Thing thing in c.GetThingList(Map))
+                if (CanDesignateThing(thing).Accepted)
+                    yield return (Building_Turret)thing;
             yield break;
         }
 

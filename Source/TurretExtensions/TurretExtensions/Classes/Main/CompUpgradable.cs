@@ -26,21 +26,13 @@ namespace TurretExtensions
             innerContainer = new ThingOwner<Thing>(this, false);
         }
 
-        public CompProperties_Upgradable Props
-        {
-            get
-            {
-                return (CompProperties_Upgradable)props;
-            }
-        }
+        public CompProperties_Upgradable Props => (CompProperties_Upgradable)props;
 
         public override void Initialize(CompProperties props)
         {
             base.Initialize(props);
-            if (parent.Stuff != null && Props.costStuffCount > 0)
-            {
+            if (parent.def.MadeFromStuff && Props.costStuffCount > 0)
                 upgradeCostListFinalized.Add(new ThingDefCountClass(parent.Stuff, Props.costStuffCount));
-            }
             if (Props.costList != null)
             {
                 foreach (ThingDefCountClass thing in Props.costList)
@@ -55,7 +47,7 @@ namespace TurretExtensions
 
         public override void CompTick()
         {
-            // Fix for an exploit where cancelling = free upgrade. upgradeWorkTotal will only ever be -1 when an upgrade designation cancelled
+            // Fix for an exploit where cancelling = free upgrade. upgradeWorkTotal will only ever be -1 when an upgrade designation is cancelled
             if (upgradeWorkTotal == -1f)
             {
                 upgraded = false;
@@ -76,9 +68,7 @@ namespace TurretExtensions
                     resourceDropFraction = Props.destroyedResourceDropPct;
 
                 foreach (Thing thing in innerContainer)
-                {
                     thing.stackCount = GenMath.RoundRandom(thing.stackCount * resourceDropFraction);
-                }
 
                 innerContainer.TryDropAll(parent.Position, previousMap, ThingPlaceMode.Near);
             }
@@ -88,26 +78,27 @@ namespace TurretExtensions
         {
             Dictionary<string, int> costDict = new Dictionary<string, int>();
             foreach (ThingDefCountClass thing in upgradeCost)
-            {
                 costDict.Add(thing.thingDef.defName, thing.count);
-            }
             return costDict;
         }
 
         public Dictionary<string, int> GetTurretHeldItems(ThingOwner turretContainer)
         {
             Dictionary<string, int> storedThingDict = new Dictionary<string, int>();
-            for (int i = 0; i < turretContainer.Count; i++)
+            //for (int i = 0; i < turretContainer.Count; i++)
+            //{
+            //    Thing currentThing = turretContainer[i];
+            //    if (storedThingDict.ContainsKey(currentThing.def.defName))
+            //        storedThingDict[currentThing.def.defName] += currentThing.stackCount;
+            //    else
+            //        storedThingDict.Add(currentThing.def.defName, currentThing.stackCount);
+            //}
+            foreach (Thing thing in turretContainer)
             {
-                Thing currentThing = turretContainer[i];
-                if (storedThingDict.ContainsKey(currentThing.def.defName))
-                {
-                    storedThingDict[currentThing.def.defName] += currentThing.stackCount;
-                }
+                if (storedThingDict.ContainsKey(thing.def.defName))
+                    storedThingDict[thing.def.defName] += thing.stackCount;
                 else
-                {
-                    storedThingDict.Add(currentThing.def.defName, currentThing.stackCount);
-                }
+                    storedThingDict.Add(thing.def.defName, thing.stackCount);
             }
             return storedThingDict;
         }
@@ -129,11 +120,10 @@ namespace TurretExtensions
         {
             upgraded = true;
             parent.HitPoints = Mathf.RoundToInt(parent.HitPoints * Props.MaxHitPointsFactor);
-            Building_TurretGun turret = parent as Building_TurretGun;
-            if (Props.turretGunDef != null)
+            if (parent is Building_TurretGun turretWGun && Props.turretGunDef != null)
             {
-                turret.gun = ThingMaker.MakeThing(Props.turretGunDef);
-                AccessTools.Method(typeof(Building_TurretGun), "UpdateGunVerbs").Invoke(turret, null);
+                turretWGun.gun = ThingMaker.MakeThing(Props.turretGunDef);
+                AccessTools.Method(typeof(Building_TurretGun), "UpdateGunVerbs").Invoke(turretWGun, null);
             }
         }
 
@@ -168,7 +158,7 @@ namespace TurretExtensions
                 if (upgradeWorkTotal > 0f)
                 {
                     if (inspectString != "") inspectString += "\n";
-                    float upgradeWorkRemaining = (upgradeWorkTotal - upgradeWorkDone) / 60f;
+                    float upgradeWorkRemaining = (upgradeWorkTotal - upgradeWorkDone) / GenTicks.TicksPerRealSecond;
                     inspectString += "TurretUpgradeProgress".Translate() + ": " + upgradeWorkRemaining.ToString("0");
                 }
                 return inspectString;
@@ -178,11 +168,7 @@ namespace TurretExtensions
 
         public override string TransformLabel(string label)
         {
-            if (upgraded)
-            {
-                return "TurretUpgradedText".Translate() + " " + label;
-            }
-            return label;
+            return (upgraded) ? "TurretUpgradedText".Translate() + " " + label : label;
         }
 
         public override void PostExposeData()
