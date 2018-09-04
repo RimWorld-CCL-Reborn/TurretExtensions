@@ -5,7 +5,11 @@
     <DesignatorUpgradeTurret>Upgrade turret</DesignatorUpgradeTurret>
     <DesignatorUpgradeTurretDesc>Mark turrets to be upgraded to enhance their combat performance.</DesignatorUpgradeTurretDesc>
 
+    <MessageMustDesignateUpgradableTurrets>Must designate upgradable turrets.</MessageMustDesignateUpgradableTurrets>
+
     <!-- Dialogs_StatReports -->
+    <YesClickForDetails>Yes (Click for details)</YesClickForDetails>
+
     <MannableTurretAccuracyDepends>Accuracy depends on the pawn that's operating this turret.</MannableTurretAccuracyDepends>
     <MannableTurretNotManned>No operator</MannableTurretNotManned>
     <MannableTurretIsManned>From operator</MannableTurretIsManned>

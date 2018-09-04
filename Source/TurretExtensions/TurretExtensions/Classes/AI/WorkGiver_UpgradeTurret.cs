@@ -38,26 +38,26 @@ namespace TurretExtensions
             float workerSuccessChance = pawn.GetStatValue(StatDefOf.ConstructSuccessChance);
 
             // Using the check as an initialisor
-            if (upgradableComp != null) CheckTurretIsReadyToUpgrade(upgradableComp);
+            if (upgradableComp != null)
+                CheckTurretIsReadyToUpgrade(upgradableComp);
 
             // Conditions to return false
-            if (turret == null) return false;
-            else if (upgradableComp == null) return false;
-            else if (turret.Faction != pawn.Faction) return false;
-            else if (pawn.skills.GetSkill(SkillDefOf.Construction).Level < upgradableComp.Props.constructionSkillPrerequisite) return false;
-            else if (!forced && workerSuccessChance * upgradableComp.Props.upgradeSuccessChanceFactor < 1f
-                && turret.HitPoints <= Mathf.Floor(turret.MaxHitPoints * 0.5f)) return false;
-            else if (upgradableComp.upgraded) return false;
-            else if (upgradableComp.upgradeCostListFinalized != null && ClosestMissingIngredient(pawn) == null) return false;
-            //else if (upgradableComp.Props.researchPrerequisites != null)
-            //{
-            //    foreach (ResearchProjectDef research in upgradableComp.Props.researchPrerequisites)
-            //        if (!research.IsFinished)
-            //            return false;
-            //    return (pawn.CanReserve(turret, 1, -1, null, forced) && !turret.IsBurning());
-            //}
-
-            //else return (pawn.CanReserve(turret, 1, -1, null, forced) && !turret.IsBurning());
+            if (turret == null)
+                return false;
+            if (upgradableComp == null)
+                return false;
+            if (turret.Faction != pawn.Faction)
+                return false;
+            if (pawn.skills.GetSkill(SkillDefOf.Construction).Level < upgradableComp.Props.constructionSkillPrerequisite)
+                return false;
+            if (!forced && workerSuccessChance * upgradableComp.Props.upgradeSuccessChanceFactor < 1f &&
+                (turret.HitPoints <= Mathf.Floor(turret.MaxHitPoints * (1 - upgradableComp.Props.upgradeFailMajorDmgPctMax)) ||
+                turret.HitPoints <= Mathf.Floor(turret.MaxHitPoints * (1 - upgradableComp.Props.upgradeFailMajorDmgPctRange.TrueMax))))
+                return false;
+            if (upgradableComp.upgraded)
+                return false;
+            if (upgradableComp.upgradeCostListFinalized != null && ClosestMissingIngredient(pawn) == null)
+                return false;
 
             // Final condition set - the only set that can return true
             else

@@ -16,8 +16,8 @@ namespace TurretExtensions
             {
                 var extensionValues = turret.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
                 val += extensionValues.mannerShootingAccuracyOffset;
-                CompUpgradable upgradableComp = turret.TryGetComp<CompUpgradable>();
-                if (upgradableComp != null && upgradableComp.upgraded) val += upgradableComp.Props.mannerShootingAccuracyOffsetOffset;
+                if (turret.IsUpgradedTurret(out CompUpgradable uC))
+                    val += uC.Props.mannerShootingAccuracyOffsetOffset;
             }
         }
 
@@ -28,14 +28,15 @@ namespace TurretExtensions
                 string explanationFirstPart = turret.def.label.CapitalizeFirst() + ": ";
 
                 var extensionValues = turret.def.GetModExtension<TurretFrameworkExtension>();
-                CompUpgradable upgradableComp = turret.GetComp<CompUpgradable>();
 
                 float mannerAccuracyOffset = 0f;
-                if (extensionValues != null) mannerAccuracyOffset += extensionValues.mannerShootingAccuracyOffset;
-                if (upgradableComp != null && upgradableComp.upgraded) mannerAccuracyOffset += upgradableComp.Props.mannerShootingAccuracyOffsetOffset;
+                if (extensionValues != null)
+                    mannerAccuracyOffset += extensionValues.mannerShootingAccuracyOffset;
+                if (turret.IsUpgradedTurret(out CompUpgradable uC))
+                    mannerAccuracyOffset += uC.Props.mannerShootingAccuracyOffsetOffset;
 
-                if (mannerAccuracyOffset > 0f) return explanationFirstPart + "+" + mannerAccuracyOffset.ToString("0.#");
-                else if (mannerAccuracyOffset < 0f) return explanationFirstPart + mannerAccuracyOffset.ToString("0.#");
+                if (mannerAccuracyOffset > 0f) return explanationFirstPart + "+" + mannerAccuracyOffset.ToString("F1");
+                else if (mannerAccuracyOffset < 0f) return explanationFirstPart + mannerAccuracyOffset.ToString("F1");
             }
             return null;
         }

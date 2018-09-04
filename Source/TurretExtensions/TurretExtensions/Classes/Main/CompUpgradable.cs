@@ -85,14 +85,6 @@ namespace TurretExtensions
         public Dictionary<string, int> GetTurretHeldItems(ThingOwner turretContainer)
         {
             Dictionary<string, int> storedThingDict = new Dictionary<string, int>();
-            //for (int i = 0; i < turretContainer.Count; i++)
-            //{
-            //    Thing currentThing = turretContainer[i];
-            //    if (storedThingDict.ContainsKey(currentThing.def.defName))
-            //        storedThingDict[currentThing.def.defName] += currentThing.stackCount;
-            //    else
-            //        storedThingDict.Add(currentThing.def.defName, currentThing.stackCount);
-            //}
             foreach (Thing thing in turretContainer)
             {
                 if (storedThingDict.ContainsKey(thing.def.defName))
@@ -119,12 +111,20 @@ namespace TurretExtensions
         public void ResolveUpgrade()
         {
             upgraded = true;
-            parent.HitPoints = Mathf.RoundToInt(parent.HitPoints * Props.MaxHitPointsFactor);
+            if (parent.def.useHitPoints)
+                parent.HitPoints = parent.MaxHitPoints;
             if (parent is Building_TurretGun turretWGun && Props.turretGunDef != null)
             {
                 turretWGun.gun = ThingMaker.MakeThing(Props.turretGunDef);
                 AccessTools.Method(typeof(Building_TurretGun), "UpdateGunVerbs").Invoke(turretWGun, null);
             }
+            if (parent.TryGetComp<CompRefuelable>() is CompRefuelable refuelableComp)
+            {
+                Traverse fuel = Traverse.Create(refuelableComp).Field("fuel");
+                fuel.SetValue((float)fuel.GetValue() * Props.effectiveBarrelDurabilityFactor);
+            }
+            if (parent.TryGetComp<CompPowerTrader>() is CompPowerTrader powerComp)
+                powerComp.SetUpPowerVars();
         }
 
         public override string CompInspectStringExtra()
@@ -166,10 +166,8 @@ namespace TurretExtensions
             return null;
         }
 
-        public override string TransformLabel(string label)
-        {
-            return (upgraded) ? "TurretUpgradedText".Translate() + " " + label : label;
-        }
+        public override string TransformLabel(string label) =>
+            ((upgraded) ? "TurretUpgradedText".Translate() + " " : "") + label;
 
         public override void PostExposeData()
         {
@@ -180,15 +178,11 @@ namespace TurretExtensions
             Scribe_Values.Look(ref upgradeWorkTotal, "upgradeWorkTotal", CompProperties_Upgradable.defaultValues.workToUpgrade, true);
         }
 
-        public void GetChildHolders(List<IThingHolder> outChildren)
-        {
+        public void GetChildHolders(List<IThingHolder> outChildren) =>
             ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
-        }
 
-        public ThingOwner GetDirectlyHeldThings()
-        {
-            return innerContainer;
-        }
+        public ThingOwner GetDirectlyHeldThings() => innerContainer;
+
 
     }
 }

@@ -80,7 +80,9 @@ namespace TurretExtensions
                 float minDmgPct = UpgradableComp.Props.upgradeFailMajorDmgPctMin;
                 float maxDmgPct = UpgradableComp.Props.upgradeFailMajorDmgPctMax;
 
-                int damageAmount = Mathf.RoundToInt(Rand.Range(maxHealth * minDmgPct, maxHealth * maxDmgPct));
+                // Legacy support is a pain
+                int damageAmount = Mathf.RoundToInt((minDmgPct != 0.1f || maxDmgPct != 0.5f) ? Rand.Range(maxHealth * minDmgPct, maxHealth * maxDmgPct) :
+                    maxHealth * UpgradableComp.Props.upgradeFailMajorDmgPctRange.RandomInRange);
                 building.TakeDamage(new DamageInfo(DamageDefOf.Blunt, damageAmount));
             }
 

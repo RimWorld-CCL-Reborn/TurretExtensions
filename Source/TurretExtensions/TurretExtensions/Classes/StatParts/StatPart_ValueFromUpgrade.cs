@@ -11,24 +11,18 @@ namespace TurretExtensions
     {
         public override void TransformValue(StatRequest req, ref float val)
         {
-            if (req.HasThing && req.Thing is Building_TurretGun turret && turret.def.HasComp(typeof(CompUpgradable)))
+            if (req.HasThing && req.Thing is Building_TurretGun turret && turret.IsUpgradableTurret(out CompUpgradable uC))
             {
-                CompUpgradable upgradableComp = turret.TryGetComp<CompUpgradable>();
-                if (upgradableComp.upgradeCostListFinalized != null)
-                {
-                    for (int i = 0; i < upgradableComp.innerContainer.Count; i++)
+                if (uC.upgradeCostListFinalized != null)
+                    for (int i = 0; i < uC.innerContainer.Count; i++)
                     {
-                        Thing thing = upgradableComp.innerContainer[i];
+                        Thing thing = uC.innerContainer[i];
                         val += thing.MarketValue * thing.stackCount;
                     }
-                }
-                val += Math.Min(upgradableComp.upgradeWorkDone, upgradableComp.upgradeWorkTotal) * StatWorker_MarketValue.ValuePerWork;
+                val += Math.Min(uC.upgradeWorkDone, uC.upgradeWorkTotal) * StatWorker_MarketValue.ValuePerWork;
             }
         }
 
-        public override string ExplanationPart(StatRequest req)
-        {
-            return null;
-        }
+        public override string ExplanationPart(StatRequest req) => null;
     }
 }

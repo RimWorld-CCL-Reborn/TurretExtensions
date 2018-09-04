@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using RimWorld;
 using Verse;
 using Harmony;
@@ -22,39 +23,94 @@ namespace TurretExtensions
         {
             HarmonyInstance h = HarmonyInstance.Create("XeoNovaDan.TurretExtensions");
 
-            // HarmonyInstance.DEBUG = true;
+            //HarmonyInstance.DEBUG = true;
 
-            h.Patch(AccessTools.Method(typeof(Building_TurretGun), "GetInspectString"), null, null,
-                new HarmonyMethod(patchType, "TranspileGetInspectString"));
+            h.Patch(AccessTools.Method(typeof(Building_TurretGun), "GetInspectString"),
+                transpiler: new HarmonyMethod(patchType, nameof(TranspileGetInspectString)));
 
-            h.Patch(AccessTools.Method(typeof(CompRefuelable), "ConsumeFuel"),
-                new HarmonyMethod(patchType, "PrefixConsumeFuel"), null);
+            #region grossly overused transpiler
+            h.Patch(AccessTools.Method(typeof(CompRefuelable), nameof(CompRefuelable.Refuel), new[]{ typeof(float)}),
+                transpiler: new HarmonyMethod(patchType, nameof(CompRefuelable_FuelCapacityTranspiler)));
+
+            h.Patch(AccessTools.Method(typeof(CompRefuelable), nameof(CompRefuelable.CompInspectStringExtra)),
+                transpiler: new HarmonyMethod(patchType, nameof(CompRefuelable_FuelCapacityTranspiler)));
+
+            h.Patch(AccessTools.Property(typeof(CompRefuelable), nameof(CompRefuelable.TargetFuelLevel)).GetGetMethod(),
+                transpiler: new HarmonyMethod(patchType, nameof(CompRefuelable_FuelCapacityTranspiler)));
+
+            h.Patch(AccessTools.Property(typeof(CompRefuelable), nameof(CompRefuelable.TargetFuelLevel)).GetSetMethod(),
+                transpiler: new HarmonyMethod(patchType, nameof(CompRefuelable_FuelCapacityTranspiler)));
+
+            h.Patch(AccessTools.Method(typeof(CompRefuelable), nameof(CompRefuelable.GetFuelCountToFullyRefuel)),
+                transpiler: new HarmonyMethod(patchType, nameof(TranspileGetFuelCountToFullyRefuel)));
+            #endregion
+
+            h.Patch(typeof(Gizmo_RefuelableFuelStatus).GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance).First().
+            GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).First(),
+                transpiler: new HarmonyMethod(patchType, nameof(TranspileGizmoOnGUIDelegate)));
 
             h.Patch(AccessTools.Method(typeof(Designator_Cancel), "DesignateThing"),
-                new HarmonyMethod(patchType, "PrefixDesignateThing"), null);
+                new HarmonyMethod(patchType, nameof(PrefixDesignateThing)));
 
-            h.Patch(AccessTools.Method(typeof(Building_TurretGun), "BurstCooldownTime"), null,
-                new HarmonyMethod(patchType, "PostfixBurstCooldownTime"));
+            h.Patch(AccessTools.Method(typeof(Building_TurretGun), "BurstCooldownTime"),
+                postfix: new HarmonyMethod(patchType, nameof(PostfixBurstCooldownTime)));
 
-            h.Patch(AccessTools.Method(typeof(Building_TurretGun), "TryStartShootSomething"), null,
-                new HarmonyMethod(patchType, "PostfixTryStartShootSomething"));
+            h.Patch(AccessTools.Method(typeof(Building_TurretGun), "TryStartShootSomething"),
+                postfix: new HarmonyMethod(patchType, nameof(PostfixTryStartShootSomething)));
 
-            h.Patch(AccessTools.Property(typeof(Building_TurretGun), "CanSetForcedTarget").GetGetMethod(true), null,
-                new HarmonyMethod(patchType, "PostfixCanSetForcedTarget"));
+            h.Patch(AccessTools.Property(typeof(Building_TurretGun), "CanSetForcedTarget").GetGetMethod(true),
+                postfix: new HarmonyMethod(patchType, nameof(PostfixCanSetForcedTarget)));
 
-            h.Patch(AccessTools.Method(typeof(ThingDef), "SpecialDisplayStats"), null,
-                new HarmonyMethod(patchType, "PostfixSpecialDisplayStats"));
+            h.Patch(AccessTools.Method(typeof(ThingDef), "SpecialDisplayStats"),
+                postfix: new HarmonyMethod(patchType, nameof(PostfixSpecialDisplayStats)));
 
-            h.Patch(AccessTools.Method(typeof(ReverseDesignatorDatabase), "InitDesignators"), null,
-                new HarmonyMethod(patchType, "PostfixInitDesignators"));
+            h.Patch(AccessTools.Method(typeof(ReverseDesignatorDatabase), "InitDesignators"),
+                postfix: new HarmonyMethod(patchType, nameof(PostfixInitDesignators)));
 
-            h.Patch(AccessTools.Property(typeof(CompPowerTrader), "PowerOutput").GetGetMethod(), null,
-                new HarmonyMethod(patchType, "PostfixPowerOutput"));
+            h.Patch(AccessTools.Method(typeof(CompPowerTrader), nameof(CompPowerTrader.SetUpPowerVars)),
+                postfix: new HarmonyMethod(patchType, nameof(PostfixSetUpPowerVars)));
+
+            h.Patch(AccessTools.Method(typeof(StatWorker), nameof(StatWorker.GetValueUnfinalized)),
+                postfix: new HarmonyMethod(patchType, nameof(PostfixGetValueUnfinalized)));
+
+            h.Patch(AccessTools.Method(typeof(StatWorker), nameof(StatWorker.GetExplanationUnfinalized)),
+                postfix: new HarmonyMethod(patchType, nameof(PostfixGetExplanationUnfinalized)));
 
             // Thanks erdelf!
             Log.Message(text: $"Turret Extensions successfully completed {h.GetPatchedMethods().Select(selector: mb => h.GetPatchInfo(method: mb)).SelectMany(selector: p => p.Prefixes.Concat(second: p.Postfixes).Concat(second: p.Transpilers)).Count(predicate: p => p.owner == h.Id)} patches with harmony.");
 
         }
+
+        #region Shared
+        private static bool IsFuelCapacityInstruction(this CodeInstruction instruction) =>
+            instruction.opcode == OpCodes.Ldfld && instruction.operand == AccessTools.Field(typeof(CompProperties_Refuelable), nameof(CompProperties_Refuelable.fuelCapacity));
+
+        // Probably my most favourite transpiler ever
+        public static IEnumerable<CodeInstruction> CompRefuelable_FuelCapacityTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            List<CodeInstruction> instructionList = instructions.ToList();
+
+            MethodInfo adjustedFuelCapacity = AccessTools.Method(patchType, nameof(AdjustedFuelCapacity));
+
+            for (int i = 0; i < instructionList.Count; i++)
+            {
+                CodeInstruction instruction = instructionList[i];
+
+                if (instruction.IsFuelCapacityInstruction())
+                {
+                    yield return instruction;
+                    yield return new CodeInstruction(OpCodes.Ldarg_0);
+                    yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(CompRefuelable), nameof(CompRefuelable.parent)));
+                    instruction = new CodeInstruction(OpCodes.Call, adjustedFuelCapacity);
+                }
+
+                yield return instruction;
+            }
+        }
+
+        private static float AdjustedFuelCapacity(float baseFuelCapacity, Thing t) =>
+            baseFuelCapacity * ((t.IsUpgradedTurret(out CompUpgradable uC)) ? uC.Props.effectiveBarrelDurabilityFactor * uC.Props.barrelDurabilityFactor : 1f);
+        #endregion
 
         #region TranspileGetInspectString
         public static IEnumerable<CodeInstruction> TranspileGetInspectString(IEnumerable<CodeInstruction> instructions)
@@ -73,14 +129,90 @@ namespace TurretExtensions
         }
         #endregion
 
-        #region PrefixConsumeFuel
-        public static void PrefixConsumeFuel(CompRefuelable __instance, ref float amount)
+        #region PatchRefuel
+        public static void PrefixRefuel(CompRefuelable __instance, ref float amount)
         {
-            CompUpgradable upgradableComp = __instance.parent.TryGetComp<CompUpgradable>();
-            if (upgradableComp != null && upgradableComp.upgraded)
-                amount /= upgradableComp.Props.effectiveBarrelDurabilityFactor;
+            if (__instance.parent.IsUpgradedTurret(out CompUpgradable upgradableComp))
+                amount *= upgradableComp.Props.effectiveBarrelDurabilityFactor;
         }
         #endregion
+
+        #region TranspileGetFuelCountToFullyRefuel
+        public static IEnumerable<CodeInstruction> TranspileGetFuelCountToFullyRefuel(IEnumerable<CodeInstruction> instructions)
+        {
+            List<CodeInstruction> instructionList = instructions.ToList();
+
+            MethodInfo adjustedFuelCapacity = AccessTools.Method(patchType, nameof(AdjustedFuelCapacity));
+            MethodInfo adjustedFuelCount = AccessTools.Method(patchType, nameof(AdjustedFuelCount));
+
+            for (int i = 0; i < instructionList.Count; i++)
+            {
+                CodeInstruction instruction = instructionList[i];
+
+                if (instruction.IsFuelCapacityInstruction())
+                {
+                    yield return instruction;
+                    yield return new CodeInstruction(OpCodes.Ldarg_0);
+                    yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(CompRefuelable), nameof(CompRefuelable.parent)));
+                    instruction = new CodeInstruction(OpCodes.Call, adjustedFuelCapacity);
+                }
+
+                if (instruction.opcode == OpCodes.Stloc_0)
+                {
+                    yield return instruction;
+                    yield return new CodeInstruction(OpCodes.Ldloc_0);
+                    yield return new CodeInstruction(OpCodes.Ldarg_0);
+                    yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(CompRefuelable), nameof(CompRefuelable.parent)));
+                    yield return new CodeInstruction(OpCodes.Call, adjustedFuelCount);
+                    instruction = new CodeInstruction(OpCodes.Stloc_0);
+                }
+
+                yield return instruction;
+            }
+        }
+
+        private static float AdjustedFuelCount(float currentFuelCount, Thing thing) =>
+            currentFuelCount / ((thing.IsUpgradedTurret(out CompUpgradable uC)) ? uC.Props.effectiveBarrelDurabilityFactor * uC.Props.barrelDurabilityFactor : 1f);
+        #endregion
+
+        #region TranspileGizmoOnGUIDelegate
+        public static IEnumerable<CodeInstruction> TranspileGizmoOnGUIDelegate(IEnumerable<CodeInstruction> instructions)
+        {
+            List<CodeInstruction> instructionList = instructions.ToList();
+
+            bool ldflda = false;
+            MethodInfo adjustedFuelCapacity = AccessTools.Method(patchType, nameof(AdjustedFuelCapacity));
+
+            for (int i = 0; i < instructionList.Count; i++)
+            {
+                CodeInstruction instruction = instructionList[i];
+
+                if (instruction.opcode == OpCodes.Ldflda && instruction.operand == AccessTools.Field(typeof(CompProperties_Refuelable), nameof(CompProperties_Refuelable.fuelCapacity)))
+                {
+                    instruction.opcode = OpCodes.Ldfld;
+                    ldflda = true;
+                }
+
+                if (instruction.IsFuelCapacityInstruction())
+                {
+                    yield return instruction;
+                    yield return new CodeInstruction(OpCodes.Ldarg_0);
+                    yield return new CodeInstruction(instructionList[i - 3]);
+                    yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(Gizmo_RefuelableFuelStatus), nameof(Gizmo_RefuelableFuelStatus.refuelable)));
+                    yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(CompRefuelable), nameof(CompRefuelable.parent)));
+                    if (ldflda)
+                    {
+                        yield return new CodeInstruction(OpCodes.Call, adjustedFuelCapacity);
+                        yield return new CodeInstruction(OpCodes.Stloc_S, 7);
+                    }
+                    instruction = (ldflda) ? new CodeInstruction(OpCodes.Ldloca_S, 7) : new CodeInstruction(OpCodes.Call, adjustedFuelCapacity);
+                    ldflda = false;
+                }
+
+                yield return instruction;
+            }
+        }
+        #endregion  
 
         #region PrefixDesignateThing
         public static void PrefixDesignateThing(Thing t)
@@ -100,8 +232,7 @@ namespace TurretExtensions
         #region PostfixBurstCooldownTime
         public static void PostfixBurstCooldownTime(Building_TurretGun __instance, ref float __result)
         {
-            CompUpgradable upgradableComp = __instance.TryGetComp<CompUpgradable>();
-            if (upgradableComp != null && upgradableComp.upgraded)
+            if (__instance.IsUpgradedTurret(out CompUpgradable upgradableComp))
             {
                 __result *= upgradableComp.Props.turretBurstCooldownTimeFactor;
             }
@@ -112,7 +243,6 @@ namespace TurretExtensions
         public static void PostfixTryStartShootSomething(Building_TurretGun __instance, ref int ___burstWarmupTicksLeft)
         {
             var extensionValues = __instance.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
-            CompUpgradable upgradableComp = __instance.TryGetComp<CompUpgradable>();
             string turretDefName = __instance.def.defName;
 
             if (extensionValues.useMannerAimingDelayFactor)
@@ -130,7 +260,7 @@ namespace TurretExtensions
                 else
                     Log.Warning(String.Format("Turret (defName={0}) has useMannerAimingDelayFactor set to true but doesn't have CompMannable.", turretDefName));
             }
-            if (upgradableComp != null && upgradableComp.upgraded)
+            if (__instance.IsUpgradedTurret(out CompUpgradable upgradableComp))
                 ___burstWarmupTicksLeft = (int)Math.Round(___burstWarmupTicksLeft * upgradableComp.Props.turretBurstWarmupTimeFactor);
         }
         #endregion
@@ -161,10 +291,9 @@ namespace TurretExtensions
                 var extensionValues = __instance.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
 
                 // Upgradability
-                bool turretIsUpgradable = __instance.HasComp(typeof(CompUpgradable));
-                string turretUpgradableString = "No".Translate();
-                if (turretIsUpgradable) turretUpgradableString = "Yes".Translate();
-                StatDrawEntry upgradabilitySDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, "Upgradable".Translate(), turretUpgradableString, 50, GetTurretUpgradeBenefits(__instance, turretIsUpgradable, extensionValues));
+                bool upgradable = __instance.IsUpgradableTurret();
+                string turretUpgradableString = ((upgradable) ? "YesClickForDetails" : "No").Translate();
+                StatDrawEntry upgradabilitySDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, "Upgradable".Translate(), turretUpgradableString, 50, GetTurretUpgradeBenefits(__instance, upgradable, extensionValues));
                 __result = __result.Add(upgradabilitySDE);
 
                 // Building stats
@@ -362,7 +491,7 @@ namespace TurretExtensions
                 }
 
                 // Damage, AP, Stopping Power, Burst Count and Burst Ticks
-                if(upgradedGunDef != null)
+                if (upgradedGunDef != null)
                 {
                     Thing upgradedGunThing = ThingMaker.MakeThing(upgradedGunDef);
                     string newDamage = (upgradedGunProjectile != null) ? upgradedGunProjectile.projectile.GetDamageAmount(upgradedGunThing).ToString() : "MortarShellDependent".Translate();
@@ -431,7 +560,7 @@ namespace TurretExtensions
                     upgradabilityExplanation.AppendLine("TurretManuallyAimable".Translate());
 
             }
-            else upgradabilityExplanation.AppendLine("TurretUpgradeBenefitsNotUpgradable".Translate()); 
+            else upgradabilityExplanation.AppendLine("TurretUpgradeBenefitsNotUpgradable".Translate());
 
             return upgradabilityExplanation.ToString();
         }
@@ -444,13 +573,46 @@ namespace TurretExtensions
         }
         #endregion
 
-        #region PostfixPowerOutput
-        public static void PostfixPowerOutput(CompPowerTrader __instance, ref float __result)
+        #region PostfixSetUpPowerVars
+        public static void PostfixSetUpPowerVars(CompPowerTrader __instance)
         {
-            if (__instance.parent.TryGetComp<CompUpgradable>() is CompUpgradable upgradableComp && upgradableComp.upgraded)
-                __result *= upgradableComp.Props.basePowerConsumptionFactor;
+            if (__instance.parent.IsUpgradedTurret(out CompUpgradable upgradableComp))
+                __instance.PowerOutput *= upgradableComp.Props.basePowerConsumptionFactor;
         }
         #endregion
+
+        #region PostfixGetValueUnfinalized
+        public static void PostfixGetValueUnfinalized(StatWorker __instance, StatRequest req, ref float __result, StatDef ___stat)
+        {
+            if (req.Thing.IsUpgradedTurret(out CompUpgradable uC))
+            {
+                CompProperties_Upgradable props = uC.Props;
+                if (props.statOffsets != null)
+                    __result += props.statOffsets.GetStatOffsetFromList(___stat);
+                if (props.statFactors != null)
+                    __result *= props.statFactors.GetStatFactorFromList(___stat);
+            }
+        }
+        #endregion
+
+        #region PostfixGetExplanationUnfinalized
+        public static void PostfixGetExplanationUnfinalized(StatWorker __instance, StatRequest req, ref string __result, StatDef ___stat)
+        {
+            if (req.Thing.IsUpgradedTurret(out CompUpgradable uC))
+            {
+                CompProperties_Upgradable props = uC.Props;
+                float? offset = props.statOffsets?.GetStatOffsetFromList(___stat);
+                float? factor = props.statFactors.GetStatFactorFromList(___stat);
+                if (props.statOffsets != null && offset != 0f)
+                    __result += "\n\n" + "TurretUpgradedText".Translate().CapitalizeFirst() + ": " +
+                        ((float)offset).ToStringByStyle(___stat.toStringStyle, ToStringNumberSense.Offset);
+                if (props.statFactors != null && factor != 1f)
+                    __result += "\n\n" + "TurretUpgradedText".Translate().CapitalizeFirst() + ": " +
+                        ((float)factor).ToStringByStyle(___stat.toStringStyle, ToStringNumberSense.Factor);
+            }
+        }
+        #endregion
+
 
     }
 

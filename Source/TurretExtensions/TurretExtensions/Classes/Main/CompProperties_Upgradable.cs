@@ -55,6 +55,11 @@ namespace TurretExtensions
 
         // Job Driver
 
+        #region jobdriver_legacy
+        public float upgradeFailMajorDmgPctMin = 0.1f;
+        public float upgradeFailMajorDmgPctMax = 0.5f;
+        #endregion
+
         public bool upgradeWorkFactorStuff = true;
 
         public bool upgradeFailable = true;
@@ -67,31 +72,35 @@ namespace TurretExtensions
 
         public bool upgradeFailAlwaysMajor = false;
 
+        public FloatRange upgradeFailMajorDmgPctRange = new FloatRange(0.1f, 0.5f);
+
         public float upgradeFailMajorChanceFactor = 2f;
-
-        public float upgradeFailMajorDmgPctMin = 0.1f;
-
-        public float upgradeFailMajorDmgPctMax = 0.5f;
 
         // Results
 
+        #region results_legacy
         public float MaxHitPointsFactor = 1f;
-
         public float FlammabilityFactor = 1f;
-
         public float ShootingAccuracyTurretOffset = 0f;
+        public float effectiveBarrelDurabilityFactor = 1f;
+        public float mannerShootingAccuracyOffsetOffset = 0f;
+        #endregion
+
+        public List<StatModifier> statOffsets;
+
+        public List<StatModifier> statFactors;
+
+        public float barrelDurabilityFactor = 1f;
 
         public float basePowerConsumptionFactor = 1f;
-
-        public ThingDef turretGunDef;
 
         public float turretBurstWarmupTimeFactor = 1f;
 
         public float turretBurstCooldownTimeFactor = 1f;
 
-        public float mannerShootingAccuracyOffsetOffset = 0f;
+        public ThingDef turretGunDef;
 
-        public float effectiveBarrelDurabilityFactor = 1f;
+        public float mannerShootingAccuracyOffsetBonus = 0f;
 
         public bool canForceAttack = false;
 

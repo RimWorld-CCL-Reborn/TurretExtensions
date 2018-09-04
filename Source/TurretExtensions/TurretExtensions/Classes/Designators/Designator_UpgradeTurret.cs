@@ -30,23 +30,18 @@ namespace TurretExtensions
 
         public override AcceptanceReport CanDesignateCell(IntVec3 loc)
         {
-            if (!loc.InBounds(Map)) return false;
-            else if (!DebugSettings.godMode && loc.Fogged(Map)) return false;
+            if (!loc.InBounds(Map))
+                return false;
+            if (!DebugSettings.godMode && loc.Fogged(Map))
+                return false;
+            if (!UpgradableTurretsInSelection(loc).Any())
+                return "MessageMustDesignateUpgradableTurrets".Translate();
             return true;
         }
 
-        public override AcceptanceReport CanDesignateThing(Thing t)
-        {
-            Building_Turret turret = t.GetInnerIfMinified() as Building_Turret;
-            CompUpgradable upgradableComp = turret?.TryGetComp<CompUpgradable>();
-
-            if (turret == null) return false;
-            else if (upgradableComp == null) return false;
-            else if (t.Faction != Faction.OfPlayer) return false;
-            else if (upgradableComp.upgraded) return false;
-            else if (Map.designationManager.DesignationOn(t, Designation) != null) return false;
-            return true;
-        }
+        public override AcceptanceReport CanDesignateThing(Thing t) =>
+            (t is Building_Turret turret && turret.Faction == Faction.OfPlayer && turret.IsUpgradableTurret(out CompUpgradable upgradableComp) && 
+            !upgradableComp.upgraded && Map.designationManager.DesignationOn(t, Designation) == null);
 
         public override void DesignateSingleCell(IntVec3 c)
         {
@@ -80,33 +75,16 @@ namespace TurretExtensions
 
         protected override void FinalizeDesignationSucceeded()
         {
-
-            foreach (Building_Turret turret in designatedTurrets)
-            {
-                NotifyPlayerOfInsufficientSkill(turret);
-                NotifyPlayerOfInsufficientResearch(turret);
-                List<ThingDefCountClass> upgradeCostList = turret.TryGetComp<CompUpgradable>().upgradeCostListFinalized;
-
-                //if (upgradeCostList != null)
-                //{
-                //    string turretResourceCost = "";
-                //    bool moreThanOneThing = false;
-                //    foreach (ThingDefCountClass thing in upgradeCostList)
-                //    {
-                //        if (moreThanOneThing)
-                //        {
-                //            turretResourceCost += ", ";
-                //        }
-                //        turretResourceCost += thing.Summary;
-                //        moreThanOneThing = true;
-                //    }
-                //    Messages.Message("TurretUpgradeCostMessage".Translate(turret.def.label) + ": " + turretResourceCost, MessageTypeDefOf.CautionInput, false);
-                //}
-            }
+            if (!DebugSettings.godMode)
+                foreach (Building_Turret turret in designatedTurrets)
+                {
+                    NotifyPlayerOfInsufficientSkill(turret);
+                    NotifyPlayerOfInsufficientResearch(turret);
+                }
             designatedTurrets.Clear();
         }
 
-        public override void SelectedUpdate() { GenUI.RenderMouseoverBracket(); }
+        public override void SelectedUpdate() => GenUI.RenderMouseoverBracket(); 
 
         private void NotifyPlayerOfInsufficientSkill(Thing t)
         {
@@ -154,9 +132,11 @@ namespace TurretExtensions
             if (c.Fogged(Map))
                 yield break;
 
-            foreach (Thing thing in c.GetThingList(Map))
-                if (CanDesignateThing(thing).Accepted)
-                    yield return (Building_Turret)thing;
+            List<Thing> thingList = c.GetThingList(Map);
+            for (int i = 0; i < thingList.Count; i++)
+                if (CanDesignateThing(thingList[i]).Accepted)
+                    yield return (Building_Turret)thingList[i];
+
             yield break;
         }
 
