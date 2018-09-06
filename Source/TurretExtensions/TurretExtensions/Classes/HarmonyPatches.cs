@@ -426,7 +426,7 @@ namespace TurretExtensions
         #region Thing_PostfixSpecialDisplayStats
         public static void Thing_PostfixSpecialDisplayStats(Thing __instance, ref IEnumerable<StatDrawEntry> __result)
         {
-            if (__instance.def?.building?.IsTurret == true)
+            if (__instance.def.building?.IsTurret == true)
             {
                 ThingDef def = __instance.def;
                 var extensionValues = def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
@@ -611,9 +611,11 @@ namespace TurretExtensions
                 }
 
                 // Effective barrel durability -- LEGACY
-                if (upgradeProps.effectiveBarrelDurabilityFactor != defaultValues.effectiveBarrelDurabilityFactor && def.HasComp(typeof(CompRefuelable)))
+                if ((upgradeProps.effectiveBarrelDurabilityFactor != defaultValues.effectiveBarrelDurabilityFactor || upgradeProps.barrelDurabilityFactor != defaultValues.barrelDurabilityFactor)
+                    && def.HasComp(typeof(CompRefuelable)))
                 {
-                    float effDurability = Mathf.Ceil(def.GetCompProperties<CompProperties_Refuelable>().fuelCapacity * upgradeProps.effectiveBarrelDurabilityFactor);
+                    float effDurability = Mathf.Ceil(def.GetCompProperties<CompProperties_Refuelable>().fuelCapacity *
+                        upgradeProps.barrelDurabilityFactor * upgradeProps.effectiveBarrelDurabilityFactor);
                     upgradabilityExplanation.AppendLine(def.GetCompProperties<CompProperties_Refuelable>().fuelGizmoLabel.CapitalizeFirst() + ": " + effDurability.ToString());
                 }
 
@@ -621,14 +623,14 @@ namespace TurretExtensions
                 if (def.building.turretBurstCooldownTime > -1f && upgradeProps.turretBurstCooldownTimeFactor != defaultValues.turretBurstCooldownTimeFactor)
                 {
                     float newCooldown = def.building.turretBurstCooldownTime * upgradeProps.turretBurstCooldownTimeFactor;
-                    upgradabilityExplanation.AppendLine("CooldownTime".Translate() + ": " + newCooldown.ToString() + " s");
+                    upgradabilityExplanation.AppendLine("CooldownTime".Translate() + ": " + newCooldown.ToString("F2") + " s");
                 }
 
                 // Warmup time
                 if (def.building.turretBurstWarmupTime > 0f && upgradeProps.turretBurstWarmupTimeFactor != defaultValues.turretBurstWarmupTimeFactor)
                 {
                     float newWarmup = def.building.turretBurstWarmupTime * upgradeProps.turretBurstWarmupTimeFactor;
-                    upgradabilityExplanation.AppendLine("WarmupTime".Translate() + ": " + newWarmup.ToString() + " s");
+                    upgradabilityExplanation.AppendLine("WarmupTime".Translate() + ": " + Math.Round(newWarmup, 2).ToString() + " s");
                 }
 
                 // Damage, AP, Stopping Power, Burst Count and Burst Ticks
