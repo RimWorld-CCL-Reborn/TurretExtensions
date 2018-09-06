@@ -11,7 +11,11 @@ namespace TurretExtensions
     static class TurretExtensionsUtility
     {
 
-        public static bool IsUpgradableTurret(this ThingDef def) => def.HasComp(typeof(CompUpgradable));
+        public static bool IsUpgradableTurret(this ThingDef def, out CompProperties_Upgradable uCP)
+        {
+            uCP = def.GetCompProperties<CompProperties_Upgradable>();
+            return uCP != null;
+        }
 
         public static bool IsUpgradableTurret(this Thing thing, out CompUpgradable uC)
         {
