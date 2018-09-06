@@ -90,6 +90,14 @@ namespace TurretExtensions
 
         public List<StatModifier> statFactors;
 
+        public GraphicData graphicData;
+
+        public string turretTopGraphicPath;
+
+        public float turretTopDrawSize = 2f;
+
+        public Vector2 turretTopOffset;
+
         public float barrelDurabilityFactor = 1f;
 
         public float basePowerConsumptionFactor = 1f;

@@ -21,8 +21,7 @@ namespace TurretExtensions
 
         public static bool IsUpgradedTurret(this Thing thing, out CompUpgradable uC)
         {
-            bool isUpgradableTurret = thing.IsUpgradableTurret(out CompUpgradable uC2);
-            uC = uC2;
+            bool isUpgradableTurret = thing.IsUpgradableTurret(out uC);
             return isUpgradableTurret && uC.upgraded;
         }
 

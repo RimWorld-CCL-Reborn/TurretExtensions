@@ -2,10 +2,10 @@
 <ModSyncNinjaData>
   <ID>f0a9672f-8995-4316-9f87-f29eb9541dc3</ID>
   <ModName>[XND] Turret Extensions</ModName>
-  <Version>1.1.4</Version>
+  <Version>1.2</Version>
   <SaveBreaking>False</SaveBreaking>
   <Host name="Github">
-    <Owner>XeoNovaDan</Owner>
+    <Owner>RimWorld-CCL-Reborn</Owner>
     <Project>TurretExtensions</Project>
     <AboutDir>About</AboutDir>
     <DownloadFrom>ModSyncMainPage</DownloadFrom>

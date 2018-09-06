@@ -28,6 +28,9 @@ namespace TurretExtensions
 
         public CompProperties_Upgradable Props => (CompProperties_Upgradable)props;
 
+        public Graphic UpgradedGraphic =>
+            Props.graphicData?.GraphicColoredFor(parent);
+
         public override void Initialize(CompProperties props)
         {
             base.Initialize(props);
@@ -62,13 +65,14 @@ namespace TurretExtensions
             // If the turret wasn't minified, drop its stuff
             if (mode != DestroyMode.Vanish)
             {
-                float resourceDropFraction = Props.baseResourceDropPct;
-
-                if (mode == DestroyMode.KillFinalize)
-                    resourceDropFraction = Props.destroyedResourceDropPct;
+                float resourceDropFraction = (mode == DestroyMode.KillFinalize) ? Props.destroyedResourceDropPct : Props.baseResourceDropPct;
 
                 foreach (Thing thing in innerContainer)
+                {
                     thing.stackCount = GenMath.RoundRandom(thing.stackCount * resourceDropFraction);
+                    if (thing.stackCount == 0)
+                        thing.Destroy();
+                }
 
                 innerContainer.TryDropAll(parent.Position, previousMap, ThingPlaceMode.Near);
             }
@@ -113,15 +117,19 @@ namespace TurretExtensions
             upgraded = true;
             if (parent.def.useHitPoints)
                 parent.HitPoints = parent.MaxHitPoints;
-            if (parent is Building_TurretGun turretWGun && Props.turretGunDef != null)
+            if (parent is Building_TurretGun turretWGun)
             {
-                turretWGun.gun = ThingMaker.MakeThing(Props.turretGunDef);
-                AccessTools.Method(typeof(Building_TurretGun), "UpdateGunVerbs").Invoke(turretWGun, null);
+                ((TurretTop)(Traverse.Create(turretWGun).Field("top").GetValue())).DrawTurret();
+                if (Props.turretGunDef != null)
+                {
+                    turretWGun.gun = ThingMaker.MakeThing(Props.turretGunDef);
+                    AccessTools.Method(typeof(Building_TurretGun), "UpdateGunVerbs").Invoke(turretWGun, null);
+                }
             }
             if (parent.TryGetComp<CompRefuelable>() is CompRefuelable refuelableComp)
             {
                 Traverse fuel = Traverse.Create(refuelableComp).Field("fuel");
-                fuel.SetValue((float)fuel.GetValue() * Props.effectiveBarrelDurabilityFactor);
+                fuel.SetValue((float)fuel.GetValue() * Props.barrelDurabilityFactor * Props.effectiveBarrelDurabilityFactor);
             }
             if (parent.TryGetComp<CompPowerTrader>() is CompPowerTrader powerComp)
                 powerComp.SetUpPowerVars();
@@ -172,7 +180,7 @@ namespace TurretExtensions
         public override void PostExposeData()
         {
             base.PostExposeData();
-            Scribe_Deep.Look(ref innerContainer, "innerContainer", new object[] { this });
+            Scribe_Deep.Look(ref innerContainer, "innerContainer", new[] { this });
             Scribe_Values.Look(ref upgraded, "upgraded", false);
             Scribe_Values.Look(ref upgradeWorkDone, "upgradeWorkDone", 0f, true);
             Scribe_Values.Look(ref upgradeWorkTotal, "upgradeWorkTotal", CompProperties_Upgradable.defaultValues.workToUpgrade, true);

@@ -25,11 +25,11 @@ namespace TurretExtensions
 
             //HarmonyInstance.DEBUG = true;
 
+            #region CompRefuelable
             h.Patch(AccessTools.Method(typeof(Building_TurretGun), "GetInspectString"),
                 transpiler: new HarmonyMethod(patchType, nameof(TranspileGetInspectString)));
 
-            #region grossly overused transpiler
-            h.Patch(AccessTools.Method(typeof(CompRefuelable), nameof(CompRefuelable.Refuel), new[]{ typeof(float)}),
+            h.Patch(AccessTools.Method(typeof(CompRefuelable), nameof(CompRefuelable.Refuel), new[] { typeof(float) }),
                 transpiler: new HarmonyMethod(patchType, nameof(CompRefuelable_FuelCapacityTranspiler)));
 
             h.Patch(AccessTools.Method(typeof(CompRefuelable), nameof(CompRefuelable.CompInspectStringExtra)),
@@ -52,6 +52,15 @@ namespace TurretExtensions
             h.Patch(AccessTools.Method(typeof(Designator_Cancel), "DesignateThing"),
                 new HarmonyMethod(patchType, nameof(PrefixDesignateThing)));
 
+            h.Patch(AccessTools.Method(typeof(Building_TurretGun), nameof(Building_TurretGun.Tick)),
+                new HarmonyMethod(patchType, nameof(PrefixTick)));
+
+            //h.Patch(AccessTools.Method(typeof(Building_TurretGun), "BeginBurst"),
+            //    new HarmonyMethod(patchType, nameof(PrefixBeginBurst)));
+
+            h.Patch(AccessTools.Method(typeof(Building_TurretGun), nameof(Building_TurretGun.SpawnSetup)),
+                postfix: new HarmonyMethod(patchType, nameof(PostfixSpawnSetup)));
+
             h.Patch(AccessTools.Method(typeof(Building_TurretGun), "BurstCooldownTime"),
                 postfix: new HarmonyMethod(patchType, nameof(PostfixBurstCooldownTime)));
 
@@ -61,8 +70,17 @@ namespace TurretExtensions
             h.Patch(AccessTools.Property(typeof(Building_TurretGun), "CanSetForcedTarget").GetGetMethod(true),
                 postfix: new HarmonyMethod(patchType, nameof(PostfixCanSetForcedTarget)));
 
-            h.Patch(AccessTools.Method(typeof(ThingDef), "SpecialDisplayStats"),
-                postfix: new HarmonyMethod(patchType, nameof(PostfixSpecialDisplayStats)));
+            h.Patch(AccessTools.Property(typeof(Thing), nameof(Thing.Graphic)).GetGetMethod(),
+                postfix: new HarmonyMethod(patchType, nameof(PostfixGraphic)));
+
+            h.Patch(AccessTools.Method(typeof(TurretTop), nameof(TurretTop.DrawTurret)),
+                transpiler: new HarmonyMethod(patchType, nameof(TranspileDrawTurret)));
+
+            h.Patch(AccessTools.Method(typeof(ThingDef), nameof(ThingDef.SpecialDisplayStats)),
+                postfix: new HarmonyMethod(patchType, nameof(ThingDef_PostfixSpecialDisplayStats)));
+
+            h.Patch(AccessTools.Method(typeof(Thing), nameof(Thing.SpecialDisplayStats)),
+                postfix: new HarmonyMethod(patchType, nameof(Thing_PostfixSpecialDisplayStats)));
 
             h.Patch(AccessTools.Method(typeof(ReverseDesignatorDatabase), "InitDesignators"),
                 postfix: new HarmonyMethod(patchType, nameof(PostfixInitDesignators)));
@@ -129,14 +147,6 @@ namespace TurretExtensions
         }
         #endregion
 
-        #region PatchRefuel
-        public static void PrefixRefuel(CompRefuelable __instance, ref float amount)
-        {
-            if (__instance.parent.IsUpgradedTurret(out CompUpgradable upgradableComp))
-                amount *= upgradableComp.Props.effectiveBarrelDurabilityFactor;
-        }
-        #endregion
-
         #region TranspileGetFuelCountToFullyRefuel
         public static IEnumerable<CodeInstruction> TranspileGetFuelCountToFullyRefuel(IEnumerable<CodeInstruction> instructions)
         {
@@ -176,6 +186,7 @@ namespace TurretExtensions
         #endregion
 
         #region TranspileGizmoOnGUIDelegate
+        // It was all erdelf, I swear!
         public static IEnumerable<CodeInstruction> TranspileGizmoOnGUIDelegate(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> instructionList = instructions.ToList();
@@ -224,6 +235,47 @@ namespace TurretExtensions
                 {
                     upgradableComp.upgradeWorkTotal = -1f;
                     upgradableComp.innerContainer.TryDropAll(t.Position, t.Map, ThingPlaceMode.Near);
+                }
+            }
+        }
+        #endregion
+
+        #region PostfixPostMake
+        public static void PostfixSpawnSetup(Building_TurretGun __instance, TurretTop ___top)
+        {
+            switch ((__instance.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues).gunFaceDirectionOnSpawn)
+            {
+                case TurretGunFaceDirection.North:
+                    Traverse.Create(___top).Property("CurRotation").SetValue(Rot4.North.AsAngle);
+                    break;
+                case TurretGunFaceDirection.East:
+                    Traverse.Create(___top).Property("CurRotation").SetValue(Rot4.East.AsAngle);
+                    break;
+                case TurretGunFaceDirection.South:
+                    Traverse.Create(___top).Property("CurRotation").SetValue(Rot4.South.AsAngle);
+                    break;
+                case TurretGunFaceDirection.West:
+                    Traverse.Create(___top).Property("CurRotation").SetValue(Rot4.West.AsAngle);
+                    break;
+                default:
+                    Traverse.Create(___top).Property("CurRotation").SetValue(__instance.Rotation.AsAngle);
+                    break;
+            }
+        }
+        #endregion
+
+        #region PrefixTick
+        public static void PrefixTick(Building_TurretGun __instance, LocalTargetInfo ___forcedTarget)
+        {
+            CompSmartForcedTarget comp = __instance.TryGetComp<CompSmartForcedTarget>();
+            if (comp != null && ___forcedTarget.Thing is Pawn pawn)
+            {
+                if (!pawn.Downed && !comp.attackingNonDownedPawn)
+                    comp.attackingNonDownedPawn = true;
+                if (pawn.Downed && comp.attackingNonDownedPawn)
+                {
+                    comp.attackingNonDownedPawn = false;
+                    AccessTools.Method(typeof(Building_TurretGun), "ResetForcedTarget").Invoke(__instance, null);
                 }
             }
         }
@@ -278,32 +330,121 @@ namespace TurretExtensions
                 if (mannableComp == null && __instance.Faction == Faction.OfPlayer)
                     __result = true;
                 else
-                    Log.Warning(String.Format("Turret (defName={0}) has canForceAttack set to true and CompMannable. canForceAttack is redundant in this case.", turretDefName));
+                    Log.Warning(String.Format("Turret (defName={0}) has canForceAttack set to true and CompMannable; canForceAttack is redundant in this case.", turretDefName));
             }
         }
         #endregion
 
-        #region PostfixSpecialDisplayStats
-        public static void PostfixSpecialDisplayStats(ThingDef __instance, ref IEnumerable<StatDrawEntry> __result)
+        #region PostfixGraphic
+        public static void PostfixGraphic(Thing __instance, ref Graphic __result)
         {
-            if (__instance.building != null && __instance.building.IsTurret)
+            if (__instance.IsUpgradedTurret(out CompUpgradable uC) && uC.UpgradedGraphic != null)
+                __result = uC.UpgradedGraphic;
+        }
+        #endregion
+
+        #region TranspileDrawTurret
+        public static IEnumerable<CodeInstruction> TranspileDrawTurret(IEnumerable<CodeInstruction> instructions)
+        {
+            List<CodeInstruction> instructionList = instructions.ToList();
+
+            MethodInfo turretTopOffsetToUse = AccessTools.Method(patchType, nameof(TurretTopOffsetToUse));
+            MethodInfo turretTopDrawSizeToUse = AccessTools.Method(patchType, nameof(TurretTopDrawSizeToUse));
+            MethodInfo turretTopMatToUse = AccessTools.Method(patchType, nameof(TurretTopMatToUse));
+
+            for (int i = 0; i < instructionList.Count; i++)
             {
-                var extensionValues = __instance.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
+                CodeInstruction instruction = instructionList[i];
+
+                if (instruction.opcode == OpCodes.Ldflda && instruction.operand == AccessTools.Field(typeof(BuildingProperties), nameof(BuildingProperties.turretTopOffset)))
+                {
+                    instruction.opcode = OpCodes.Ldfld;
+                    yield return instruction;
+                    yield return new CodeInstruction(OpCodes.Ldarg_0);
+                    yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(TurretTop), "parentTurret"));
+                    instruction = new CodeInstruction(OpCodes.Call, turretTopOffsetToUse);
+                    
+                }
+
+                if (instruction.opcode == OpCodes.Ldfld)
+                {
+                    if (instruction.operand == AccessTools.Field(typeof(BuildingProperties), nameof(BuildingProperties.turretTopDrawSize)))
+                    {
+                        yield return instruction;
+                        yield return new CodeInstruction(OpCodes.Ldarg_0);
+                        yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(TurretTop), "parentTurret"));
+                        instruction = new CodeInstruction(OpCodes.Call, turretTopDrawSizeToUse);
+                    }
+                    if (instruction.operand == AccessTools.Field(typeof(BuildingProperties), nameof(BuildingProperties.turretTopMat)))
+                    {
+                        yield return instruction;
+                        yield return new CodeInstruction(OpCodes.Ldarg_0);
+                        yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(TurretTop), "parentTurret"));
+                        instruction = new CodeInstruction(OpCodes.Call, turretTopMatToUse);
+                    }
+                }
+
+                yield return instruction;
+            }
+        }
+
+        private static Vector2 TurretTopOffsetToUse(Vector2 ttO, Building_Turret turret) =>
+            (turret.IsUpgradedTurret(out CompUpgradable uC) && uC.Props.turretTopOffset != null) ? uC.Props.turretTopOffset : ttO;
+
+        private static float TurretTopDrawSizeToUse(float tTDS, Building_Turret turret) =>
+            (turret.IsUpgradedTurret(out CompUpgradable uC)) ? uC.Props.turretTopDrawSize : tTDS;
+
+        private static Material TurretTopMatToUse(Material ttM, Building_Turret turret) =>
+            (turret.IsUpgradedTurret(out CompUpgradable uC) && !uC.Props.turretTopGraphicPath.NullOrEmpty()) ?
+            MaterialPool.MatFrom(uC.Props.turretTopGraphicPath) : ttM;
+        #endregion
+
+        #region ThingDef_PostfixSpecialDisplayStats
+        public static void ThingDef_PostfixSpecialDisplayStats(ThingDef __instance, ref IEnumerable<StatDrawEntry> __result)
+        {
+            if (__instance.IsShell)
+            {
+                Thing shellThing = ThingMaker.MakeThing(__instance.projectileWhenLoaded);
+                ProjectileProperties shellProps = __instance.projectileWhenLoaded.projectile;
+                int shellDamage = shellProps.GetDamageAmount(shellThing);
+                float shellArmorPenetration = shellProps.GetArmorPenetration(shellThing);
+                float shellStoppingPower = shellProps.StoppingPower;
+                string shellDamageDef = shellProps.damageDef.label.CapitalizeFirst();
+                float shellExplosionRadius = shellProps.explosionRadius;
+
+                __result = __result.Add(new StatDrawEntry(TE_StatCategoryDefOf.TurretAmmo, "Damage".Translate(), shellDamage.ToString(), 20));
+                __result = __result.Add(new StatDrawEntry(TE_StatCategoryDefOf.TurretAmmo, "ShellDamageType".Translate(), shellDamageDef, 19));
+                __result = __result.Add(new StatDrawEntry(TE_StatCategoryDefOf.TurretAmmo, "ArmorPenetration".Translate(), shellArmorPenetration.ToStringPercent(), 18, "ArmorPenetrationExplanation".Translate()));
+                __result = __result.Add(new StatDrawEntry(TE_StatCategoryDefOf.TurretAmmo, "StoppingPower".Translate(), shellStoppingPower.ToString(), 17, "StoppingPowerExplanation".Translate()));
+
+                if (shellExplosionRadius > 0f)
+                    __result = __result.Add(new StatDrawEntry(TE_StatCategoryDefOf.TurretAmmo, "ShellExplosionRadius".Translate(), shellExplosionRadius.ToString(), 16));
+            }
+        }
+        #endregion
+
+        #region Thing_PostfixSpecialDisplayStats
+        public static void Thing_PostfixSpecialDisplayStats(Thing __instance, ref IEnumerable<StatDrawEntry> __result)
+        {
+            if (__instance.def?.building?.IsTurret == true)
+            {
+                ThingDef def = __instance.def;
+                var extensionValues = def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
 
                 // Upgradability
-                bool upgradable = __instance.IsUpgradableTurret();
-                string turretUpgradableString = ((upgradable) ? "YesClickForDetails" : "No").Translate();
-                StatDrawEntry upgradabilitySDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, "Upgradable".Translate(), turretUpgradableString, 50, GetTurretUpgradeBenefits(__instance, upgradable, extensionValues));
+                bool upgradable = __instance.IsUpgradableTurret(out CompUpgradable uC);
+                bool upgraded = upgradable && uC.upgraded;
+                string turretUpgradableString = ((upgradable) ? ((uC.upgraded) ? "NoAlreadyUpgraded" : "YesClickForDetails") : "No").Translate();
+                StatDrawEntry upgradabilitySDE = new StatDrawEntry(TE_StatCategoryDefOf.Turret, "Upgradable".Translate(), turretUpgradableString, 50, GetTurretUpgradeBenefits(__instance, uC, extensionValues));
                 __result = __result.Add(upgradabilitySDE);
 
                 // Building stats
-                float turretBurstWarmupTime = __instance.building.turretBurstWarmupTime;
-                float turretBurstCooldownTime = __instance.building.turretBurstCooldownTime;
-                float turretShootingAccuracy = __instance.GetStatValueAbstract(StatDefOf.ShootingAccuracyTurret);
+                float turretBurstWarmupTime = def.building.turretBurstWarmupTime * ((upgraded) ? uC.Props.turretBurstWarmupTimeFactor : 1f);
+                float turretBurstCooldownTime = def.building.turretBurstCooldownTime * ((upgraded) ? uC.Props.turretBurstCooldownTimeFactor : 1f);
                 bool turretUsesMannerShootingAccuracy = extensionValues.useMannerShootingAccuracy;
 
                 // Turret gun stats
-                ThingDef turretGunDef = __instance.building.turretGunDef;
+                ThingDef turretGunDef = (upgraded && uC.Props.turretGunDef != null) ? uC.Props.turretGunDef : def.building.turretGunDef;
                 Thing turretGunThing = ThingMaker.MakeThing(turretGunDef);
                 float turretGunAccuracyTouch = turretGunDef.statBases.GetStatValueFromList(StatDefOf.AccuracyTouch, StatDefOf.AccuracyTouch.defaultBaseValue);
                 float turretGunAccuracyShort = turretGunDef.statBases.GetStatValueFromList(StatDefOf.AccuracyShort, StatDefOf.AccuracyShort.defaultBaseValue);
@@ -329,16 +470,16 @@ namespace TurretExtensions
                 if (turretGunMissRadius == 0f)
                 {
                     // Whether or not the turret uses the manning pawn's shooting accuracy
-                    if (__instance.HasComp(typeof(CompMannable)))
+                    if (def.HasComp(typeof(CompMannable)))
                     {
                         string shootingAccExplanation = "MannedTurretUsesShooterAccuracyExplanation".Translate();
                         if (turretUsesMannerShootingAccuracy)
                         {
                             shootingAccExplanation += "\n\n";
                             if (extensionValues.mannerShootingAccuracyOffset != 0f)
-                                shootingAccExplanation += ((extensionValues.mannerShootingAccuracyOffset > 0f) ? "MannedTurretUsesShooterAccuracyBonus".Translate(new object[] { extensionValues.mannerShootingAccuracyOffset.ToString("0.#"), __instance.label }) : "MannedTurretUsesShooterAccuracyPenalty".Translate(new object[] { extensionValues.mannerShootingAccuracyOffset.ToString("0.#"), __instance.label }));
+                                shootingAccExplanation += ((extensionValues.mannerShootingAccuracyOffset > 0f) ? "MannedTurretUsesShooterAccuracyBonus".Translate(new object[] { extensionValues.mannerShootingAccuracyOffset.ToString("0.#"), def.label }) : "MannedTurretUsesShooterAccuracyPenalty".Translate(new object[] { extensionValues.mannerShootingAccuracyOffset.ToString("0.#"), def.label }));
                             else
-                                shootingAccExplanation += "MannedTurretUsesShooterAccuracyNoChange".Translate(__instance.label);
+                                shootingAccExplanation += "MannedTurretUsesShooterAccuracyNoChange".Translate(def.label);
                         }
                         __result = __result.Add(new StatDrawEntry(TE_StatCategoryDefOf.Turret, "MannedTurretUsesShooterAccuracy".Translate(),
                             (extensionValues.useMannerShootingAccuracy) ? "Yes".Translate() : "No".Translate(), 15, shootingAccExplanation));
@@ -382,33 +523,17 @@ namespace TurretExtensions
                 turretGunThing.Destroy();
 
             }
-            if (__instance.IsShell)
-            {
-                Thing shellThing = ThingMaker.MakeThing(__instance.projectileWhenLoaded);
-                ProjectileProperties shellProps = __instance.projectileWhenLoaded.projectile;
-                int shellDamage = shellProps.GetDamageAmount(shellThing);
-                float shellArmorPenetration = shellProps.GetArmorPenetration(shellThing);
-                float shellStoppingPower = shellProps.StoppingPower;
-                string shellDamageDef = shellProps.damageDef.label.CapitalizeFirst();
-                float shellExplosionRadius = shellProps.explosionRadius;
-
-                __result = __result.Add(new StatDrawEntry(TE_StatCategoryDefOf.TurretAmmo, "Damage".Translate(), shellDamage.ToString(), 20));
-                __result = __result.Add(new StatDrawEntry(TE_StatCategoryDefOf.TurretAmmo, "ShellDamageType".Translate(), shellDamageDef, 19));
-                __result = __result.Add(new StatDrawEntry(TE_StatCategoryDefOf.TurretAmmo, "ArmorPenetration".Translate(), shellArmorPenetration.ToStringPercent(), 18, "ArmorPenetrationExplanation".Translate()));
-                __result = __result.Add(new StatDrawEntry(TE_StatCategoryDefOf.TurretAmmo, "StoppingPower".Translate(), shellStoppingPower.ToString(), 17, "StoppingPowerExplanation".Translate()));
-
-                if (shellExplosionRadius > 0f)
-                    __result = __result.Add(new StatDrawEntry(TE_StatCategoryDefOf.TurretAmmo, "ShellExplosionRadius".Translate(), shellExplosionRadius.ToString(), 16));
-            }
         }
 
-        private static string GetTurretUpgradeBenefits(ThingDef def, bool upgradable, TurretFrameworkExtension extensionValues)
+        private static string GetTurretUpgradeBenefits(Thing turret, CompUpgradable comp, TurretFrameworkExtension extensionValues)
         {
             StringBuilder upgradabilityExplanation = new StringBuilder();
             upgradabilityExplanation.AppendLine("TurretUpgradeBenefitsMain".Translate());
             upgradabilityExplanation.AppendLine();
-            if (upgradable)
+            if (comp != null && !comp.upgraded)
             {
+                ThingDef def = turret.def;
+
                 var upgradeProps = def.GetCompProperties<CompProperties_Upgradable>();
                 var defaultValues = CompProperties_Upgradable.defaultValues;
                 var upgradedGunDef = upgradeProps.turretGunDef;
@@ -448,14 +573,30 @@ namespace TurretExtensions
                 upgradabilityExplanation.AppendLine("TurretUpgradeBenefitsUpgradable".Translate() + ":");
                 upgradabilityExplanation.AppendLine();
 
-                // Max Hit Points
+                // General Stats
+                if (!upgradeProps.statOffsets.NullOrEmpty() || !upgradeProps.statFactors.NullOrEmpty())
+                {
+                    List<StatDef> modifiedStats = GetUpgradeModifiedStats(turret, upgradeProps.statOffsets, upgradeProps.statFactors);
+                    modifiedStats.SortBy(s => s.LabelCap);
+                    foreach (StatDef stat in modifiedStats)
+                    {
+                        float value = turret.GetStatValue(stat);
+                        if (upgradeProps.statOffsets?.StatListContains(stat) == true)
+                            value += upgradeProps.statOffsets.GetStatOffsetFromList(stat);
+                        if (upgradeProps.statFactors?.StatListContains(stat) == true)
+                            value *= upgradeProps.statFactors.GetStatFactorFromList(stat);
+                        upgradabilityExplanation.AppendLine(stat.LabelCap + ": " + value.ToStringByStyle(stat.toStringStyle));
+                    }
+                }
+
+                // Max Hit Points -- LEGACY
                 if (def.useHitPoints && upgradeProps.MaxHitPointsFactor != 1f)
                 {
                     float maxHealthFactor = upgradeProps.MaxHitPointsFactor;
                     upgradabilityExplanation.AppendLine(StatDefOf.MaxHitPoints.label.CapitalizeFirst() + ": x" + maxHealthFactor.ToStringPercent());
                 }
 
-                // Flammability
+                // Flammability -- LEGACY
                 if (def.GetStatValueAbstract(StatDefOf.Flammability) > 0f && upgradeProps.FlammabilityFactor != 1f)
                 {
                     float flammabilityFactor = upgradeProps.FlammabilityFactor;
@@ -469,11 +610,11 @@ namespace TurretExtensions
                     upgradabilityExplanation.AppendLine("PowerNeeded".Translate() + ": " + newPowerConsumption.ToString("#####0") + " W");
                 }
 
-                // Effective barrel durability
+                // Effective barrel durability -- LEGACY
                 if (upgradeProps.effectiveBarrelDurabilityFactor != defaultValues.effectiveBarrelDurabilityFactor && def.HasComp(typeof(CompRefuelable)))
                 {
                     float effDurability = Mathf.Ceil(def.GetCompProperties<CompProperties_Refuelable>().fuelCapacity * upgradeProps.effectiveBarrelDurabilityFactor);
-                    upgradabilityExplanation.AppendLine("Effective".Translate() + " " + def.GetCompProperties<CompProperties_Refuelable>().fuelGizmoLabel.UncapitalizeFirst() + ": " + effDurability.ToString());
+                    upgradabilityExplanation.AppendLine(def.GetCompProperties<CompProperties_Refuelable>().fuelGizmoLabel.CapitalizeFirst() + ": " + effDurability.ToString());
                 }
 
                 // Cooldown time
@@ -512,7 +653,7 @@ namespace TurretExtensions
                     upgradedGunThing.Destroy();
                 }
 
-                // Shooting accuracy
+                // Shooting accuracy  -- LEGACY
                 if (extensionValues.useMannerShootingAccuracy && upgradeProps.mannerShootingAccuracyOffsetOffset != defaultValues.mannerShootingAccuracyOffsetOffset
                     && def.HasComp(typeof(CompMannable)))
                 {
@@ -523,7 +664,7 @@ namespace TurretExtensions
                 else if (upgradeProps.ShootingAccuracyTurretOffset != defaultValues.ShootingAccuracyTurretOffset)
                 {
                     float newShootAcc = Mathf.Clamp01(def.GetStatValueAbstract(StatDefOf.ShootingAccuracyTurret) + upgradeProps.ShootingAccuracyTurretOffset);
-                    upgradabilityExplanation.AppendLine(StatDefOf.ShootingAccuracyTurret.label.CapitalizeFirst() + ": " + newShootAcc.ToStringPercent("0.##"));
+                    upgradabilityExplanation.AppendLine(StatDefOf.ShootingAccuracyTurret.label.CapitalizeFirst() + ": " + newShootAcc.ToStringPercent("F2"));
                 }
 
                 // Accuracy (touch, short, medium and long) and Range
@@ -560,9 +701,24 @@ namespace TurretExtensions
                     upgradabilityExplanation.AppendLine("TurretManuallyAimable".Translate());
 
             }
-            else upgradabilityExplanation.AppendLine("TurretUpgradeBenefitsNotUpgradable".Translate());
+
+            else
+                upgradabilityExplanation.AppendLine("TurretUpgradeBenefitsNotUpgradable".Translate());
 
             return upgradabilityExplanation.ToString();
+        }
+
+        private static List<StatDef> GetUpgradeModifiedStats(Thing turret, List<StatModifier> statOffsets, List<StatModifier> statFactors)
+        {
+            List<StatDef> resultList = new List<StatDef>();
+            if (!statOffsets.NullOrEmpty())
+                foreach (StatModifier offset in statOffsets)
+                    resultList.Add(offset.stat);
+            if (!statFactors.NullOrEmpty())
+                foreach (StatModifier factor in statFactors)
+                    if (!resultList.Contains(factor.stat))
+                        resultList.Add(factor.stat);
+            return resultList;
         }
         #endregion
 

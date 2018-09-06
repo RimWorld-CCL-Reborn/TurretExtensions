@@ -16,6 +16,8 @@ namespace TurretExtensions
 
         public static readonly TurretFrameworkExtension defaultValues = new TurretFrameworkExtension();
 
+        public TurretGunFaceDirection gunFaceDirectionOnSpawn = TurretGunFaceDirection.Unspecified;
+
         public bool useMannerShootingAccuracy = false;
 
         public bool useMannerAimingDelayFactor = false;

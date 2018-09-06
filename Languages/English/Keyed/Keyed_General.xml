@@ -8,6 +8,7 @@
     <MessageMustDesignateUpgradableTurrets>Must designate upgradable turrets.</MessageMustDesignateUpgradableTurrets>
 
     <!-- Dialogs_StatReports -->
+    <NoAlreadyUpgraded>No (Already upgraded)</NoAlreadyUpgraded>
     <YesClickForDetails>Yes (Click for details)</YesClickForDetails>
 
     <MannableTurretAccuracyDepends>Accuracy depends on the pawn that's operating this turret.</MannableTurretAccuracyDepends>
