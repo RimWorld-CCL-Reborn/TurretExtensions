@@ -17,7 +17,7 @@ namespace TurretExtensions
                 var extensionValues = turret.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
                 val += extensionValues.mannerShootingAccuracyOffset;
                 if (turret.IsUpgradedTurret(out CompUpgradable uC))
-                    val += uC.Props.mannerShootingAccuracyOffsetOffset;
+                    val += uC.Props.mannerShootingAccuracyOffsetBonus + uC.Props.mannerShootingAccuracyOffsetOffset;
             }
         }
 
@@ -33,7 +33,7 @@ namespace TurretExtensions
                 if (extensionValues != null)
                     mannerAccuracyOffset += extensionValues.mannerShootingAccuracyOffset;
                 if (turret.IsUpgradedTurret(out CompUpgradable uC))
-                    mannerAccuracyOffset += uC.Props.mannerShootingAccuracyOffsetOffset;
+                    mannerAccuracyOffset += uC.Props.mannerShootingAccuracyOffsetBonus + uC.Props.mannerShootingAccuracyOffsetOffset;
 
                 if (mannerAccuracyOffset > 0f) return explanationFirstPart + "+" + mannerAccuracyOffset.ToString("F1");
                 else if (mannerAccuracyOffset < 0f) return explanationFirstPart + mannerAccuracyOffset.ToString("F1");

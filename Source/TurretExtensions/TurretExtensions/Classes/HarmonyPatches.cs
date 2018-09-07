@@ -55,9 +55,6 @@ namespace TurretExtensions
             h.Patch(AccessTools.Method(typeof(Building_TurretGun), nameof(Building_TurretGun.Tick)),
                 new HarmonyMethod(patchType, nameof(PrefixTick)));
 
-            //h.Patch(AccessTools.Method(typeof(Building_TurretGun), "BeginBurst"),
-            //    new HarmonyMethod(patchType, nameof(PrefixBeginBurst)));
-
             h.Patch(AccessTools.Method(typeof(Building_TurretGun), nameof(Building_TurretGun.SpawnSetup)),
                 postfix: new HarmonyMethod(patchType, nameof(PostfixSpawnSetup)));
 
@@ -96,6 +93,9 @@ namespace TurretExtensions
 
             h.Patch(AccessTools.Method(typeof(StatWorker), nameof(StatWorker.GetExplanationUnfinalized)),
                 postfix: new HarmonyMethod(patchType, nameof(PostfixGetExplanationUnfinalized)));
+
+            h.Patch(AccessTools.Method(typeof(StatsReportUtility), "DescriptionEntry", new[] { typeof(Thing) }),
+                postfix: new HarmonyMethod(patchType, nameof(PostfixDescriptionEntry)));
 
             // Thanks erdelf!
             Log.Message(text: $"Turret Extensions successfully completed {h.GetPatchedMethods().Select(selector: mb => h.GetPatchInfo(method: mb)).SelectMany(selector: p => p.Prefixes.Concat(second: p.Postfixes).Concat(second: p.Transpilers)).Count(predicate: p => p.owner == h.Id)} patches with harmony.");
@@ -1075,6 +1075,21 @@ namespace TurretExtensions
                 if (props.statFactors != null && factor != 1f)
                     __result += "\n\n" + "TurretUpgradedText".Translate().CapitalizeFirst() + ": " +
                         ((float)factor).ToStringByStyle(___stat.toStringStyle, ToStringNumberSense.Factor);
+            }
+        }
+        #endregion
+
+        #region PostfixDescriptionFlavor
+        public static void PostfixDescriptionEntry(Thing thing, ref StatDrawEntry __result)
+        {
+            if (thing is Building_Turret turret && turret.IsUpgradedTurret(out CompUpgradable uC) && uC.Props.upgradedTurretDescription != null)
+            {
+                __result.overrideReportText = uC.Props.upgradedTurretDescription;
+                if (ModLister.HasActiveModWithName("ShowModDesignators"))
+                {
+                    ModContentPack mcp = LoadedModManager.RunningModsListForReading.Last(m => m.AllDefs.Contains(thing.def));
+                    __result.overrideReportText += $"\n({mcp.Name})";
+                }
             }
         }
         #endregion

@@ -45,6 +45,8 @@ namespace TurretExtensions
 
         public string description;
 
+        public string upgradedTurretDescription;
+
         // Costs
 
         public int costStuffCount = 0;

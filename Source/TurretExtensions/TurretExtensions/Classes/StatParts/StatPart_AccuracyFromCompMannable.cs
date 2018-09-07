@@ -11,11 +11,11 @@ namespace TurretExtensions
     {
         public override void TransformValue(StatRequest req, ref float val)
         {
-            if (req.HasThing && req.Thing is Building_TurretGun turret && turret.TryGetComp<CompMannable>() is CompMannable mannableComp &&
+            if (req.HasThing && req.Thing is Building_Turret turret && turret.TryGetComp<CompMannable>() is CompMannable mannableComp &&
                 (turret.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues).useMannerShootingAccuracy)
             {
                 if (mannableComp.ManningPawn == null)
-                    val *= 0f;
+                    val = 0f;
                 else
                     val = mannableComp.ManningPawn.GetStatValue(StatDefOf.ShootingAccuracyPawn);
             }
@@ -23,7 +23,7 @@ namespace TurretExtensions
 
         public override string ExplanationPart(StatRequest req)
         {
-            if (req.HasThing && req.Thing is Building_TurretGun turret && turret.TryGetComp<CompMannable>() is CompMannable mannableComp &&
+            if (req.HasThing && req.Thing is Building_Turret turret && turret.TryGetComp<CompMannable>() is CompMannable mannableComp &&
                 (turret.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues).useMannerShootingAccuracy)
             {
                 string explanationString = "MannableTurretAccuracyDepends".Translate() + "\n\n";
