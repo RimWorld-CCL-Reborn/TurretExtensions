@@ -41,6 +41,10 @@ namespace TurretExtensions
 
         public static readonly CompProperties_Upgradable defaultValues = new CompProperties_Upgradable();
 
+        // Basics
+
+        public string description;
+
         // Costs
 
         public int costStuffCount = 0;
