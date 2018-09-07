@@ -540,6 +540,9 @@ namespace TurretExtensions
                 var upgradedGunVerb = upgradedGunDef?.Verbs[0];
                 var upgradedGunProjectile = upgradedGunVerb?.defaultProjectile;
 
+                upgradabilityExplanation.AppendLine("Description".Translate() + ": " + upgradeProps.description);
+                upgradabilityExplanation.AppendLine();
+
                 if ((def.MadeFromStuff && upgradeProps.costStuffCount > 0) || upgradeProps.costList != null)
                 {
                     List<string> itemReqs = new List<string>();
@@ -840,6 +843,9 @@ namespace TurretExtensions
                 var upgradedGunDef = upgradeProps.turretGunDef;
                 var upgradedGunVerb = upgradedGunDef?.Verbs[0];
                 var upgradedGunProjectile = upgradedGunVerb?.defaultProjectile;
+
+                upgradabilityExplanation.AppendLine("Description".Translate() + ": " + upgradeProps.description);
+                upgradabilityExplanation.AppendLine();
 
                 if ((def.MadeFromStuff && upgradeProps.costStuffCount > 0) || upgradeProps.costList != null)
                 {
