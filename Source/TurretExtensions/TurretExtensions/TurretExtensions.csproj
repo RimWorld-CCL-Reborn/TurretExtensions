@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Classes\Designators\Designator_UpgradeTurret.cs" />
     <Compile Include="Classes\Enums\TurretGunFaceDirection.cs" />
+    <Compile Include="Classes\Main\CompProperties_SmartForcedTarget.cs" />
     <Compile Include="Classes\Main\CompSmartForcedTarget.cs" />
     <Compile Include="Classes\StatParts\StatPart_AccuracyFromCompMannable.cs" />
     <Compile Include="Classes\StatParts\Legacy\StatPart_FlammabilityFromUpgrade.cs" />

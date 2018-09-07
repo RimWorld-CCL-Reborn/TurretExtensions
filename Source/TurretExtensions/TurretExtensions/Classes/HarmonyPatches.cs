@@ -271,9 +271,10 @@ namespace TurretExtensions
         public static void PrefixTick(Building_TurretGun __instance, LocalTargetInfo ___forcedTarget)
         {
             CompSmartForcedTarget comp = __instance.TryGetComp<CompSmartForcedTarget>();
+            bool? upgraded = __instance.TryGetComp<CompUpgradable>()?.upgraded;
             if (comp != null && ___forcedTarget.Thing is Pawn pawn)
             {
-                if (!pawn.Downed && !comp.attackingNonDownedPawn)
+                if (!pawn.Downed && (upgraded == true || !comp.Props.onlyApplyWhenUpgraded) && !comp.attackingNonDownedPawn)
                     comp.attackingNonDownedPawn = true;
                 if (pawn.Downed && comp.attackingNonDownedPawn)
                 {
