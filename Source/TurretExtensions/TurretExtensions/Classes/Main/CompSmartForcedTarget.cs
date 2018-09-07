@@ -12,6 +12,8 @@ namespace TurretExtensions
     class CompSmartForcedTarget : ThingComp
     {
 
+        public CompProperties_SmartForcedTarget Props => (CompProperties_SmartForcedTarget)props;
+
         public bool attackingNonDownedPawn = false;
 
     }
