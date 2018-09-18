@@ -184,12 +184,24 @@ namespace TurretExtensions
             Scribe_Values.Look(ref upgraded, "upgraded", false);
             Scribe_Values.Look(ref upgradeWorkDone, "upgradeWorkDone", 0f, true);
             Scribe_Values.Look(ref upgradeWorkTotal, "upgradeWorkTotal", CompProperties_Upgradable.defaultValues.workToUpgrade, true);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                // For savegame compatibility with mods that add upgrades to existing turrets, since ctor doesn't iron this out for some reason
+                if (innerContainer == null)
+                    innerContainer = new ThingOwner<Thing>(this, false);
+            }
         }
 
         public void GetChildHolders(List<IThingHolder> outChildren) =>
             ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
 
         public ThingOwner GetDirectlyHeldThings() => innerContainer;
+
+        public override string ToString() =>
+            $"CompUpgradable for {parent.ToStringSafe()}...\n\n"+ 
+            $"upgradeCostListFinalized - {upgradeCostListFinalized.ToStringSafe()}\n" +
+            $"innerContainer - {innerContainer.ToStringSafe()}\n" +
+            $"upgraded - {upgraded.ToStringSafe()}";
 
 
     }
