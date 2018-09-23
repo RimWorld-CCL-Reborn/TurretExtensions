@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+
+    <!-- Designators -->
+    <DesignatorUpgradeTurret>Geschütz verbessern</DesignatorUpgradeTurret>
+    <DesignatorUpgradeTurretDesc>Markiere Geschütze, um sie aufzuwerten und ihre Leistung zu erhöhen.</DesignatorUpgradeTurretDesc>
+
+    <MessageMustDesignateUpgradableTurrets>Es muss ein verbesserbares Geschütz markiert werden.</MessageMustDesignateUpgradableTurrets>
+
+    <!-- Dialogs_StatReports -->
+    <NoAlreadyUpgraded>Nein (Bereits verbessert)</NoAlreadyUpgraded>
+    <YesClickForDetails>Ja (Klicke für Details)</YesClickForDetails>
+
+    <MannableTurretAccuracyDepends>Genauigkeit basiert auf der Person, welcher dieses Geschütz steuert.</MannableTurretAccuracyDepends>
+    <MannableTurretNotManned>Kein Schütze</MannableTurretNotManned>
+    <MannableTurretIsManned>Vom Schützen</MannableTurretIsManned>
+
+    <!-- Dialogs_Various -->
+    <UpgradedTurretShootingAccuracy>Schussgenauigkeit verbessert</UpgradedTurretShootingAccuracy>
+    <UserShootingAccuracy>Schussgenauigkeit des Schützen</UserShootingAccuracy>
+
+    <MannedTurretUsesShooterAccuracy>Basiert auf der Genauigkeit des Schützen</MannedTurretUsesShooterAccuracy>
+    <MannedTurretUsesShooterAccuracyExplanation>Ob dieses Geschütz die Schussgenauigkeit des Schützen übernimmt oder nicht.</MannedTurretUsesShooterAccuracyExplanation>
+    <MannedTurretUsesShooterAccuracyBonus>Die Genauigkeit des Schützen steigt um {0} wenn er {1} nutzt.</MannedTurretUsesShooterAccuracyBonus>
+    <MannedTurretUsesShooterAccuracyPenalty>Die Genauigkeit des Schützen verringert sich um {0} wenn er {1} nutzt.</MannedTurretUsesShooterAccuracyPenalty>
+    <MannedTurretUsesShooterAccuracyNoChange>{0} beeinflusst die Genauigkeit des Schützen in keiner Weise.</MannedTurretUsesShooterAccuracyNoChange>
+    <MortarShellDependent>Basiert auf der Munition</MortarShellDependent>
+    <ShellDamageType>Schadenstyp</ShellDamageType>
+    <ShellExplosionRadius>Explosionsradius</ShellExplosionRadius>
+
+    <Upgradable>Verbesserbar</Upgradable>
+    <TurretUpgradeBenefitsMain>Ob ein Geschütz verbessert werden kann, um seine Leistung zu erhöhen.</TurretUpgradeBenefitsMain>
+    <TurretResourceRequirements>Material benötigt</TurretResourceRequirements>
+    <TurretMinimumUpgradeSkill>Konstruktionsfähigkeit benötigt</TurretMinimumUpgradeSkill>
+    <TurretResearchRequirements>Forschung benötigt</TurretResearchRequirements>
+    <TurretUpgradeBenefitsUpgradable>Die Daten des Geschütz sind folgende wenn es verbessert wurde</TurretUpgradeBenefitsUpgradable>
+    <TurretUpgradeBenefitsNotUpgradable>Dieses Geschütz kann nicht verbessert werden.</TurretUpgradeBenefitsNotUpgradable>
+
+    <Effective>Effektiv</Effective>
+    <TurretManuallyAimable>Geschütz kann direkt von dir gesteuert werden</TurretManuallyAimable>
+
+    <!-- Messages -->
+    <ConstructionSkillTooLowMessage>Keiner deiner {0} hat eine ausreichende Konstruktionsfähigkeit um {1} zu verbessern.</ConstructionSkillTooLowMessage>
+    <UpgradeResearchNotMetMessage>Fehlende Forschung um {0} zu verbessern</UpgradeResearchNotMetMessage>
+    <TurretUpgradeCostMessage>Materialkosten um {0} zu verbessern</TurretUpgradeCostMessage>
+    <UpgradeFailMinorMessage>{0} hat versagt {1} zu verbessern.</UpgradeFailMinorMessage>
+    <UpgradeFailMajorMessage>{0} hat versagt {1} zu verbessern und es dabei beschädigt.</UpgradeFailMajorMessage>
+
+    <UpgradeFailResourceLossSmall>Die meisten Ressourcen wurden erfolgreich zurückgewonnen.</UpgradeFailResourceLossSmall>
+    <UpgradeFailResourceLossMedium>Einige Ressourcen sind verloren gegangen.</UpgradeFailResourceLossMedium>
+    <UpgradeFailResourceLossHigh>Die meisten Ressourcen sind verloren gegangen.</UpgradeFailResourceLossHigh>
+    <UpgradeFailResourceLossTotal>Alle Ressourcen sind verloren gegangen.</UpgradeFailResourceLossTotal>
+
+    <!-- Misc_Gameplay -->
+    <TextMote_UpgradeFail>Verbesserung fehlgeschlagen</TextMote_UpgradeFail>
+    <TurretUpgradedText>verbessertes</TurretUpgradedText>
+    <TurretUpgradeProgress>Arbeit bis verbessert</TurretUpgradeProgress>
+
+</LanguageData>
