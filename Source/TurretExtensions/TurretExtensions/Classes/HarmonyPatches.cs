@@ -611,7 +611,7 @@ namespace TurretExtensions
                 if (def.HasComp(typeof(CompPowerTrader)) && upgradeProps.basePowerConsumptionFactor != 1f)
                 {
                     float newPowerConsumption = def.GetCompProperties<CompProperties_Power>().basePowerConsumption * upgradeProps.basePowerConsumptionFactor;
-                    upgradabilityExplanation.AppendLine("PowerNeeded".Translate() + ": " + newPowerConsumption.ToString("#####0") + " W");
+                    upgradabilityExplanation.AppendLine("PowerConsumption".Translate() + ": " + newPowerConsumption.ToString("#####0") + " W");
                 }
 
                 // Effective barrel durability -- LEGACY
@@ -620,7 +620,7 @@ namespace TurretExtensions
                 {
                     float effDurability = Mathf.Ceil(def.GetCompProperties<CompProperties_Refuelable>().fuelCapacity *
                         upgradeProps.barrelDurabilityFactor * upgradeProps.effectiveBarrelDurabilityFactor);
-                    upgradabilityExplanation.AppendLine(def.GetCompProperties<CompProperties_Refuelable>().fuelGizmoLabel.CapitalizeFirst() + ": " + effDurability.ToString());
+                    upgradabilityExplanation.AppendLine("ShotsBeforeRearm".Translate() + ": " + effDurability.ToString());
                 }
 
                 // Cooldown time
