@@ -9,7 +9,7 @@ using RimWorld;
 
 namespace TurretExtensions
 {
-    class JobDriver_UpgradeTurret : JobDriver
+    public class JobDriver_UpgradeTurret : JobDriver
     {
 
         // Upgrade work is stored in the comp
@@ -26,7 +26,12 @@ namespace TurretExtensions
             this.FailOnDespawnedNullOrForbidden(TurretInd);
 
             yield return Toils_Goto.GotoCell(TurretInd, PathEndMode.Touch);
+            yield return Upgrade();
+            yield break;
+        }
 
+        private Toil Upgrade()
+        {
             Toil upgrade = new Toil();
             upgrade.initAction = delegate
             {
@@ -59,9 +64,7 @@ namespace TurretExtensions
             upgrade.WithProgressBar(TurretInd, () => UpgradableComp.upgradeWorkDone / UpgradableComp.upgradeWorkTotal);
             upgrade.defaultCompleteMode = ToilCompleteMode.Never;
             upgrade.activeSkill = (() => SkillDefOf.Construction);
-            yield return upgrade;
-
-            yield break;
+            return upgrade;
         }
 
         private void FailUpgrade(Pawn worker, float successChance, Thing building)

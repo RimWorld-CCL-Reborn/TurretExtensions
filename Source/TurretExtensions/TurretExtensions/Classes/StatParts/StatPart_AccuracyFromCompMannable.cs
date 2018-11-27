@@ -7,7 +7,7 @@ using Verse;
 
 namespace TurretExtensions
 {
-    class StatPart_AccuracyFromCompMannable : StatPart
+    public class StatPart_AccuracyFromCompMannable : StatPart
     {
         public override void TransformValue(StatRequest req, ref float val)
         {

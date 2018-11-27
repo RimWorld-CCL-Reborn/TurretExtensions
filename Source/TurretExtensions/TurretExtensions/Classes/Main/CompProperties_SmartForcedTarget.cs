@@ -8,7 +8,7 @@ using RimWorld;
 
 namespace TurretExtensions
 {
-    class CompProperties_SmartForcedTarget : CompProperties
+    public class CompProperties_SmartForcedTarget : CompProperties
     {
 
         public CompProperties_SmartForcedTarget()

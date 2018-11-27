@@ -8,7 +8,7 @@ using RimWorld;
 
 namespace TurretExtensions
 {
-    class CompProperties_Upgradable : CompProperties
+    public class CompProperties_Upgradable : CompProperties
     {
 
         public CompProperties_Upgradable()

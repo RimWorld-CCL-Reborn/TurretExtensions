@@ -9,7 +9,7 @@ using RimWorld;
 
 namespace TurretExtensions
 {
-    class CompUpgradable : ThingComp, IThingHolder
+    public class CompUpgradable : ThingComp, IThingHolder
     {
 
         public List<ThingDefCountClass> upgradeCostListFinalized;

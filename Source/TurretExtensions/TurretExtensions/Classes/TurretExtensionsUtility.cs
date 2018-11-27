@@ -8,7 +8,7 @@ using RimWorld;
 
 namespace TurretExtensions
 {
-    static class TurretExtensionsUtility
+    public static class TurretExtensionsUtility
     {
 
         public static bool IsUpgradableTurret(this ThingDef def, out CompProperties_Upgradable uCP)

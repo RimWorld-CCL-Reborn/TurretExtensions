@@ -9,7 +9,7 @@ using RimWorld;
 
 namespace TurretExtensions
 {
-    class WorkGiver_UpgradeTurret : WorkGiver_Scanner
+    public class WorkGiver_UpgradeTurret : WorkGiver_Scanner
     {
 
         private ThingDefCountClass firstMissingIngredient = new ThingDefCountClass();

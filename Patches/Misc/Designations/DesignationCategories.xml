@@ -2,7 +2,7 @@
 <Patch>
 
     <Operation Class="PatchOperationAdd">
-        <xpath>*/DesignationCategoryDef[defName="Orders" or defName="Security"]/specialDesignatorClasses</xpath>
+        <xpath>Defs/DesignationCategoryDef[defName="Orders" or defName="Security"]/specialDesignatorClasses</xpath>
         <value>
             <li>TurretExtensions.Designator_UpgradeTurret</li>
         </value>

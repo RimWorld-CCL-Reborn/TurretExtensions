@@ -9,7 +9,7 @@ using RimWorld;
 
 namespace TurretExtensions
 {
-    class CompSmartForcedTarget : ThingComp
+    public class CompSmartForcedTarget : ThingComp
     {
 
         public CompProperties_SmartForcedTarget Props => (CompProperties_SmartForcedTarget)props;
