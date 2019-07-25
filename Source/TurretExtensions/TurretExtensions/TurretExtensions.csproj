@@ -16,7 +16,7 @@
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\Assemblies\</OutputPath>
+    <OutputPath>..\..\..\1.0\Assemblies\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -31,10 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=1.0.9.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Assemblies\0Harmony.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\1.0\Assemblies\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
@@ -52,27 +50,40 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\Designators\Designator_UpgradeTurret.cs" />
-    <Compile Include="Classes\Enums\TurretGunFaceDirection.cs" />
-    <Compile Include="Classes\Main\CompProperties_SmartForcedTarget.cs" />
-    <Compile Include="Classes\Main\CompSmartForcedTarget.cs" />
-    <Compile Include="Classes\StatParts\StatPart_AccuracyFromCompMannable.cs" />
-    <Compile Include="Classes\StatParts\Legacy\StatPart_FlammabilityFromUpgrade.cs" />
-    <Compile Include="Classes\StatParts\Legacy\StatPart_HealthFromUpgrade.cs" />
-    <Compile Include="Classes\StatParts\Legacy\StatPart_AccuracyFromUpgrade.cs" />
-    <Compile Include="Classes\StatParts\StatPart_ValueFromUpgrade.cs" />
-    <Compile Include="Classes\DefOfs\TE_DesignationDefOf.cs" />
-    <Compile Include="Classes\DefOfs\TE_JobDefOf.cs" />
-    <Compile Include="Classes\DefOfs\TE_RecordDefOf.cs" />
-    <Compile Include="Classes\AI\WorkGiver_UpgradeTurret.cs" />
-    <Compile Include="Classes\AI\JobDriver_UpgradeTurret.cs" />
-    <Compile Include="Classes\Main\CompUpgradable.cs" />
-    <Compile Include="Classes\Main\CompProperties_Upgradable.cs" />
-    <Compile Include="Classes\StatParts\StatPart_FromMannableTurret.cs" />
-    <Compile Include="Classes\DefOfs\TE_StatCategoryDefOf.cs" />
-    <Compile Include="Classes\Main\TurretFrameworkExtension.cs" />
-    <Compile Include="Classes\HarmonyPatches.cs" />
-    <Compile Include="Classes\TurretExtensionsUtility.cs" />
+    <Compile Include="Designators\Designator_UpgradeTurret.cs" />
+    <Compile Include="Enums\TurretGunFaceDirection.cs" />
+    <Compile Include="HarmonyPatches\HarmonyPatchesUtility.cs" />
+    <Compile Include="HarmonyPatches\Patch_Pawn_RotationTracker.cs" />
+    <Compile Include="HarmonyPatches\Patch_Designator_Cancel.cs" />
+    <Compile Include="HarmonyPatches\Patch_Gizmo_RefuelableFuelStatus.cs" />
+    <Compile Include="HarmonyPatches\Patch_TurretTop.cs" />
+    <Compile Include="HarmonyPatches\Patch_ThingDef.cs" />
+    <Compile Include="HarmonyPatches\Patch_Thing.cs" />
+    <Compile Include="HarmonyPatches\Patch_ReverseDesignatorDatabase.cs" />
+    <Compile Include="HarmonyPatches\Patch_CompPowerTrader.cs" />
+    <Compile Include="HarmonyPatches\Patch_StatWorker.cs" />
+    <Compile Include="HarmonyPatches\Patch_StatsReportUtility.cs" />
+    <Compile Include="HarmonyPatches\Patch_CompRefuelable.cs" />
+    <Compile Include="HarmonyPatches\Patch_Building_TurretGun.cs" />
+    <Compile Include="ThingComps\CompProperties_SmartForcedTarget.cs" />
+    <Compile Include="ThingComps\CompSmartForcedTarget.cs" />
+    <Compile Include="StatParts\StatPart_AccuracyFromCompMannable.cs" />
+    <Compile Include="StatParts\Legacy\StatPart_FlammabilityFromUpgrade.cs" />
+    <Compile Include="StatParts\Legacy\StatPart_HealthFromUpgrade.cs" />
+    <Compile Include="StatParts\Legacy\StatPart_AccuracyFromUpgrade.cs" />
+    <Compile Include="StatParts\StatPart_ValueFromUpgrade.cs" />
+    <Compile Include="DefOfs\TE_DesignationDefOf.cs" />
+    <Compile Include="DefOfs\TE_JobDefOf.cs" />
+    <Compile Include="DefOfs\TE_RecordDefOf.cs" />
+    <Compile Include="AI\WorkGiver_UpgradeTurret.cs" />
+    <Compile Include="AI\JobDriver_UpgradeTurret.cs" />
+    <Compile Include="ThingComps\CompUpgradable.cs" />
+    <Compile Include="ThingComps\CompProperties_Upgradable.cs" />
+    <Compile Include="StatParts\StatPart_FromMannableTurret.cs" />
+    <Compile Include="DefOfs\TE_StatCategoryDefOf.cs" />
+    <Compile Include="DefModExtensions\TurretFrameworkExtension.cs" />
+    <Compile Include="HarmonyPatches\HarmonyPatches.cs" />
+    <Compile Include="TurretExtensionsUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

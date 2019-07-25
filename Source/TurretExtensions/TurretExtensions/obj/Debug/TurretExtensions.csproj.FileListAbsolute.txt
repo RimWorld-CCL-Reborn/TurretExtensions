@@ -13,3 +13,5 @@ E:\Documents\GitHub\TurretExtensions\Assemblies\TurretExtensions.dll
 E:\Documents\GitHub\TurretExtensions\Source\TurretExtensions\TurretExtensions\obj\Debug\TurretExtensions.csproj.CoreCompileInputs.cache
 E:\Documents\GitHub\TurretExtensions\Source\TurretExtensions\TurretExtensions\obj\Debug\TurretExtensions.dll
 E:\Documents\GitHub\TurretExtensions\Source\TurretExtensions\TurretExtensions\obj\Debug\TurretExtensions.csprojAssemblyReference.cache
+E:\Documents\GitHub\TurretExtensions\1.0\Assemblies\TurretExtensions.dll
+E:\Documents\GitHub\TurretExtensions\Source\TurretExtensions\TurretExtensions\obj\Debug\TurretExtensions.csproj.CopyComplete
