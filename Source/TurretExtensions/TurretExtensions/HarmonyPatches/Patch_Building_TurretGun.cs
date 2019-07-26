@@ -156,24 +156,19 @@ namespace TurretExtensions
         public static class Patch_GetInspectString
         {
 
-            public static void Postfix(Building_TurretGun __instance, ref bool __result)
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
+                var instructionList = instructions.ToList();
 
-                // If the turret isn't mannable, is player-controlled and is set to be able to force target, do so
-                if (__instance.Faction == Faction.OfPlayer)
+                for (int i = 0; i < instructionList.Count; i++)
                 {
-                    var extensionValues = __instance.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
-                    var upgradableComp = __instance.TryGetComp<CompUpgradable>();
+                    var instruction = instructionList[i];
 
-                    if (extensionValues.canForceAttack || (upgradableComp != null && upgradableComp.upgraded && upgradableComp.Props.canForceAttack))
-                    {
-                        if (!__instance.def.HasComp(typeof(CompMannable)))
-                            __result = true;
-                        else
-                            Log.Warning($"Turret (defName={__instance.def.defName}) has canForceAttack set to true and CompMannable; canForceAttack is redundant in this case.");
-                    }
+                    if (instruction.opcode == OpCodes.Ldc_R4 && (float)instruction.operand == 5)
+                        instruction.operand = 0;
+
+                    yield return instruction;
                 }
-
             }
 
         }

@@ -1,6 +1,6 @@
 <Manifest>
     <identifier>TurretExtensions</identifier>
-    <version>1.2.6</version>
+    <version>1.2.7</version>
     <manifestUri>https://cdn.jsdelivr.net/gh/RimWorld-CCL-Reborn/TurretExtensions/About/Manifest.xml</manifestUri>
     <downloadUri>https://github.com/RimWorld-CCL-Reborn/TurretExtensions/releases</downloadUri>
 </Manifest>

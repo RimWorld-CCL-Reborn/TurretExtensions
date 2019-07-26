@@ -171,7 +171,7 @@ namespace TurretExtensions
                 }
                 return inspectString;
             }
-            return null;
+            return String.Empty;
         }
 
         public override string TransformLabel(string label) =>
