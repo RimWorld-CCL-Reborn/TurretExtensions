@@ -21,15 +21,17 @@ namespace TurretExtensions
             foreach (string e in base.ConfigErrors(parentDef))
                 yield return e;
 
-            if (onlyApplyWhenUpgraded && !parentDef.HasComp(typeof(CompUpgradable)))
+            if (!upgradesRequired.NullOrEmpty() && !parentDef.HasComp(typeof(CompUpgradable)))
             {
-                yield return "has onlyApplyWhenUpgraded set to true but doesn't have CompUpgradable";
-                onlyApplyWhenUpgraded = false;
+                var upgradableProps = parentDef.GetCompProperties<CompProperties_Upgradable>();
+                if (upgradableProps == null)
+                    yield return "has upgradesRequired but doesn't have CompUpgradable";
+                else
             }
             yield break;
         }
 
-        public bool onlyApplyWhenUpgraded = false;
+        public List<UpgradeDef> upgradesRequired;
 
     }
 }

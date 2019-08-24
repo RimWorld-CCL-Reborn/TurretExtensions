@@ -50,6 +50,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Defs\TurretUpgradeDef.cs" />
     <Compile Include="Designators\Designator_UpgradeTurret.cs" />
     <Compile Include="Enums\TurretGunFaceDirection.cs" />
     <Compile Include="HarmonyPatches\HarmonyPatchesUtility.cs" />
