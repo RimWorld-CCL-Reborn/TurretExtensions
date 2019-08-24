@@ -34,6 +34,8 @@ namespace TurretExtensions
         public override void Initialize(CompProperties props)
         {
             base.Initialize(props);
+
+            // Finalise the cost list
             if (parent.def.MadeFromStuff && Props.costStuffCount > 0)
                 upgradeCostListFinalized.Add(new ThingDefCountClass(parent.Stuff, Props.costStuffCount));
             if (Props.costList != null)
@@ -62,7 +64,8 @@ namespace TurretExtensions
         public override void PostDestroy(DestroyMode mode, Map previousMap)
         {
             base.PostDestroy(mode, previousMap);
-            // If the turret wasn't minified, drop its stuff
+
+            // If the turret wasn't minified, drop anything inside the innerContainer
             if (mode != DestroyMode.Vanish)
             {
                 float resourceDropFraction = (mode == DestroyMode.KillFinalize) ? Props.destroyedResourceDropPct : Props.baseResourceDropPct;
@@ -112,33 +115,44 @@ namespace TurretExtensions
                 upgradeWorkDone = upgradeWorkTotal;
         }
 
-        public void ResolveUpgrade()
+        public void Upgrade()
         {
             upgraded = true;
+
+            // Set health to max health
             if (parent.def.useHitPoints)
                 parent.HitPoints = parent.MaxHitPoints;
+
+            // Update turret top
             if (parent is Building_TurretGun turretWGun)
             {
-                ((TurretTop)(Traverse.Create(turretWGun).Field("top").GetValue())).DrawTurret();
                 if (Props.turretGunDef != null)
                 {
                     turretWGun.gun = ThingMaker.MakeThing(Props.turretGunDef);
-                    AccessTools.Method(typeof(Building_TurretGun), "UpdateGunVerbs").Invoke(turretWGun, null);
+                    NonPublicMethods.Building_TurretGun_UpdateGunVerbs(turretWGun);
                 }
             }
+
+            // Update barrel durability
             if (parent.TryGetComp<CompRefuelable>() is CompRefuelable refuelableComp)
             {
-                Traverse fuel = Traverse.Create(refuelableComp).Field("fuel");
-                fuel.SetValue((float)fuel.GetValue() * Props.barrelDurabilityFactor * Props.effectiveBarrelDurabilityFactor);
+                float newFuel = (float)NonPublicFields.CompRefuelable_fuel.GetValue(refuelableComp) * Props.barrelDurabilityFactor * Props.effectiveBarrelDurabilityFactor;
+                NonPublicFields.CompRefuelable_fuel.SetValue(refuelableComp, newFuel);
             }
+
+            // Reset CompPowerTrader
             if (parent.TryGetComp<CompPowerTrader>() is CompPowerTrader powerComp)
                 powerComp.SetUpPowerVars();
+
+            // Force redraw
+            parent.Map.mapDrawer.SectionAt(parent.Position).RegenerateAllLayers();
         }
 
         public override string CompInspectStringExtra()
         {
             if (ParentHolder != null && !(ParentHolder is Map))
                 return base.CompInspectStringExtra();
+
             if (!upgraded)
             {
                 string inspectString = "";
@@ -169,6 +183,7 @@ namespace TurretExtensions
                     float upgradeWorkRemaining = (upgradeWorkTotal - upgradeWorkDone) / GenTicks.TicksPerRealSecond;
                     inspectString += "TurretUpgradeProgress".Translate() + ": " + upgradeWorkRemaining.ToString("0");
                 }
+
                 return inspectString;
             }
             return String.Empty;
@@ -192,8 +207,7 @@ namespace TurretExtensions
             }
         }
 
-        public void GetChildHolders(List<IThingHolder> outChildren) =>
-            ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
+        public void GetChildHolders(List<IThingHolder> outChildren) => ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
 
         public ThingOwner GetDirectlyHeldThings() => innerContainer;
 

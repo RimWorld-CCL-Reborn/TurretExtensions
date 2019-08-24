@@ -53,7 +53,7 @@ namespace TurretExtensions
                 UpgradableComp.upgradeWorkDone += constructionSpeed;
                 if (UpgradableComp.upgradeWorkDone >= UpgradableComp.upgradeWorkTotal)
                 {
-                    UpgradableComp.ResolveUpgrade();
+                    UpgradableComp.Upgrade();
                     Map.designationManager.TryRemoveDesignationOn(TargetThingA, TE_DesignationDefOf.UpgradeTurret);
                     actor.records.Increment(TE_RecordDefOf.TurretsUpgraded);
                     actor.jobs.EndCurrentJob(JobCondition.Succeeded);

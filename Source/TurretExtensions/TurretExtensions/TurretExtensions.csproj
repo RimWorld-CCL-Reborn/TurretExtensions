@@ -65,8 +65,11 @@
     <Compile Include="HarmonyPatches\Patch_StatsReportUtility.cs" />
     <Compile Include="HarmonyPatches\Patch_CompRefuelable.cs" />
     <Compile Include="HarmonyPatches\Patch_Building_TurretGun.cs" />
-    <Compile Include="ThingComps\CompProperties_SmartForcedTarget.cs" />
-    <Compile Include="ThingComps\CompSmartForcedTarget.cs" />
+    <Compile Include="Reflection\NonPublicMethods.cs" />
+    <Compile Include="Reflection\NonPublicProperties.cs" />
+    <Compile Include="Reflection\NonPublicFields.cs" />
+    <Compile Include="Comps\CompProperties_SmartForcedTarget.cs" />
+    <Compile Include="Comps\CompSmartForcedTarget.cs" />
     <Compile Include="StatParts\StatPart_AccuracyFromCompMannable.cs" />
     <Compile Include="StatParts\Legacy\StatPart_FlammabilityFromUpgrade.cs" />
     <Compile Include="StatParts\Legacy\StatPart_HealthFromUpgrade.cs" />
@@ -77,8 +80,8 @@
     <Compile Include="DefOfs\TE_RecordDefOf.cs" />
     <Compile Include="AI\WorkGiver_UpgradeTurret.cs" />
     <Compile Include="AI\JobDriver_UpgradeTurret.cs" />
-    <Compile Include="ThingComps\CompUpgradable.cs" />
-    <Compile Include="ThingComps\CompProperties_Upgradable.cs" />
+    <Compile Include="Comps\CompUpgradable.cs" />
+    <Compile Include="Comps\CompProperties_Upgradable.cs" />
     <Compile Include="StatParts\StatPart_FromMannableTurret.cs" />
     <Compile Include="DefOfs\TE_StatCategoryDefOf.cs" />
     <Compile Include="DefModExtensions\TurretFrameworkExtension.cs" />

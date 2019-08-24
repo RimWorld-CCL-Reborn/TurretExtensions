@@ -59,7 +59,7 @@ namespace TurretExtensions
             if (DebugSettings.godMode)
             {
                 CompUpgradable upgradableComp = t.TryGetComp<CompUpgradable>();
-                upgradableComp.ResolveUpgrade();
+                upgradableComp.Upgrade();
                 if (upgradableComp.upgradeCostListFinalized != null)
                     foreach (ThingDefCountClass thing in upgradableComp.upgradeCostListFinalized)
                         for (int i = 0; i < thing.count; i++)

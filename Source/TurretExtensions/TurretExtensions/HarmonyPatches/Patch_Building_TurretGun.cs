@@ -17,15 +17,14 @@ namespace TurretExtensions
     public static class Patch_Building_TurretGun
     {
 
-        [HarmonyPatch(typeof(Building_TurretGun))]
-        [HarmonyPatch(nameof(Building_TurretGun.Tick))]
-        public static class Patch_Tick
+        [HarmonyPatch(typeof(Building_TurretGun), nameof(Building_TurretGun.Tick))]
+        public static class Tick
         {
 
             public static void Prefix(Building_TurretGun __instance, LocalTargetInfo ___forcedTarget)
             {
                 // If the turret has CompSmartForcedTarget and is attacking a pawn that just got downed, automatically make it target something else
-                var smartTargetComp = __instance.TryGetComp<CompSmartForcedTarget>();
+                var smartTargetComp = __instance.GetComp<CompSmartForcedTarget>();
                 if (smartTargetComp != null && ___forcedTarget.Thing is Pawn pawn)
                 {
                     var upgradableComp = __instance.TryGetComp<CompUpgradable>();
@@ -35,7 +34,7 @@ namespace TurretExtensions
                     else if (pawn.Downed && smartTargetComp.attackingNonDownedPawn)
                     {
                         smartTargetComp.attackingNonDownedPawn = false;
-                        AccessTools.Method(typeof(Building_TurretGun), "ResetForcedTarget").Invoke(__instance, null);
+                        NonPublicMethods.Building_TurretGun_ResetForcedTarget(__instance);
                     }
                 }
             }
@@ -54,19 +53,19 @@ namespace TurretExtensions
                 switch (turretFrameworkExtension.gunFaceDirectionOnSpawn)
                 {
                     case TurretGunFaceDirection.North:
-                        Traverse.Create(___top).Property("CurRotation").SetValue(Rot4.North.AsAngle);
+                        NonPublicProperties.TurretTop_set_CurRotation(___top, Rot4.North.AsAngle);
                         break;
                     case TurretGunFaceDirection.East:
-                        Traverse.Create(___top).Property("CurRotation").SetValue(Rot4.East.AsAngle);
+                        NonPublicProperties.TurretTop_set_CurRotation(___top, Rot4.East.AsAngle);
                         break;
                     case TurretGunFaceDirection.South:
-                        Traverse.Create(___top).Property("CurRotation").SetValue(Rot4.South.AsAngle);
+                        NonPublicProperties.TurretTop_set_CurRotation(___top, Rot4.South.AsAngle);
                         break;
                     case TurretGunFaceDirection.West:
-                        Traverse.Create(___top).Property("CurRotation").SetValue(Rot4.West.AsAngle);
+                        NonPublicProperties.TurretTop_set_CurRotation(___top, Rot4.West.AsAngle);
                         break;
                     default:
-                        Traverse.Create(___top).Property("CurRotation").SetValue(__instance.Rotation.AsAngle);
+                        NonPublicProperties.TurretTop_set_CurRotation(___top, __instance.Rotation.AsAngle);
                         break;
                 }
             }
