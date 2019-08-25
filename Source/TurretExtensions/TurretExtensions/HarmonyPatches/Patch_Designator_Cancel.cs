@@ -17,9 +17,8 @@ namespace TurretExtensions
     public static class Patch_Designator_Cancel
     {
 
-        [HarmonyPatch(typeof(Designator_Cancel))]
-        [HarmonyPatch("DesignateThing")]
-        public static class Patch_DesignateThing
+        [HarmonyPatch(typeof(Designator_Cancel), "DesignateThing")]
+        public static class DesignateThing
         {
 
             public static void Prefix(Thing t)
@@ -27,10 +26,10 @@ namespace TurretExtensions
                 // Cancelling a turret upgrade drops materials just like when cancelling a construction project
                 if (t.TryGetComp<CompUpgradable>() is CompUpgradable upgradableComp)
                 {
-                    var upgradeDes = t.Map.designationManager.DesignationOn(t, TE_DesignationDefOf.UpgradeTurret);
+                    var upgradeDes = t.Map.designationManager.DesignationOn(t, DesignationDefOf.UpgradeTurret);
                     if (upgradeDes != null)
                     {
-                        upgradableComp.upgradeWorkTotal = -1f;
+                        upgradableComp.upgradeWorkTotal = -1;
                         upgradableComp.innerContainer.TryDropAll(t.Position, t.Map, ThingPlaceMode.Near);
                     }
                 }

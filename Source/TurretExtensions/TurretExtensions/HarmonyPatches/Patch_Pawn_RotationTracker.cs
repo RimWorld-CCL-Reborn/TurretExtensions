@@ -17,16 +17,15 @@ namespace TurretExtensions
     public static class Patch_Pawn_RotationTracker
     {
 
-        [HarmonyPatch(typeof(Pawn_RotationTracker))]
-        [HarmonyPatch(nameof(Pawn_RotationTracker.UpdateRotation))]
-        public static class Patch_UpdateRotation
+        [HarmonyPatch(typeof(Pawn_RotationTracker), nameof(Pawn_RotationTracker.UpdateRotation))]
+        public static class UpdateRotation
         {
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
                 var instructionList = instructions.ToList();
                 var draftedGetterInfo = AccessTools.Property(typeof(Pawn), nameof(Pawn.Drafted)).GetGetMethod();
-                var canRotateDraftedPawnInfo = AccessTools.Method(typeof(Patch_UpdateRotation), nameof(CanRotateDraftedPawn));
+                var canRotateDraftedPawnInfo = AccessTools.Method(typeof(UpdateRotation), nameof(CanRotateDraftedPawn));
 
                 for (int i = 0; i < instructionList.Count; i++)
                 {

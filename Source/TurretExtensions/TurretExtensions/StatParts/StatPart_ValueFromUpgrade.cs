@@ -11,7 +11,7 @@ namespace TurretExtensions
     {
         public override void TransformValue(StatRequest req, ref float val)
         {
-            if (req.Thing?.GetInnerIfMinified() is Building_Turret turret && turret.IsUpgradableTurret(out CompUpgradable uC))
+            if (req.Thing?.GetInnerIfMinified() is Building_Turret turret && turret.IsUpgradable(out CompUpgradable uC))
             {
                 //Log.Message(uC.ToStringSafe());
                 if (!uC.upgradeCostListFinalized.NullOrEmpty())

@@ -17,18 +17,17 @@ namespace TurretExtensions
     public static class Patch_TurretTop
     {
 
-        [HarmonyPatch(typeof(TurretTop))]
-        [HarmonyPatch(nameof(TurretTop.DrawTurret))]
-        public static class Patch_DrawTurret
+        [HarmonyPatch(typeof(TurretTop), nameof(TurretTop.DrawTurret))]
+        public static class DrawTurret
         {
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
                 var instructionList = instructions.ToList();
 
-                var turretTopOffsetToUse = AccessTools.Method(typeof(Patch_DrawTurret), nameof(TurretTopOffsetToUse));
-                var turretTopDrawSizeToUse = AccessTools.Method(typeof(Patch_DrawTurret), nameof(TurretTopDrawSizeToUse));
-                var turretTopMatToUse = AccessTools.Method(typeof(Patch_DrawTurret), nameof(TurretTopMatToUse));
+                var turretTopOffsetToUse = AccessTools.Method(typeof(DrawTurret), nameof(TurretTopOffsetToUse));
+                var turretTopDrawSizeToUse = AccessTools.Method(typeof(DrawTurret), nameof(TurretTopDrawSizeToUse));
+                var turretTopMatToUse = AccessTools.Method(typeof(DrawTurret), nameof(TurretTopMatToUse));
 
                 for (int i = 0; i < instructionList.Count; i++)
                 {
@@ -66,15 +65,27 @@ namespace TurretExtensions
                 }
             }
 
-            private static Vector2 TurretTopOffsetToUse(Vector2 ttO, Building_Turret turret) =>
-            (turret.IsUpgradedTurret(out CompUpgradable uC) && uC.Props.turretTopOffset != null) ? uC.Props.turretTopOffset : ttO;
+            private static Vector2 TurretTopOffsetToUse(Vector2 original, Building_Turret turret)
+            {
+                if (turret.IsUpgraded(out CompUpgradable uC) && uC.Props.turretTopOffset != null)
+                    return uC.Props.turretTopOffset;
+                return original;
+            }
 
-            private static float TurretTopDrawSizeToUse(float tTDS, Building_Turret turret) =>
-                (turret.IsUpgradedTurret(out CompUpgradable uC)) ? uC.Props.turretTopDrawSize : tTDS;
+            private static float TurretTopDrawSizeToUse(float original, Building_Turret turret)
+            {
+                if (turret.IsUpgraded(out CompUpgradable upgradableComp) && upgradableComp.Props.turretTopDrawSize != -1)
+                    return upgradableComp.Props.turretTopDrawSize;
+                return original;
+            }
 
-            private static Material TurretTopMatToUse(Material ttM, Building_Turret turret) =>
-                (turret.IsUpgradedTurret(out CompUpgradable uC) && !uC.Props.turretTopGraphicPath.NullOrEmpty()) ?
-                MaterialPool.MatFrom(uC.Props.turretTopGraphicPath) : ttM;
+            private static Material TurretTopMatToUse(Material original, Building_Turret turret)
+            {
+                if (turret.IsUpgraded(out CompUpgradable upgradableComp) && !upgradableComp.Props.turretTopGraphicPath.NullOrEmpty())
+                    return MaterialPool.MatFrom(upgradableComp.Props.turretTopGraphicPath);
+                return original;
+            }
+                
 
         }
 

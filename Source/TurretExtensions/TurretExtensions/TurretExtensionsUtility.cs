@@ -11,22 +11,22 @@ namespace TurretExtensions
     public static class TurretExtensionsUtility
     {
 
-        public static bool IsUpgradableTurret(this ThingDef def, out CompProperties_Upgradable uCP)
+        public static bool IsUpgradable(this ThingDef def, out CompProperties_Upgradable upgradableCompProps)
         {
-            uCP = def.GetCompProperties<CompProperties_Upgradable>();
-            return uCP != null;
+            upgradableCompProps = def.GetCompProperties<CompProperties_Upgradable>();
+            return upgradableCompProps != null;
         }
 
-        public static bool IsUpgradableTurret(this Thing thing, out CompUpgradable uC)
+        public static bool IsUpgradable(this Thing thing, out CompUpgradable upgradableComp)
         {
-            uC = thing.TryGetComp<CompUpgradable>();
-            return uC != null;
+            upgradableComp = thing.TryGetComp<CompUpgradable>();
+            return upgradableComp != null;
         }
 
-        public static bool IsUpgradedTurret(this Thing thing, out CompUpgradable uC)
+        public static bool IsUpgraded(this Thing thing, out CompUpgradable upgradableComp)
         {
-            bool isUpgradableTurret = thing.IsUpgradableTurret(out uC);
-            return isUpgradableTurret && uC.upgraded;
+            bool upgradable = thing.IsUpgradable(out upgradableComp);
+            return upgradable && upgradableComp.upgraded;
         }
 
     }

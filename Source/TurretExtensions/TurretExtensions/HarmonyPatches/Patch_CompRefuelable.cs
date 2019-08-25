@@ -45,10 +45,8 @@ namespace TurretExtensions
 
         #endregion
 
-        [HarmonyPatch(typeof(CompRefuelable))]
-        [HarmonyPatch(nameof(CompRefuelable.Refuel))]
-        [HarmonyPatch(new Type[] { typeof(float) })]
-        public static class Patch_Refuel
+        [HarmonyPatch(typeof(CompRefuelable), nameof(CompRefuelable.Refuel), new Type[] { typeof(float) })]
+        public static class Refuel
         {
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -58,9 +56,8 @@ namespace TurretExtensions
 
         }
 
-        [HarmonyPatch(typeof(CompRefuelable))]
-        [HarmonyPatch(nameof(CompRefuelable.CompInspectStringExtra))]
-        public static class Patch_CompInspectStringExtra
+        [HarmonyPatch(typeof(CompRefuelable), nameof(CompRefuelable.CompInspectStringExtra))]
+        public static class CompInspectStringExtra
         {
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -70,9 +67,8 @@ namespace TurretExtensions
 
         }
 
-        [HarmonyPatch(typeof(CompRefuelable))]
-        [HarmonyPatch(nameof(CompRefuelable.TargetFuelLevel), MethodType.Getter)]
-        public static class Patch_TargetFuelLevel_Getter
+        [HarmonyPatch(typeof(CompRefuelable), nameof(CompRefuelable.TargetFuelLevel), MethodType.Getter)]
+        public static class get_TargetFuelLevel
         {
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -82,9 +78,8 @@ namespace TurretExtensions
 
         }
 
-        [HarmonyPatch(typeof(CompRefuelable))]
-        [HarmonyPatch(nameof(CompRefuelable.TargetFuelLevel), MethodType.Setter)]
-        public static class Patch_TargetFuelLevel_Setter
+        [HarmonyPatch(typeof(CompRefuelable), nameof(CompRefuelable.TargetFuelLevel), MethodType.Setter)]
+        public static class set_TargetFuelLevel
         {
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -94,9 +89,8 @@ namespace TurretExtensions
 
         }
 
-        [HarmonyPatch(typeof(CompRefuelable))]
-        [HarmonyPatch(nameof(CompRefuelable.GetFuelCountToFullyRefuel))]
-        public static class Patch_GetFuelCountToFullyRefuel
+        [HarmonyPatch(typeof(CompRefuelable), nameof(CompRefuelable.GetFuelCountToFullyRefuel))]
+        public static class GetFuelCountToFullyRefuel
         {
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -104,7 +98,7 @@ namespace TurretExtensions
                 var instructionList = instructions.ToList();
 
                 var adjustedFuelCapacity = AccessTools.Method(typeof(HarmonyPatchesUtility), nameof(HarmonyPatchesUtility.AdjustedFuelCapacity));
-                var adjustedFuelCount = AccessTools.Method(typeof(Patch_GetFuelCountToFullyRefuel), nameof(AdjustedFuelCount));
+                var adjustedFuelCount = AccessTools.Method(typeof(GetFuelCountToFullyRefuel), nameof(AdjustedFuelCount));
 
                 for (int i = 0; i < instructionList.Count; i++)
                 {
@@ -133,7 +127,7 @@ namespace TurretExtensions
             }
 
             private static float AdjustedFuelCount(float currentFuelCount, Thing thing) =>
-                currentFuelCount / ((thing.IsUpgradedTurret(out CompUpgradable uC)) ? uC.Props.effectiveBarrelDurabilityFactor * uC.Props.barrelDurabilityFactor : 1f);
+                currentFuelCount / (thing.IsUpgraded(out CompUpgradable uC) ? uC.Props.barrelDurabilityFactor : 1f);
 
         }
 

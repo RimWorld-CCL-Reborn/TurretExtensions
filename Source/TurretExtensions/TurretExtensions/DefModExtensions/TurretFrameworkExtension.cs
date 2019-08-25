@@ -14,17 +14,15 @@ namespace TurretExtensions
     public class TurretFrameworkExtension : DefModExtension
     {
 
-        public static readonly TurretFrameworkExtension defaultValues = new TurretFrameworkExtension();
+        private static readonly TurretFrameworkExtension DefaultValues = new TurretFrameworkExtension();
 
-        public TurretGunFaceDirection gunFaceDirectionOnSpawn = TurretGunFaceDirection.Unspecified;
+        public static TurretFrameworkExtension Get(Def def) => def.GetModExtension<TurretFrameworkExtension>() ?? DefaultValues;
 
-        public bool useMannerShootingAccuracy = false;
-
-        public bool useMannerAimingDelayFactor = false;
-
-        public float mannerShootingAccuracyOffset = 0f;
-
-        public bool canForceAttack = false;
+        public TurretGunFaceDirection gunFaceDirectionOnSpawn;
+        public bool useMannerShootingAccuracy = true;
+        public bool useMannerAimingDelayFactor = true;
+        public float mannerShootingAccuracyOffset;
+        public bool canForceAttack;
 
     }
 

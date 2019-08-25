@@ -19,13 +19,13 @@ namespace TurretExtensions
 
         static HarmonyPatches()
         {
-            HarmonyInstance h = HarmonyInstance.Create("XeoNovaDan.TurretExtensions");
-            h.PatchAll();
-
             //HarmonyInstance.DEBUG = true;
+            TurretExtensions.harmonyInstance.PatchAll();
 
-            h.Patch(typeof(Gizmo_RefuelableFuelStatus).GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance).First().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).First(),
-                transpiler: new HarmonyMethod(typeof(Patch_Gizmo_RefuelableFuelStatus.ManualPatch_GizmoOnGUI_Delegate), "Transpiler"));
+            // Gizmo_RefuelableFuelStatus delegate
+            var delegateType = typeof(Gizmo_RefuelableFuelStatus).GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance).First();
+            Patch_Gizmo_RefuelableFuelStatus.manual_GizmoOnGUI_Delegate.delegateType = delegateType;
+            TurretExtensions.harmonyInstance.Patch(delegateType.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).First(), transpiler: new HarmonyMethod(typeof(Patch_Gizmo_RefuelableFuelStatus.manual_GizmoOnGUI_Delegate), "Transpiler"));
 
         }
 

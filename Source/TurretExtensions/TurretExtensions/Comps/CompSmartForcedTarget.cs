@@ -14,7 +14,13 @@ namespace TurretExtensions
 
         public CompProperties_SmartForcedTarget Props => (CompProperties_SmartForcedTarget)props;
 
-        public bool attackingNonDownedPawn = false;
+        public bool attackingNonDownedPawn;
+
+        public override void PostExposeData()
+        {
+            Scribe_Values.Look(ref attackingNonDownedPawn, "attackingNonDownedPawn");
+            base.PostExposeData();
+        }
 
     }
 }

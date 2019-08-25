@@ -5,10 +5,14 @@ using System.Text;
 
 namespace TurretExtensions
 {
-    public enum TurretGunFaceDirection : byte
+    public enum TurretGunFaceDirection
     {
 
-        North, East, South, West, Unspecified
+        Unspecified,
+        North,
+        East,
+        South,
+        West
 
     }
 }

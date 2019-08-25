@@ -17,9 +17,8 @@ namespace TurretExtensions
     public static class Patch_ReverseDesignatorDatabase
     {
 
-        [HarmonyPatch(typeof(ReverseDesignatorDatabase))]
-        [HarmonyPatch("InitDesignators")]
-        public static class Patch_InitDesignators
+        [HarmonyPatch(typeof(ReverseDesignatorDatabase), "InitDesignators")]
+        public static class InitDesignators
         {
 
             public static void Postfix(ReverseDesignatorDatabase __instance, ref List<Designator> ___desList)

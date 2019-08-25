@@ -24,7 +24,7 @@ namespace TurretExtensions
             soundSucceeded = SoundDefOf.Designate_Haul;
         }
 
-        protected override DesignationDef Designation => TE_DesignationDefOf.UpgradeTurret;
+        protected override DesignationDef Designation => DesignationDefOf.UpgradeTurret;
 
         public override int DraggableDimensions => 2;
 
@@ -40,7 +40,7 @@ namespace TurretExtensions
         }
 
         public override AcceptanceReport CanDesignateThing(Thing t) =>
-            (t is Building_Turret turret && turret.Faction == Faction.OfPlayer && turret.IsUpgradableTurret(out CompUpgradable upgradableComp) && 
+            (t is Building_Turret turret && turret.Faction == Faction.OfPlayer && turret.IsUpgradable(out CompUpgradable upgradableComp) && 
             !upgradableComp.upgraded && Map.designationManager.DesignationOn(t, Designation) == null);
 
         public override void DesignateSingleCell(IntVec3 c)
@@ -64,7 +64,6 @@ namespace TurretExtensions
                     foreach (ThingDefCountClass thing in upgradableComp.upgradeCostListFinalized)
                         for (int i = 0; i < thing.count; i++)
                             upgradableComp.innerContainer.TryAdd(ThingMaker.MakeThing(thing.thingDef));
-                upgradableComp.ResolveWorkToUpgrade(true);
             }
             else
             {
@@ -100,7 +99,7 @@ namespace TurretExtensions
             }
             if (!meetsMinSkill)
             {
-                Messages.Message("ConstructionSkillTooLowMessage".Translate(new object[] { Faction.OfPlayer.def.pawnsPlural, t.def.label }), MessageTypeDefOf.CautionInput, false);
+                Messages.Message("ConstructionSkillTooLowMessage".Translate(Faction.OfPlayer.def.pawnsPlural, t.def.label), MessageTypeDefOf.CautionInput, false);
             }
         }
 

@@ -33,10 +33,6 @@ namespace TurretExtensions
         private Toil Upgrade()
         {
             Toil upgrade = new Toil();
-            upgrade.initAction = delegate
-            {
-                UpgradableComp.ResolveWorkToUpgrade();
-            };
             upgrade.tickAction = delegate
             {
                 Pawn actor = upgrade.actor;
@@ -54,8 +50,8 @@ namespace TurretExtensions
                 if (UpgradableComp.upgradeWorkDone >= UpgradableComp.upgradeWorkTotal)
                 {
                     UpgradableComp.Upgrade();
-                    Map.designationManager.TryRemoveDesignationOn(TargetThingA, TE_DesignationDefOf.UpgradeTurret);
-                    actor.records.Increment(TE_RecordDefOf.TurretsUpgraded);
+                    Map.designationManager.TryRemoveDesignationOn(TargetThingA, DesignationDefOf.UpgradeTurret);
+                    actor.records.Increment(RecordDefOf.TurretsUpgraded);
                     actor.jobs.EndCurrentJob(JobCondition.Succeeded);
                 }
             };
@@ -74,18 +70,12 @@ namespace TurretExtensions
             float resourceRefund = UpgradableComp.Props.upgradeFailMinorResourcesRecovered;
 
             // Critical failure (2x construct fail chance by default)
-            if (Rand.Value < (1f - successChance) * UpgradableComp.Props.upgradeFailMajorChanceFactor || UpgradableComp.Props.upgradeFailAlwaysMajor)
+            if (UpgradableComp.Props.upgradeFailAlwaysMajor || Rand.Value < (1f - successChance) * UpgradableComp.Props.upgradeFailMajorChanceFactor)
             {
                 upgradeFailMessage = "UpgradeFailMajorMessage".Translate(worker.LabelShort, building.Label);
                 resourceRefund = UpgradableComp.Props.upgradeFailMajorResourcesRecovered;
 
-                int maxHealth = building.MaxHitPoints;
-                float minDmgPct = UpgradableComp.Props.upgradeFailMajorDmgPctMin;
-                float maxDmgPct = UpgradableComp.Props.upgradeFailMajorDmgPctMax;
-
-                // Legacy support is a pain
-                int damageAmount = Mathf.RoundToInt((minDmgPct != 0.1f || maxDmgPct != 0.5f) ? Rand.Range(maxHealth * minDmgPct, maxHealth * maxDmgPct) :
-                    maxHealth * UpgradableComp.Props.upgradeFailMajorDmgPctRange.RandomInRange);
+                float damageAmount = building.MaxHitPoints * UpgradableComp.Props.upgradeFailMajorDmgPctRange.RandomInRange;
                 building.TakeDamage(new DamageInfo(DamageDefOf.Blunt, damageAmount));
             }
 

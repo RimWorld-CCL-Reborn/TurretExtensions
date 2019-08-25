@@ -17,44 +17,58 @@ namespace TurretExtensions
     public static class Patch_Gizmo_RefuelableFuelStatus
     {
 
-        public static class ManualPatch_GizmoOnGUI_Delegate
+        public static class manual_GizmoOnGUI_Delegate
         {
 
-            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            public static Type delegateType;
+
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase method, ILGenerator ilGen)
             {
                 var instructionList = instructions.ToList();
 
-                bool ldflda = false;
-                var adjustedFuelCapacity = AccessTools.Method(typeof(HarmonyPatchesUtility), nameof(HarmonyPatchesUtility.AdjustedFuelCapacity));
+                // Add local
+                var fuelCapacityLocal = ilGen.DeclareLocal(typeof(float));
+
+                var fuelCapacityInfo = AccessTools.Field(typeof(CompProperties_Refuelable), nameof(CompProperties_Refuelable.fuelCapacity));
+
+                var thisInfo = AccessTools.Field(delegateType, "$this");
+
+                var adjustedFuelCapacityInfo = AccessTools.Method(typeof(manual_GizmoOnGUI_Delegate), nameof(AdjustedFuelCapacity));
 
                 for (int i = 0; i < instructionList.Count; i++)
                 {
                     var instruction = instructionList[i];
 
-                    if (instruction.opcode == OpCodes.Ldflda && instruction.operand == AccessTools.Field(typeof(CompProperties_Refuelable), nameof(CompProperties_Refuelable.fuelCapacity)))
+                    // Adjust all calls to fuel capacity to factor in upgraded status
+                    if (instruction.operand == fuelCapacityInfo)
                     {
-                        instruction.opcode = OpCodes.Ldfld;
-                        ldflda = true;
-                    }
-
-                    if (instruction.IsFuelCapacityInstruction())
-                    {
-                        yield return instruction;
-                        yield return new CodeInstruction(OpCodes.Ldarg_0);
-                        yield return new CodeInstruction(instructionList[i - 3]);
-                        yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(Gizmo_RefuelableFuelStatus), nameof(Gizmo_RefuelableFuelStatus.refuelable)));
-                        yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(CompRefuelable), nameof(CompRefuelable.parent)));
-                        if (ldflda)
+                        bool addr = false;
+                        if (instruction.opcode == OpCodes.Ldflda)
                         {
-                            yield return new CodeInstruction(OpCodes.Call, adjustedFuelCapacity);
-                            yield return new CodeInstruction(OpCodes.Stloc_S, 7);
+                            instruction.opcode = OpCodes.Ldfld;
+                            addr = true;
                         }
-                        instruction = (ldflda) ? new CodeInstruction(OpCodes.Ldloca_S, 7) : new CodeInstruction(OpCodes.Call, adjustedFuelCapacity);
-                        ldflda = false;
+                        yield return instruction; // this.$this.refuelable.Props.fuelCapacity
+                        yield return new CodeInstruction(OpCodes.Ldarg_0); // this
+                        yield return new CodeInstruction(OpCodes.Ldfld, thisInfo); // this.$this
+                        var callAdjustedFuelCapacity = new CodeInstruction(OpCodes.Call, adjustedFuelCapacityInfo); // AdjustedFuelCapacity(this.$this.refuelable.Props.fuelCapacity, this.$this)
+                        if (addr)
+                        {
+                            yield return callAdjustedFuelCapacity;
+                            yield return new CodeInstruction(OpCodes.Stloc_S, fuelCapacityLocal.LocalIndex);
+                            instruction = new CodeInstruction(OpCodes.Ldloca_S, fuelCapacityLocal.LocalIndex);
+                        }
+                        else
+                            instruction = callAdjustedFuelCapacity;
                     }
 
                     yield return instruction;
                 }
+            }
+
+            private static float AdjustedFuelCapacity(float original, Gizmo_RefuelableFuelStatus instance)
+            {
+                return HarmonyPatchesUtility.AdjustedFuelCapacity(original, instance.refuelable.parent);
             }
 
         }

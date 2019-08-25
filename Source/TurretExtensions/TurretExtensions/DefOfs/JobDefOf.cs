@@ -9,11 +9,11 @@ namespace TurretExtensions
 {
 
     [DefOf]
-    public static class TE_DesignationDefOf
+    public static class JobDefOf
     {
 
-        public static DesignationDef UpgradeTurret;
-
+        public static JobDef UpgradeTurret;
+        
     }
 
 }

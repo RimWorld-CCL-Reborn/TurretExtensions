@@ -20,8 +20,12 @@ namespace TurretExtensions
         public static bool IsFuelCapacityInstruction(this CodeInstruction instruction) =>
             instruction.opcode == OpCodes.Ldfld && instruction.operand == AccessTools.Field(typeof(CompProperties_Refuelable), nameof(CompProperties_Refuelable.fuelCapacity));
 
-        public static float AdjustedFuelCapacity(float baseFuelCapacity, Thing t) =>
-            baseFuelCapacity * ((t.IsUpgradedTurret(out CompUpgradable uC)) ? uC.Props.effectiveBarrelDurabilityFactor * uC.Props.barrelDurabilityFactor : 1f);
+        public static float AdjustedFuelCapacity(float baseFuelCapacity, Thing t)
+        {
+            if (t.IsUpgraded(out CompUpgradable upgradableComp))
+                return baseFuelCapacity * upgradableComp.Props.barrelDurabilityFactor;
+            return baseFuelCapacity;
+        }
 
     }
 

@@ -12,54 +12,61 @@ namespace TurretExtensions
     public class CompUpgradable : ThingComp, IThingHolder
     {
 
-        public List<ThingDefCountClass> upgradeCostListFinalized;
-
-        public bool upgraded = false;
-        public float upgradeWorkDone = 0f;
-        public float upgradeWorkTotal = 0f;
-
-        public ThingOwner innerContainer;
-
-        public CompUpgradable()
-        {
-            upgradeCostListFinalized = new List<ThingDefCountClass>();
-            innerContainer = new ThingOwner<Thing>(this, false);
-        }
-
         public CompProperties_Upgradable Props => (CompProperties_Upgradable)props;
 
-        public Graphic UpgradedGraphic =>
-            Props.graphicData?.GraphicColoredFor(parent);
+        public Graphic UpgradedGraphic
+        {
+            get
+            {
+                if (Props.graphicData != null)
+                {
+                    if (cachedUpgradedGraphic == null)
+                        cachedUpgradedGraphic = Props.graphicData.GraphicColoredFor(parent);
+                    return cachedUpgradedGraphic;
+                }
+                return null;
+            }
+        }
 
         public override void Initialize(CompProperties props)
         {
             base.Initialize(props);
 
-            // Finalise the cost list
+            ResolveCostList();
+
+            if (upgradeWorkTotal == -1)
+                ResolveWorkToUpgrade();
+
+            innerContainer = new ThingOwner<Thing>(this, false);
+        }
+
+        private void ResolveCostList()
+        {
             if (parent.def.MadeFromStuff && Props.costStuffCount > 0)
                 upgradeCostListFinalized.Add(new ThingDefCountClass(parent.Stuff, Props.costStuffCount));
             if (Props.costList != null)
             {
                 foreach (ThingDefCountClass thing in Props.costList)
                 {
-                    if (upgradeCostListFinalized.Count > 0 && thing.thingDef == upgradeCostListFinalized[0].thingDef)
-                        upgradeCostListFinalized[0].count += thing.count;
+                    var duplicate = upgradeCostListFinalized.FirstOrDefault(t => t.thingDef == thing.thingDef);
+                    if (duplicate != null)
+                        duplicate.count += thing.count;
                     else
                         upgradeCostListFinalized.Add(thing);
                 }
             }
         }
 
-        public override void CompTick()
+        private void ResolveWorkToUpgrade()
         {
-            // Fix for an exploit where cancelling = free upgrade. upgradeWorkTotal will only ever be -1 when an upgrade designation is cancelled
-            if (upgradeWorkTotal == -1f)
-            {
-                upgraded = false;
-                upgradeWorkDone = 0f;
-                upgradeWorkTotal = 0f;
-            }
+            float upgradeWorkOffset = (Props.upgradeWorkFactorStuff && parent.def.MadeFromStuff) ?
+                    parent.Stuff.stuffProps.statOffsets.GetStatOffsetFromList(StatDefOf.WorkToBuild) : 0f;
+            float upgradeWorkFactor = (Props.upgradeWorkFactorStuff && parent.def.MadeFromStuff) ?
+                    parent.Stuff.stuffProps.statFactors.GetStatFactorFromList(StatDefOf.WorkToBuild) : 1f;
+
+            upgradeWorkTotal = (Props.workToUpgrade + upgradeWorkOffset) * upgradeWorkFactor;
         }
+
 
         public override void PostDestroy(DestroyMode mode, Map previousMap)
         {
@@ -81,62 +88,57 @@ namespace TurretExtensions
             }
         }
 
-        public Dictionary<string, int> GetTurretUpgradeCost(List<ThingDefCountClass> upgradeCost)
+        public override string CompInspectStringExtra()
         {
-            Dictionary<string, int> costDict = new Dictionary<string, int>();
-            foreach (ThingDefCountClass thing in upgradeCost)
-                costDict.Add(thing.thingDef.defName, thing.count);
-            return costDict;
-        }
+            if (!(ParentHolder is Map))
+                return base.CompInspectStringExtra();
 
-        public Dictionary<string, int> GetTurretHeldItems(ThingOwner turretContainer)
-        {
-            Dictionary<string, int> storedThingDict = new Dictionary<string, int>();
-            foreach (Thing thing in turretContainer)
+            // Not upgraded but designated to be upgraded
+            if (!upgraded && parent.Map.designationManager.DesignationOn(parent, DesignationDefOf.UpgradeTurret) != null)
             {
-                if (storedThingDict.ContainsKey(thing.def.defName))
-                    storedThingDict[thing.def.defName] += thing.stackCount;
-                else
-                    storedThingDict.Add(thing.def.defName, thing.stackCount);
+                var inspectBuilder = new StringBuilder();
+
+                // Resource costs
+                if (!upgradeCostListFinalized.NullOrEmpty())
+                {
+                    inspectBuilder.AppendLine("ContainedResources".Translate());
+                    foreach (var cost in upgradeCostListFinalized)
+                    {
+                        var costDef = cost.thingDef;
+                        inspectBuilder.AppendLine($"{costDef.LabelCap}: {innerContainer.TotalStackCountOfDef(costDef)} / {cost.count}");
+                    }
+                }
+
+                // Work left
+                inspectBuilder.AppendLine($"{"WorkLeft".Translate()}: {(upgradeWorkTotal - upgradeWorkDone).ToStringWorkAmount()}");
+
+                return inspectBuilder.ToString().TrimEndNewlines();
             }
-            return storedThingDict;
-        }
 
-        public void ResolveWorkToUpgrade(bool godMode = false)
-        {
-            float upgradeWorkOffset = (Props.upgradeWorkFactorStuff && parent.def.MadeFromStuff) ?
-                    parent.Stuff.stuffProps.statOffsets.GetStatOffsetFromList(StatDefOf.WorkToBuild) : 0f;
-            float upgradeWorkFactor = (Props.upgradeWorkFactorStuff && parent.def.MadeFromStuff) ?
-                    parent.Stuff.stuffProps.statFactors.GetStatFactorFromList(StatDefOf.WorkToBuild) : 1f;
-
-            upgradeWorkTotal = (Props.workToUpgrade + upgradeWorkOffset) * upgradeWorkFactor;
-
-            if (godMode)
-                upgradeWorkDone = upgradeWorkTotal;
+            return null;
         }
 
         public void Upgrade()
         {
             upgraded = true;
+            upgradeWorkDone = upgradeWorkTotal;
 
             // Set health to max health
             if (parent.def.useHitPoints)
                 parent.HitPoints = parent.MaxHitPoints;
 
             // Update turret top
-            if (parent is Building_TurretGun turretWGun)
+            if (parent is Building_TurretGun gunTurret && Props.turretGunDef != null)
             {
-                if (Props.turretGunDef != null)
-                {
-                    turretWGun.gun = ThingMaker.MakeThing(Props.turretGunDef);
-                    NonPublicMethods.Building_TurretGun_UpdateGunVerbs(turretWGun);
-                }
+                gunTurret.gun.Destroy();
+                gunTurret.gun = ThingMaker.MakeThing(Props.turretGunDef);
+                NonPublicMethods.Building_TurretGun_UpdateGunVerbs(gunTurret);
             }
 
             // Update barrel durability
             if (parent.TryGetComp<CompRefuelable>() is CompRefuelable refuelableComp)
             {
-                float newFuel = (float)NonPublicFields.CompRefuelable_fuel.GetValue(refuelableComp) * Props.barrelDurabilityFactor * Props.effectiveBarrelDurabilityFactor;
+                float newFuel = (float)NonPublicFields.CompRefuelable_fuel.GetValue(refuelableComp) * Props.barrelDurabilityFactor;
                 NonPublicFields.CompRefuelable_fuel.SetValue(refuelableComp, newFuel);
             }
 
@@ -148,75 +150,33 @@ namespace TurretExtensions
             parent.Map.mapDrawer.SectionAt(parent.Position).RegenerateAllLayers();
         }
 
-        public override string CompInspectStringExtra()
+        public override string TransformLabel(string label)
         {
-            if (ParentHolder != null && !(ParentHolder is Map))
-                return base.CompInspectStringExtra();
-
-            if (!upgraded)
-            {
-                string inspectString = "";
-                if (upgradeCostListFinalized != null && parent.Map.designationManager.DesignationOn(parent, TE_DesignationDefOf.UpgradeTurret) != null)
-                {
-                    string contentsString = "CasketContains".Translate() + ": ";
-
-                    Dictionary<string, int> upgradeCostDict = GetTurretUpgradeCost(upgradeCostListFinalized);
-                    Dictionary<string, int> storedMatsDict = GetTurretHeldItems(GetDirectlyHeldThings());
-                    List<string> requiredDefs = new List<string>(upgradeCostDict.Keys);
-
-                    for (int i = 0, count = requiredDefs.Count; i < count; i++)
-                    {
-                        string content = "";
-                        string thingDef = requiredDefs[i];
-                        content += ((storedMatsDict.ContainsKey(thingDef)) ? storedMatsDict[thingDef].ToString() : "0") + " / " + upgradeCostDict[thingDef].ToString() +
-                            " " + upgradeCostListFinalized[i].thingDef.label;
-                        if (count - i > 1)
-                            content += ", ";
-                        contentsString += content;
-                    }
-
-                    inspectString += contentsString;
-                }
-                if (upgradeWorkTotal > 0f)
-                {
-                    if (inspectString != "") inspectString += "\n";
-                    float upgradeWorkRemaining = (upgradeWorkTotal - upgradeWorkDone) / GenTicks.TicksPerRealSecond;
-                    inspectString += "TurretUpgradeProgress".Translate() + ": " + upgradeWorkRemaining.ToString("0");
-                }
-
-                return inspectString;
-            }
-            return String.Empty;
-        }
-
-        public override string TransformLabel(string label) =>
-            ((upgraded) ? "TurretUpgradedText".Translate() + " " : "") + label;
-
-        public override void PostExposeData()
-        {
-            base.PostExposeData();
-            Scribe_Deep.Look(ref innerContainer, "innerContainer", new[] { this });
-            Scribe_Values.Look(ref upgraded, "upgraded", false);
-            Scribe_Values.Look(ref upgradeWorkDone, "upgradeWorkDone", 0f, true);
-            Scribe_Values.Look(ref upgradeWorkTotal, "upgradeWorkTotal", CompProperties_Upgradable.defaultValues.workToUpgrade, true);
-            if (Scribe.mode == LoadSaveMode.PostLoadInit)
-            {
-                // For savegame compatibility with mods that add upgrades to existing turrets, since ctor doesn't iron this out for some reason
-                if (innerContainer == null)
-                    innerContainer = new ThingOwner<Thing>(this, false);
-            }
+            if (upgraded)
+                return ($"{label} ({"TurretUpgradedText".Translate()})");
+            return label;
         }
 
         public void GetChildHolders(List<IThingHolder> outChildren) => ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
 
         public ThingOwner GetDirectlyHeldThings() => innerContainer;
 
-        public override string ToString() =>
-            $"CompUpgradable for {parent.ToStringSafe()}...\n\n"+ 
-            $"upgradeCostListFinalized - {upgradeCostListFinalized.ToStringSafe()}\n" +
-            $"innerContainer - {innerContainer.ToStringSafe()}\n" +
-            $"upgraded - {upgraded.ToStringSafe()}";
+        public override void PostExposeData()
+        {
+            base.PostExposeData();
+            Scribe_Deep.Look(ref innerContainer, "innerContainer", this);
+            Scribe_Values.Look(ref upgraded, "upgraded");
+            Scribe_Values.Look(ref upgradeWorkDone, "upgradeWorkDone");
+            Scribe_Values.Look(ref upgradeWorkTotal, "upgradeWorkTotal", -1);
+        }
 
+        public ThingOwner innerContainer;
+        public List<ThingDefCountClass> upgradeCostListFinalized = new List<ThingDefCountClass>();
+        public bool upgraded;
+        public float upgradeWorkDone;
+        public float upgradeWorkTotal = -1;
+
+        private Graphic cachedUpgradedGraphic;
 
     }
 }

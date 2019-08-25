@@ -11,29 +11,43 @@ namespace TurretExtensions
     {
         public override void TransformValue(StatRequest req, ref float val)
         {
-            if (req.HasThing && req.Thing is Building_Turret turret && turret.TryGetComp<CompMannable>() is CompMannable mannableComp &&
-                (turret.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues).useMannerShootingAccuracy)
+            if (ShouldApply(req, out CompMannable mannableComp))
             {
-                if (mannableComp.ManningPawn == null)
-                    val = 0f;
+                var manningPawn = mannableComp.ManningPawn;
+
+                if (manningPawn == null)
+                    val = 0;
                 else
-                    val = mannableComp.ManningPawn.GetStatValue(StatDefOf.ShootingAccuracyPawn);
+                    val = manningPawn.GetStatValue(correspondingStat);
             }
         }
 
         public override string ExplanationPart(StatRequest req)
         {
-            if (req.HasThing && req.Thing is Building_Turret turret && turret.TryGetComp<CompMannable>() is CompMannable mannableComp &&
-                (turret.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues).useMannerShootingAccuracy)
+            if (ShouldApply(req, out CompMannable mannableComp))
             {
-                string explanationString = "MannableTurretAccuracyDepends".Translate() + "\n\n";
-                if (mannableComp.ManningPawn == null)
-                    explanationString += "MannableTurretNotManned".Translate() + ": 0%";
-                else
-                    explanationString += "MannableTurretIsManned".Translate() + ": " + mannableComp.ManningPawn.GetStatValue(StatDefOf.ShootingAccuracyPawn).ToStringPercent("0.##");
-                return explanationString;
+                var manningPawn = mannableComp.ManningPawn;
+
+                // Not manned
+                if (manningPawn == null)
+                    return $"{"MannableTurretNotManned".Translate()}: {0f.ToStringByStyle(parentStat.toStringStyle, parentStat.toStringNumberSense)}";
+
+                // Manning pawn
+                return $"{manningPawn.LabelShortCap}: {manningPawn.GetStatValue(correspondingStat).ToStringByStyle(correspondingStat.toStringStyle, correspondingStat.toStringNumberSense)}";
             }
             return null;
         }
+
+        private bool ShouldApply(StatRequest req, out CompMannable mannableComp)
+        {
+            mannableComp = null;
+            if (req.Thing is Building_Turret turret && TurretFrameworkExtension.Get(turret.def).useMannerShootingAccuracy)
+                mannableComp = turret.GetComp<CompMannable>();
+
+            return mannableComp != null;
+        }
+
+        private StatDef correspondingStat;
+
     }
 }

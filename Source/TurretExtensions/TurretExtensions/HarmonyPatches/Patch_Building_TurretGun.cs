@@ -21,14 +21,13 @@ namespace TurretExtensions
         public static class Tick
         {
 
-            public static void Prefix(Building_TurretGun __instance, LocalTargetInfo ___forcedTarget)
+            public static void Postfix(Building_TurretGun __instance, LocalTargetInfo ___forcedTarget)
             {
                 // If the turret has CompSmartForcedTarget and is attacking a pawn that just got downed, automatically make it target something else
-                var smartTargetComp = __instance.GetComp<CompSmartForcedTarget>();
+                var smartTargetComp = __instance.TryGetComp<CompSmartForcedTarget>();
                 if (smartTargetComp != null && ___forcedTarget.Thing is Pawn pawn)
                 {
-                    var upgradableComp = __instance.TryGetComp<CompUpgradable>();
-                    if (!pawn.Downed && ((upgradableComp != null && upgradableComp.upgraded) || !smartTargetComp.Props.onlyApplyWhenUpgraded) && !smartTargetComp.attackingNonDownedPawn)
+                    if (!pawn.Downed && !smartTargetComp.attackingNonDownedPawn && (!smartTargetComp.Props.onlyApplyWhenUpgraded || __instance.IsUpgraded(out CompUpgradable upgradableComp)))
                         smartTargetComp.attackingNonDownedPawn = true;
 
                     else if (pawn.Downed && smartTargetComp.attackingNonDownedPawn)
@@ -41,15 +40,14 @@ namespace TurretExtensions
 
         }
 
-        [HarmonyPatch(typeof(Building_TurretGun))]
-        [HarmonyPatch(nameof(Building_TurretGun.SpawnSetup))]
+        [HarmonyPatch(typeof(Building_TurretGun), nameof(Building_TurretGun.SpawnSetup))]
         public static class Patch_SpawnSetup
         {
 
             public static void Postfix(Building_TurretGun __instance, TurretTop ___top)
             {
                 // Determine which way the turret initially faces when spawned
-                var turretFrameworkExtension = __instance.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
+                var turretFrameworkExtension = TurretFrameworkExtension.Get(__instance.def);
                 switch (turretFrameworkExtension.gunFaceDirectionOnSpawn)
                 {
                     case TurretGunFaceDirection.North:
@@ -72,14 +70,13 @@ namespace TurretExtensions
 
         }
 
-        [HarmonyPatch(typeof(Building_TurretGun))]
-        [HarmonyPatch("BurstCooldownTime")]
-        public static class Patch_BurstCooldownTime
+        [HarmonyPatch(typeof(Building_TurretGun), "BurstCooldownTime")]
+        public static class BurstCooldownTime
         {
 
             public static void Postfix(Building_TurretGun __instance, ref float __result)
             {
-                if (__instance.IsUpgradedTurret(out CompUpgradable upgradableComp))
+                if (__instance.IsUpgraded(out CompUpgradable upgradableComp))
                 {
                     __result *= upgradableComp.Props.turretBurstCooldownTimeFactor;
                 }
@@ -87,14 +84,13 @@ namespace TurretExtensions
 
         }
 
-        [HarmonyPatch(typeof(Building_TurretGun))]
-        [HarmonyPatch("TryStartShootSomething")]
-        public static class Patch_TryStartShootSomething
+        [HarmonyPatch(typeof(Building_TurretGun), "TryStartShootSomething")]
+        public static class TryStartShootSomething
         {
 
             public static void Postfix(Building_TurretGun __instance, ref int ___burstWarmupTicksLeft)
             {
-                var extensionValues = __instance.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;;
+                var extensionValues = TurretFrameworkExtension.Get(__instance.def);
 
                 // Multiply the burstWarmupTicksLeft by the manning pawn's aiming delay factor if applicable
                 if (extensionValues.useMannerAimingDelayFactor)
@@ -109,23 +105,17 @@ namespace TurretExtensions
                             ___burstWarmupTicksLeft = Mathf.RoundToInt(___burstWarmupTicksLeft * mannerAimingDelayFactor);
                         }
                     }
-                    else
-                    {
-                        Log.Warning($"Turret (defName={__instance.def.defName}) has useMannerAimingDelayFactor set to true but doesn't have CompMannable.");
-                    }
-                        
                 }
 
                 // Multiply based on upgrade
-                if (__instance.IsUpgradedTurret(out CompUpgradable upgradableComp))
+                if (__instance.IsUpgraded(out CompUpgradable upgradableComp))
                     ___burstWarmupTicksLeft = Mathf.RoundToInt(___burstWarmupTicksLeft * upgradableComp.Props.turretBurstWarmupTimeFactor);
             }
 
         }
 
-        [HarmonyPatch(typeof(Building_TurretGun))]
-        [HarmonyPatch("CanSetForcedTarget", MethodType.Getter)]
-        public static class Patch_CanSetForcedTarget
+        [HarmonyPatch(typeof(Building_TurretGun), "CanSetForcedTarget", MethodType.Getter)]
+        public static class CanSetForcedTarget
         {
 
             public static void Postfix(Building_TurretGun __instance, ref bool __result)
@@ -134,7 +124,7 @@ namespace TurretExtensions
                 // If the turret isn't mannable, is player-controlled and is set to be able to force target, do so
                 if (__instance.Faction == Faction.OfPlayer)
                 {
-                    var extensionValues = __instance.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
+                    var extensionValues = TurretFrameworkExtension.Get(__instance.def);
                     var upgradableComp = __instance.TryGetComp<CompUpgradable>();
 
                     if (extensionValues.canForceAttack || (upgradableComp != null && upgradableComp.upgraded && upgradableComp.Props.canForceAttack))
@@ -150,8 +140,7 @@ namespace TurretExtensions
 
         }
 
-        [HarmonyPatch(typeof(Building_TurretGun))]
-        [HarmonyPatch("GetInspectString")]
+        [HarmonyPatch(typeof(Building_TurretGun), "GetInspectString")]
         public static class Patch_GetInspectString
         {
 

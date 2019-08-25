@@ -17,15 +17,14 @@ namespace TurretExtensions
     public static class Patch_StatWorker
     {
 
-        [HarmonyPatch(typeof(StatWorker))]
-        [HarmonyPatch(nameof(StatWorker.GetValueUnfinalized))]
-        public static class Patch_GetValueUnfinalized
+        [HarmonyPatch(typeof(StatWorker), nameof(StatWorker.GetValueUnfinalized))]
+        public static class GetValueUnfinalized
         {
 
             public static void Postfix(StatWorker __instance, StatRequest req, ref float __result, StatDef ___stat)
             {
                 // Update stats if the turret has been upgraded
-                if (req.Thing.IsUpgradedTurret(out CompUpgradable uC))
+                if (req.Thing.IsUpgraded(out CompUpgradable uC))
                 {
                     CompProperties_Upgradable props = uC.Props;
                     if (props.statOffsets != null)
@@ -37,14 +36,13 @@ namespace TurretExtensions
 
         }
 
-        [HarmonyPatch(typeof(StatWorker))]
-        [HarmonyPatch(nameof(StatWorker.GetExplanationUnfinalized))]
-        public static class Patch_GetExplanationUnfinalized
+        [HarmonyPatch(typeof(StatWorker), nameof(StatWorker.GetExplanationUnfinalized))]
+        public static class GetExplanationUnfinalized
         {
             // Update the explanation string if the turret has been upgraded
             public static void Postfix(StatWorker __instance, StatRequest req, ref string __result, StatDef ___stat)
             {
-                if (req.Thing.IsUpgradedTurret(out CompUpgradable uC))
+                if (req.Thing.IsUpgraded(out CompUpgradable uC))
                 {
                     var props = uC.Props;
                     float? offset = props.statOffsets?.GetStatOffsetFromList(___stat);

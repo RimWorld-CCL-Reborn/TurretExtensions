@@ -17,15 +17,14 @@ namespace TurretExtensions
     public static class Patch_CompPowerTrader
     {
 
-        [HarmonyPatch(typeof(CompPowerTrader))]
-        [HarmonyPatch(nameof(CompPowerTrader.SetUpPowerVars))]
-        public static class Patch_SetUpPowerVars
+        [HarmonyPatch(typeof(CompPowerTrader), nameof(CompPowerTrader.SetUpPowerVars))]
+        public static class SetUpPowerVars
         {
 
             public static void Postfix(CompPowerTrader __instance)
             {
                 // If the turret has been upgraded, multiply its power consumption by the upgrade props' power consumption factor
-                if (__instance.parent.IsUpgradedTurret(out CompUpgradable upgradableComp))
+                if (__instance.parent.IsUpgraded(out CompUpgradable upgradableComp))
                     __instance.PowerOutput *= upgradableComp.Props.basePowerConsumptionFactor;
             }
 

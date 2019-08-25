@@ -17,23 +17,21 @@ namespace TurretExtensions
     public static class Patch_Thing
     {
 
-        [HarmonyPatch(typeof(Thing))]
-        [HarmonyPatch(nameof(Thing.Graphic), MethodType.Getter)]
-        public static class Patch_Graphic_Getter
+        [HarmonyPatch(typeof(Thing), nameof(Thing.Graphic), MethodType.Getter)]
+        public static class get_Graphic
         {
 
             public static void Postfix(Thing __instance, ref Graphic __result)
             {
                 // Replace the graphic with the upgraded graphic if applicable
-                if (__instance.IsUpgradedTurret(out CompUpgradable uC) && uC.UpgradedGraphic != null)
+                if (__instance.IsUpgraded(out CompUpgradable uC) && uC.UpgradedGraphic != null)
                     __result = uC.UpgradedGraphic;
             }
 
         }
 
-        [HarmonyPatch(typeof(Thing))]
-        [HarmonyPatch(nameof(Thing.DrawExtraSelectionOverlays))]
-        public static class Patch_DrawExtraSelectionOverlays
+        [HarmonyPatch(typeof(Thing), nameof(Thing.DrawExtraSelectionOverlays))]
+        public static class DrawExtraSelectionOverlays
         {
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -41,7 +39,7 @@ namespace TurretExtensions
                 var instructionList = instructions.ToList();
 
                 var specialDisplayRadiusInfo = AccessTools.Field(typeof(BuildableDef), nameof(BuildableDef.specialDisplayRadius));
-                var adjustedSpecialDisplayRadiusInfo = AccessTools.Method(typeof(Patch_DrawExtraSelectionOverlays), nameof(AdjustedSpecialDisplayRadius));
+                var adjustedSpecialDisplayRadiusInfo = AccessTools.Method(typeof(DrawExtraSelectionOverlays), nameof(AdjustedSpecialDisplayRadius));
 
                 for (int i = 0; i < instructionList.Count; i++)
                 {
@@ -59,11 +57,11 @@ namespace TurretExtensions
                 }
             }
 
-            public static float AdjustedSpecialDisplayRadius(float originalRadius, Thing instance)
+            private static float AdjustedSpecialDisplayRadius(float originalRadius, Thing instance)
             {
                 if (instance is Building_TurretGun turret)
                 {
-                    return turret.gun.def.Verbs[0].range;
+                    return turret.CurrentEffectiveVerb.verbProps.range;
                 }
                 return originalRadius;
             }

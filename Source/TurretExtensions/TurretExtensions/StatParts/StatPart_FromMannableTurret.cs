@@ -12,33 +12,39 @@ namespace TurretExtensions
 
         public override void TransformValue(StatRequest req, ref float val)
         {
-            if (req.HasThing && req.Thing is Pawn pawn && pawn.MannedThing() is Building_Turret turret)
+            if (ShouldApply(req, out Building_Turret turret))
             {
-                var extensionValues = turret.def.GetModExtension<TurretFrameworkExtension>() ?? TurretFrameworkExtension.defaultValues;
+                var extensionValues = TurretFrameworkExtension.Get(turret.def);
                 val += extensionValues.mannerShootingAccuracyOffset;
-                if (turret.IsUpgradedTurret(out CompUpgradable uC))
-                    val += uC.Props.mannerShootingAccuracyOffsetBonus + uC.Props.mannerShootingAccuracyOffsetOffset;
+                if (turret.IsUpgraded(out CompUpgradable uC))
+                    val += uC.Props.mannerShootingAccuracyOffsetBonus;
             }
         }
 
         public override string ExplanationPart(StatRequest req)
         {
-            if (req.HasThing && req.Thing is Pawn pawn && pawn.MannedThing() is Building_Turret turret)
+            if (ShouldApply(req, out Building_Turret turret))
             {
-                string explanationFirstPart = turret.def.label.CapitalizeFirst() + ": ";
-
                 var extensionValues = turret.def.GetModExtension<TurretFrameworkExtension>();
 
-                float mannerAccuracyOffset = 0f;
+                float totalOffset = 0f;
                 if (extensionValues != null)
-                    mannerAccuracyOffset += extensionValues.mannerShootingAccuracyOffset;
-                if (turret.IsUpgradedTurret(out CompUpgradable uC))
-                    mannerAccuracyOffset += uC.Props.mannerShootingAccuracyOffsetBonus + uC.Props.mannerShootingAccuracyOffsetOffset;
+                    totalOffset += extensionValues.mannerShootingAccuracyOffset;
+                if (turret.IsUpgraded(out CompUpgradable uC))
+                    totalOffset += uC.Props.mannerShootingAccuracyOffsetBonus;
 
-                if (mannerAccuracyOffset > 0f) return explanationFirstPart + "+" + mannerAccuracyOffset.ToString("F1");
-                else if (mannerAccuracyOffset < 0f) return explanationFirstPart + mannerAccuracyOffset.ToString("F1");
+                return $"{turret.def.LabelCap}: {totalOffset.ToStringByStyle(parentStat.ToStringStyleUnfinalized, ToStringNumberSense.Offset)}";
             }
             return null;
+        }
+
+        private bool ShouldApply(StatRequest req, out Building_Turret turret)
+        {
+            turret = null;
+            if (req.Thing is Pawn pawn)
+                turret = pawn.MannedThing() as Building_Turret;
+
+            return turret != null;
         }
 
     }

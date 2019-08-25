@@ -14,7 +14,7 @@ namespace TurretExtensions
 
         private ThingDefCountClass firstMissingIngredient = new ThingDefCountClass();
 
-        private DesignationDef Designation => TE_DesignationDefOf.UpgradeTurret;
+        private DesignationDef Designation => DesignationDefOf.UpgradeTurret;
 
         public override PathEndMode PathEndMode => PathEndMode.Touch;
 
@@ -32,151 +32,43 @@ namespace TurretExtensions
 
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            // Setting up variables
-            Building_Turret turret = t as Building_Turret;
-            CompUpgradable upgradableComp = turret?.TryGetComp<CompUpgradable>();
-            float workerSuccessChance = pawn.GetStatValue(StatDefOf.ConstructSuccessChance);
-
-            // Using the check as an initialisor
-            if (upgradableComp != null)
-                CheckTurretIsReadyToUpgrade(upgradableComp);
-
-            // Conditions to return false
+            // Building isn't a turret
+            var turret = t as Building_Turret;
             if (turret == null)
                 return false;
-            if (upgradableComp == null)
-                return false;
+
+            // Different factions
             if (turret.Faction != pawn.Faction)
                 return false;
-            if (pawn.skills.GetSkill(SkillDefOf.Construction).Level < upgradableComp.Props.constructionSkillPrerequisite)
+
+            // Not upgradable
+            var upgradableComp = turret?.TryGetComp<CompUpgradable>();
+            if (upgradableComp == null)
                 return false;
-            if (!forced && workerSuccessChance * upgradableComp.Props.upgradeSuccessChanceFactor < 1f &&
-                (turret.HitPoints <= Mathf.Floor(turret.MaxHitPoints * (1 - upgradableComp.Props.upgradeFailMajorDmgPctMax)) ||
-                turret.HitPoints <= Mathf.Floor(turret.MaxHitPoints * (1 - upgradableComp.Props.upgradeFailMajorDmgPctRange.TrueMax))))
-                return false;
+
+            // Already upgraded
             if (upgradableComp.upgraded)
                 return false;
-            if (upgradableComp.upgradeCostListFinalized != null && ClosestMissingIngredient(pawn) == null)
+
+            // Not sufficiently skilled
+            if (pawn.skills.GetSkill(SkillDefOf.Construction).Level < upgradableComp.Props.constructionSkillPrerequisite)
+                return false;
+
+            // Not forced and there's a risk of destroying the turret
+            if (!forced && pawn.GetStatValue(StatDefOf.ConstructSuccessChance) * upgradableComp.Props.upgradeSuccessChanceFactor < 1 && turret.HitPoints <= Mathf.Floor(turret.MaxHitPoints * (1 - upgradableComp.Props.upgradeFailMajorDmgPctRange.TrueMax)))
+                return false;
+
+            // Havent finished research requirements
+            if (upgradableComp.Props.researchPrerequisites != null && upgradableComp.Props.researchPrerequisites.Any(r => !r.IsFinished))
                 return false;
 
             // Final condition set - the only set that can return true
-            else
-            {
-                if (upgradableComp.Props.researchPrerequisites != null)
-                    foreach (ResearchProjectDef research in upgradableComp.Props.researchPrerequisites)
-                        if (!research.IsFinished)
-                            return false;
-                return (pawn.CanReserve(turret, 1, -1, null, forced) && !turret.IsBurning());
-            }
+            return pawn.CanReserve(turret, 1, -1, null, forced) && !turret.IsBurning();
         }
 
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            bool readyToUpgrade = CheckTurretIsReadyToUpgrade(t.TryGetComp<CompUpgradable>());
-            if (readyToUpgrade) return new Job(TE_JobDefOf.UpgradeTurret, t);
-            else
-                return new Job(JobDefOf.HaulToContainer, ClosestMissingIngredient(pawn), t)
-                {
-                    count = firstMissingIngredient.count,
-                    haulMode = HaulMode.ToContainer
-                };
-        }
-
-        //private void Initialize(CompUpgradable c)
-        //{
-        //    // basically CheckTurretIsReadyToUpgrade but doesn't return anything
-
-        //    List<ThingDefCountClass> upgradeCost = c.upgradeCostListFinalized;
-        //    if (upgradeCost != null)
-        //    {
-        //        Dictionary<string, int> upgradeCostDict = c.GetTurretUpgradeCost(upgradeCost);
-        //        Dictionary<string, int> storedMatsDict = c.GetTurretHeldItems(c.GetDirectlyHeldThings());
-        //        List<string> requiredDefs = new List<string>(upgradeCostDict.Keys);
-
-        //        int i = 0;
-
-        //        while (i < requiredDefs.Count)
-        //        {
-        //            string curDef = requiredDefs[i];
-        //            try
-        //            {
-        //                if (storedMatsDict[curDef] < upgradeCostDict[curDef])
-        //                {
-        //                    UpdateFirstMissingIngredient(curDef, upgradeCostDict[curDef], storedMatsDict[curDef]);
-        //                    break;
-        //                }
-        //                i++;
-        //            }
-        //            catch (KeyNotFoundException)
-        //            {
-        //                UpdateFirstMissingIngredient(curDef, upgradeCostDict[curDef]);
-        //                break;
-        //            }
-        //        }
-        //    }
-        //}
-
-        private bool CheckTurretIsReadyToUpgrade(CompUpgradable c)
-        {
-            List<ThingDefCountClass> upgradeCost = c.upgradeCostListFinalized;
-
-            // If there's no upgrade cost, no material hauling required, thus returning true
-            if (upgradeCost == null) return true;
-
-            // Compare stored materials to cost list. Done by converting both objects to common ground (i.e. dictionary), then comparing keys and values.
-            else
-            {
-                bool readyToUpgrade = true;
-
-
-                // Setting up dicts
-                Dictionary<string, int> upgradeCostDict = c.GetTurretUpgradeCost(upgradeCost);
-                Dictionary<string, int> storedMatsDict = c.GetTurretHeldItems(c.GetDirectlyHeldThings());
-
-                // Comparing dicts
-                List<string> requiredDefs = new List<string>(upgradeCostDict.Keys);
-                int i = 0;
-
-                while (i < requiredDefs.Count)
-                {
-                    string curDef = requiredDefs[i];
-                    try
-                    {
-                        if (storedMatsDict[curDef] < upgradeCostDict[curDef])
-                        {
-                            UpdateFirstMissingIngredient(curDef, upgradeCostDict[curDef], storedMatsDict[curDef]);
-                            readyToUpgrade = false;
-                            break;
-                        }
-                        i++;
-                    }
-                    // If one of the required things aren't present in the turret
-                    catch(KeyNotFoundException)
-                    {
-                        UpdateFirstMissingIngredient(curDef, upgradeCostDict[curDef]);
-                        readyToUpgrade = false;
-                        break;
-                    }
-                }
-
-                return readyToUpgrade;
-            }
-            
-        }
-
-        private Thing ClosestMissingIngredient(Pawn pawn)
-        {
-            return GenClosest.ClosestThingReachable(pawn.Position, pawn.Map, ThingRequest.ForDef(firstMissingIngredient.thingDef), PathEndMode.InteractionCell,
-                TraverseParms.For(pawn, pawn.NormalMaxDanger()), 9999f, (Thing x) => !x.IsForbidden(pawn) && pawn.CanReserve(x));
-        }
-
-        private void UpdateFirstMissingIngredient(string defName, int upgradeCost, int storedCount = -1)
-        {
-            firstMissingIngredient.thingDef = DefDatabase<ThingDef>.GetNamed(defName);
-            if (storedCount != -1)
-                firstMissingIngredient.count = Math.Min(upgradeCost - storedCount, firstMissingIngredient.thingDef.stackLimit);
-            else
-                firstMissingIngredient.count = Math.Min(upgradeCost, firstMissingIngredient.thingDef.stackLimit);
+            return new Job(JobDefOf.UpgradeTurret, t);
         }
 
     }

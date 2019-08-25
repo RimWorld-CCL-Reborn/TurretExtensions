@@ -7,13 +7,11 @@ using Verse;
 
 namespace TurretExtensions
 {
-
     [DefOf]
-    public static class TE_RecordDefOf
+    public static class StatCategoryDefOf
     {
+        public static StatCategoryDef Turret;
 
-        public static RecordDef TurretsUpgraded;
-
+        public static StatCategoryDef TurretAmmo;
     }
-
 }

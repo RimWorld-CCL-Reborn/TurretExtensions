@@ -62,7 +62,6 @@
     <Compile Include="HarmonyPatches\Patch_ReverseDesignatorDatabase.cs" />
     <Compile Include="HarmonyPatches\Patch_CompPowerTrader.cs" />
     <Compile Include="HarmonyPatches\Patch_StatWorker.cs" />
-    <Compile Include="HarmonyPatches\Patch_StatsReportUtility.cs" />
     <Compile Include="HarmonyPatches\Patch_CompRefuelable.cs" />
     <Compile Include="HarmonyPatches\Patch_Building_TurretGun.cs" />
     <Compile Include="Reflection\NonPublicMethods.cs" />
@@ -71,21 +70,20 @@
     <Compile Include="Comps\CompProperties_SmartForcedTarget.cs" />
     <Compile Include="Comps\CompSmartForcedTarget.cs" />
     <Compile Include="StatParts\StatPart_AccuracyFromCompMannable.cs" />
-    <Compile Include="StatParts\Legacy\StatPart_FlammabilityFromUpgrade.cs" />
-    <Compile Include="StatParts\Legacy\StatPart_HealthFromUpgrade.cs" />
-    <Compile Include="StatParts\Legacy\StatPart_AccuracyFromUpgrade.cs" />
     <Compile Include="StatParts\StatPart_ValueFromUpgrade.cs" />
-    <Compile Include="DefOfs\TE_DesignationDefOf.cs" />
-    <Compile Include="DefOfs\TE_JobDefOf.cs" />
-    <Compile Include="DefOfs\TE_RecordDefOf.cs" />
+    <Compile Include="DefOfs\DesignationDefOf.cs" />
+    <Compile Include="DefOfs\JobDefOf.cs" />
+    <Compile Include="DefOfs\TurretsUpgraded.cs" />
     <Compile Include="AI\WorkGiver_UpgradeTurret.cs" />
     <Compile Include="AI\JobDriver_UpgradeTurret.cs" />
     <Compile Include="Comps\CompUpgradable.cs" />
     <Compile Include="Comps\CompProperties_Upgradable.cs" />
     <Compile Include="StatParts\StatPart_FromMannableTurret.cs" />
-    <Compile Include="DefOfs\TE_StatCategoryDefOf.cs" />
+    <Compile Include="DefOfs\StatCategoryDefOf.cs" />
     <Compile Include="DefModExtensions\TurretFrameworkExtension.cs" />
     <Compile Include="HarmonyPatches\HarmonyPatches.cs" />
+    <Compile Include="TurretExtensions.cs" />
+    <Compile Include="TurretExtensionsUtility - Copy.cs" />
     <Compile Include="TurretExtensionsUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
