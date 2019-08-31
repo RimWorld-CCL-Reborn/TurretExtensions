@@ -48,10 +48,10 @@ namespace TurretExtensions
                     float? offset = props.statOffsets?.GetStatOffsetFromList(___stat);
                     float? factor = props.statFactors?.GetStatFactorFromList(___stat);
                     if (props.statOffsets != null && offset != 0)
-                        __result += "\n\n" + "TurretUpgradedText".Translate().CapitalizeFirst() + ": " +
+                        __result += "\n\n" + "TurretExtensions.TurretUpgradedText".Translate().CapitalizeFirst() + ": " +
                             ((float)offset).ToStringByStyle(___stat.toStringStyle, ToStringNumberSense.Offset);
                     if (props.statFactors != null && factor != 1)
-                        __result += "\n\n" + "TurretUpgradedText".Translate().CapitalizeFirst() + ": " +
+                        __result += "\n\n" + "TurretExtensions.TurretUpgradedText".Translate().CapitalizeFirst() + ": " +
                             ((float)factor).ToStringByStyle(___stat.toStringStyle, ToStringNumberSense.Factor);
                 }
             }

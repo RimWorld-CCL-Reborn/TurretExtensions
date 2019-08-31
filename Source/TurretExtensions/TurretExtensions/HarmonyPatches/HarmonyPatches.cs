@@ -19,7 +19,7 @@ namespace TurretExtensions
 
         static HarmonyPatches()
         {
-            //HarmonyInstance.DEBUG = true;
+            HarmonyInstance.DEBUG = true;
             TurretExtensions.harmonyInstance.PatchAll();
 
             // Gizmo_RefuelableFuelStatus delegate

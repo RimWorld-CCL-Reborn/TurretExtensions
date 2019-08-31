@@ -12,33 +12,28 @@ namespace TurretExtensions
     public class WorkGiver_UpgradeTurret : WorkGiver_Scanner
     {
 
-        private ThingDefCountClass firstMissingIngredient = new ThingDefCountClass();
-
-        private DesignationDef Designation => DesignationDefOf.UpgradeTurret;
-
         public override PathEndMode PathEndMode => PathEndMode.Touch;
 
         public override Danger MaxPathDanger(Pawn pawn)
         {
-            return Danger.Some;
+            return Danger.Deadly;
         }
 
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
-            foreach (Designation des in pawn.Map.designationManager.SpawnedDesignationsOfDef(Designation))
+            foreach (Designation des in pawn.Map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.UpgradeTurret))
                 yield return des.target.Thing;
-            //yield break;
         }
 
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
+            // Different factions
+            if (t.Faction != pawn.Faction)
+                return false;
+
             // Building isn't a turret
             var turret = t as Building_Turret;
             if (turret == null)
-                return false;
-
-            // Different factions
-            if (turret.Faction != pawn.Faction)
                 return false;
 
             // Not upgradable
@@ -60,6 +55,10 @@ namespace TurretExtensions
 
             // Havent finished research requirements
             if (upgradableComp.Props.researchPrerequisites != null && upgradableComp.Props.researchPrerequisites.Any(r => !r.IsFinished))
+                return false;
+
+            // Not enough materials
+            if (!upgradableComp.SufficientMatsToUpgrade)
                 return false;
 
             // Final condition set - the only set that can return true

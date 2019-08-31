@@ -127,7 +127,7 @@ namespace TurretExtensions
             }
 
             private static float AdjustedFuelCount(float currentFuelCount, Thing thing) =>
-                currentFuelCount / (thing.IsUpgraded(out CompUpgradable uC) ? uC.Props.barrelDurabilityFactor : 1f);
+                currentFuelCount / (thing.IsUpgraded(out CompUpgradable uC) ? uC.Props.fuelCapacityFactor : 1f);
 
         }
 

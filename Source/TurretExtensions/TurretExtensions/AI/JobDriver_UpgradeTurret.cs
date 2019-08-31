@@ -25,7 +25,7 @@ namespace TurretExtensions
         {
             this.FailOnDespawnedNullOrForbidden(TurretInd);
 
-            yield return Toils_Goto.GotoCell(TurretInd, PathEndMode.Touch);
+            yield return Toils_Goto.GotoThing(TurretInd, PathEndMode.Touch);
             yield return Upgrade();
             yield break;
         }
@@ -55,6 +55,7 @@ namespace TurretExtensions
                     actor.jobs.EndCurrentJob(JobCondition.Succeeded);
                 }
             };
+            upgrade.FailOnThingMissingDesignation(TurretInd, DesignationDefOf.UpgradeTurret);
             upgrade.FailOnCannotTouch(TurretInd, PathEndMode.Touch);
             upgrade.WithEffect(TargetThingA.def.repairEffect, TurretInd);
             upgrade.WithProgressBar(TurretInd, () => UpgradableComp.upgradeWorkDone / UpgradableComp.upgradeWorkTotal);
@@ -65,14 +66,14 @@ namespace TurretExtensions
 
         private void FailUpgrade(Pawn worker, float successChance, Thing building)
         {
-            MoteMaker.ThrowText(building.DrawPos, building.Map, "TextMote_UpgradeFail".Translate(), 6f);
-            string upgradeFailMessage = "UpgradeFailMinorMessage".Translate(worker.LabelShort, building.Label);
+            MoteMaker.ThrowText(building.DrawPos, building.Map, "TurretExtensions.TextMote_UpgradeFail".Translate(), 6f);
+            string upgradeFailMessage = "TurretExtensions.UpgradeFailMinorMessage".Translate(worker.LabelShort, building.Label);
             float resourceRefund = UpgradableComp.Props.upgradeFailMinorResourcesRecovered;
 
             // Critical failure (2x construct fail chance by default)
             if (UpgradableComp.Props.upgradeFailAlwaysMajor || Rand.Value < (1f - successChance) * UpgradableComp.Props.upgradeFailMajorChanceFactor)
             {
-                upgradeFailMessage = "UpgradeFailMajorMessage".Translate(worker.LabelShort, building.Label);
+                upgradeFailMessage = "TurretExtensions.UpgradeFailMajorMessage".Translate(worker.LabelShort, building.Label);
                 resourceRefund = UpgradableComp.Props.upgradeFailMajorResourcesRecovered;
 
                 float damageAmount = building.MaxHitPoints * UpgradableComp.Props.upgradeFailMajorDmgPctRange.RandomInRange;
@@ -93,27 +94,35 @@ namespace TurretExtensions
             {
                 resourceLossMessage += " ";
                 if (yield >= 0.8f)
-                    resourceLossMessage += "UpgradeFailResourceLossSmall".Translate();
+                    resourceLossMessage += "TurretExtensions.UpgradeFailResourceLossSmall".Translate();
                 else if (yield >= 0.35f)
-                    resourceLossMessage += "UpgradeFailResourceLossMedium".Translate();
+                    resourceLossMessage += "TurretExtensions.UpgradeFailResourceLossMedium".Translate();
                 else if (yield > 0f)
-                    resourceLossMessage += "UpgradeFailResourceLossHigh".Translate();
+                    resourceLossMessage += "TurretExtensions.UpgradeFailResourceLossHigh".Translate();
                 else
-                    resourceLossMessage += "UpgradeFailResourceLossTotal".Translate();
+                    resourceLossMessage += "TurretExtensions.UpgradeFailResourceLossTotal".Translate();
             }
             return resourceLossMessage;
         }
 
         private void RefundResources(float yield)
         {
-            List<ThingDefCountClass> ingredientCount = UpgradableComp.upgradeCostListFinalized;
-            foreach (ThingDefCountClass thing in ingredientCount)
+            UpgradableComp.innerContainer.TryDropAll(TargetThingA.Position, TargetThingA.Map, ThingPlaceMode.Near, (t, c) =>
             {
-                int yieldCount = GenMath.RoundRandom(thing.count * yield);
-                Thing yieldItem = ThingMaker.MakeThing(thing.thingDef);
-                yieldItem.stackCount = yieldCount;
-                if (yieldCount > 0) { GenPlace.TryPlaceThing(yieldItem, TargetThingA.Position, TargetThingA.Map, ThingPlaceMode.Near); }
-            }
+                c = GenMath.RoundRandom(c * yield);
+                if (c > 0)
+                    t.stackCount = c;
+                else
+                    t.Destroy();
+            });
+            //List<ThingDefCountClass> ingredientCount = UpgradableComp.finalCostList;
+            //foreach (ThingDefCountClass thing in ingredientCount)
+            //{
+            //    int yieldCount = GenMath.RoundRandom(thing.count * yield);
+            //    Thing yieldItem = ThingMaker.MakeThing(thing.thingDef);
+            //    yieldItem.stackCount = yieldCount;
+            //    if (yieldCount > 0) { GenPlace.TryPlaceThing(yieldItem, TargetThingA.Position, TargetThingA.Map, ThingPlaceMode.Near); }
+            //}
         }
 
         private CompUpgradable UpgradableComp

@@ -21,17 +21,12 @@ namespace TurretExtensions
         public static class DesignateThing
         {
 
-            public static void Prefix(Thing t)
+            public static void Postfix(Thing t)
             {
                 // Cancelling a turret upgrade drops materials just like when cancelling a construction project
-                if (t.TryGetComp<CompUpgradable>() is CompUpgradable upgradableComp)
+                if (t.IsUpgradable(out CompUpgradable upgradableComp) && !upgradableComp.upgraded)
                 {
-                    var upgradeDes = t.Map.designationManager.DesignationOn(t, DesignationDefOf.UpgradeTurret);
-                    if (upgradeDes != null)
-                    {
-                        upgradableComp.upgradeWorkTotal = -1;
-                        upgradableComp.innerContainer.TryDropAll(t.Position, t.Map, ThingPlaceMode.Near);
-                    }
+                    upgradableComp.Cancel();
                 }
             }
 

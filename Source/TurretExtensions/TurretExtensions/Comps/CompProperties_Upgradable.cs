@@ -23,7 +23,7 @@ namespace TurretExtensions
 
             if (!parentDef.MadeFromStuff && costStuffCount > 0)
             {
-                yield return "costStuffCount is greater than 0 but isn't stuffed";
+                yield return $"costStuffCount is greater than 0 but {parentDef} isn't made from stuff";
                 costStuffCount = 0;
             }
 
@@ -34,76 +34,46 @@ namespace TurretExtensions
             }
         }
 
-        public static readonly CompProperties_Upgradable defaultValues = new CompProperties_Upgradable();
-
         // Basics
-
         public string description;
-
         public string upgradedTurretDescription;
 
         // Costs
-
         public int costStuffCount;
-
         public List<ThingDefCountClass> costList;
-
         public List<ResearchProjectDef> researchPrerequisites;
-
         public int workToUpgrade = 1;
-
         public int constructionSkillPrerequisite;
 
         // Job Driver
-
         public bool upgradeWorkFactorStuff = true;
-
         public bool upgradeFailable = true;
-
         public float upgradeSuccessChanceFactor = 1;
-
         public float upgradeFailMinorResourcesRecovered = 0.5f;
-
         public float upgradeFailMajorResourcesRecovered;
-
         public bool upgradeFailAlwaysMajor = false;
-
         public FloatRange upgradeFailMajorDmgPctRange = new FloatRange(0.1f, 0.5f);
-
         public float upgradeFailMajorChanceFactor = 2;
 
         // Results
-
         public List<StatModifier> statOffsets;
-
         public List<StatModifier> statFactors;
-
         public GraphicData graphicData;
-
         public string turretTopGraphicPath;
-
         public float turretTopDrawSize = -1;
-
         public Vector2 turretTopOffset;
-
-        public float barrelDurabilityFactor = 1;
-
+        public float fuelCapacityFactor = 1;
+        public float fuelMultiplierFactor = 1;
         public float basePowerConsumptionFactor = 1;
-
         public float turretBurstWarmupTimeFactor = 1;
-
         public float turretBurstCooldownTimeFactor = 1;
-
         public ThingDef turretGunDef;
-
+        public int firingAngle = -1;
         public float mannerShootingAccuracyOffsetBonus = 0;
-
         public bool canForceAttack = false;
 
         // Destroyed
-
         public float baseResourceDropPct = 0.75f;
-
         public float destroyedResourceDropPct = 0.25f;
 
     }

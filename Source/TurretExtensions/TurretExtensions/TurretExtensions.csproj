@@ -50,12 +50,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AI\WorkGiver_ConstructDeliverResourcesToTurret.cs" />
     <Compile Include="Designators\Designator_UpgradeTurret.cs" />
     <Compile Include="Enums\TurretGunFaceDirection.cs" />
     <Compile Include="HarmonyPatches\HarmonyPatchesUtility.cs" />
     <Compile Include="HarmonyPatches\Patch_Pawn_RotationTracker.cs" />
     <Compile Include="HarmonyPatches\Patch_Designator_Cancel.cs" />
     <Compile Include="HarmonyPatches\Patch_Gizmo_RefuelableFuelStatus.cs" />
+    <Compile Include="HarmonyPatches\Patch_VerbProperties.cs" />
+    <Compile Include="HarmonyPatches\Patch_WorkGiver_ConstructDeliverResources.cs" />
     <Compile Include="HarmonyPatches\Patch_TurretTop.cs" />
     <Compile Include="HarmonyPatches\Patch_ThingDef.cs" />
     <Compile Include="HarmonyPatches\Patch_Thing.cs" />
@@ -83,7 +86,7 @@
     <Compile Include="DefModExtensions\TurretFrameworkExtension.cs" />
     <Compile Include="HarmonyPatches\HarmonyPatches.cs" />
     <Compile Include="TurretExtensions.cs" />
-    <Compile Include="TurretExtensionsUtility - Copy.cs" />
+    <Compile Include="StaticConstructorClass.cs" />
     <Compile Include="TurretExtensionsUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

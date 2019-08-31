@@ -30,7 +30,7 @@ namespace TurretExtensions
 
                 // Not manned
                 if (manningPawn == null)
-                    return $"{"MannableTurretNotManned".Translate()}: {0f.ToStringByStyle(parentStat.toStringStyle, parentStat.toStringNumberSense)}";
+                    return $"{"TurretExtensions.MannableTurretNotManned".Translate()}: {0f.ToStringByStyle(parentStat.toStringStyle, parentStat.toStringNumberSense)}";
 
                 // Manning pawn
                 return $"{manningPawn.LabelShortCap}: {manningPawn.GetStatValue(correspondingStat).ToStringByStyle(correspondingStat.toStringStyle, correspondingStat.toStringNumberSense)}";

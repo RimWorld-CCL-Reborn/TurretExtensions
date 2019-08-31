@@ -23,8 +23,18 @@ namespace TurretExtensions
         public static float AdjustedFuelCapacity(float baseFuelCapacity, Thing t)
         {
             if (t.IsUpgraded(out CompUpgradable upgradableComp))
-                return baseFuelCapacity * upgradableComp.Props.barrelDurabilityFactor;
+                return baseFuelCapacity * upgradableComp.Props.fuelCapacityFactor;
             return baseFuelCapacity;
+        }
+
+        public static bool CallingInstruction(CodeInstruction instruction)
+        {
+            return instruction.opcode == OpCodes.Call || instruction.opcode == OpCodes.Callvirt;
+        }
+
+        public static bool BranchingInstruction(CodeInstruction instruction)
+        {
+            return instruction.opcode == OpCodes.Bge_Un || instruction.opcode == OpCodes.Ble_Un;
         }
 
     }

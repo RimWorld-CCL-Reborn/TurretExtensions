@@ -14,7 +14,7 @@ namespace TurretExtensions
             if (req.Thing?.GetInnerIfMinified() is Building_Turret turret && turret.IsUpgradable(out CompUpgradable uC))
             {
                 //Log.Message(uC.ToStringSafe());
-                if (!uC.upgradeCostListFinalized.NullOrEmpty())
+                if (!uC.finalCostList.NullOrEmpty())
                 {
                     foreach (Thing thing in uC.innerContainer)
                     {

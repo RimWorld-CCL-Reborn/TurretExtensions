@@ -2,58 +2,60 @@
 <LanguageData>
 
     <!-- Designators -->
-    <DesignatorUpgradeTurret>Upgrade turret</DesignatorUpgradeTurret>
-    <DesignatorUpgradeTurretDesc>Mark turrets to be upgraded to enhance their combat performance.</DesignatorUpgradeTurretDesc>
+    <TurretExtensions.DesignatorUpgradeTurret>Upgrade turret</TurretExtensions.DesignatorUpgradeTurret>
+    <TurretExtensions.DesignatorUpgradeTurretDesc>Mark turrets to be upgraded to enhance their combat performance.</TurretExtensions.DesignatorUpgradeTurretDesc>
 
-    <MessageMustDesignateUpgradableTurrets>Must designate upgradable turrets.</MessageMustDesignateUpgradableTurrets>
+    <TurretExtensions.MessageMustDesignateUpgradableTurrets>Must designate upgradable turrets.</TurretExtensions.MessageMustDesignateUpgradableTurrets>
 
     <!-- Dialogs_StatReports -->
-    <NoAlreadyUpgraded>No (Already upgraded)</NoAlreadyUpgraded>
-    <YesClickForDetails>Yes (Click for details)</YesClickForDetails>
+    <TurretExtensions.NoAlreadyUpgraded>No (Already upgraded)</TurretExtensions.NoAlreadyUpgraded>
+    <TurretExtensions.YesClickForDetails>Yes (Click for details)</TurretExtensions.YesClickForDetails>
 
-    <MannableTurretAccuracyDepends>Accuracy depends on the pawn that's operating this turret.</MannableTurretAccuracyDepends>
-    <MannableTurretNotManned>No operator</MannableTurretNotManned>
-    <MannableTurretIsManned>From operator</MannableTurretIsManned>
+    <TurretExtensions.MannableTurretAccuracyDepends>Accuracy depends on the pawn that's operating this turret.</TurretExtensions.MannableTurretAccuracyDepends>
+    <TurretExtensions.MannableTurretNotManned>No operator</TurretExtensions.MannableTurretNotManned>
+    <TurretExtensions.MannableTurretIsManned>From operator</TurretExtensions.MannableTurretIsManned>
 
     <!-- Dialogs_Various -->
-    <UpgradedTurretShootingAccuracy>Upgraded shooting accuracy</UpgradedTurretShootingAccuracy>
-    <UserShootingAccuracy>User's shooting accuracy</UserShootingAccuracy>
+    <TurretExtensions.UpgradedTurretShootingAccuracy>Upgraded shooting accuracy</TurretExtensions.UpgradedTurretShootingAccuracy>
+    <TurretExtensions.UserShootingAccuracy>User's shooting accuracy</TurretExtensions.UserShootingAccuracy>
 
-    <MannedTurretUsesShooterAccuracy>Uses operator's accuracy</MannedTurretUsesShooterAccuracy>
-    <MannedTurretUsesShooterAccuracyExplanation>Whether or not this manning turret uses the manning pawn's shooting accuracy.</MannedTurretUsesShooterAccuracyExplanation>
-    <MannedTurretUsesShooterAccuracyBonus>The operator's accuracy gets increased by {0} when using {1}.</MannedTurretUsesShooterAccuracyBonus>
-    <MannedTurretUsesShooterAccuracyPenalty>The operator's accuracy gets decreased by {0} when using {1}.</MannedTurretUsesShooterAccuracyPenalty>
-    <MannedTurretUsesShooterAccuracyNoChange>The {0} doesn't modify the operator's accuracy in any way.</MannedTurretUsesShooterAccuracyNoChange>
-    <MortarShellDependent>Depends on ammo</MortarShellDependent>
-    <ShellDamageType>Damage type</ShellDamageType>
-    <ShellExplosionRadius>Explosion radius</ShellExplosionRadius>
+    <TurretExtensions.MannedTurretUsesShooterAccuracy>Uses operator's accuracy</TurretExtensions.MannedTurretUsesShooterAccuracy>
+    <TurretExtensions.MannedTurretUsesShooterAccuracyExplanation>Whether or not this manning turret uses the manning pawn's shooting accuracy.</TurretExtensions.MannedTurretUsesShooterAccuracyExplanation>
+    <TurretExtensions.MannedTurretUsesShooterAccuracyBonus>The operator's accuracy gets increased by {0} when using {1}.</TurretExtensions.MannedTurretUsesShooterAccuracyBonus>
+    <TurretExtensions.MannedTurretUsesShooterAccuracyPenalty>The operator's accuracy gets decreased by {0} when using {1}.</TurretExtensions.MannedTurretUsesShooterAccuracyPenalty>
+    <TurretExtensions.MannedTurretUsesShooterAccuracyNoChange>The {0} doesn't modify the operator's accuracy in any way.</TurretExtensions.MannedTurretUsesShooterAccuracyNoChange>
+    <TurretExtensions.MortarShellDependent>Depends on ammo</TurretExtensions.MortarShellDependent>
+    <TurretExtensions.ShellDamageType>Damage type</TurretExtensions.ShellDamageType>
+    <TurretExtensions.ShellExplosionRadius>Explosion radius</TurretExtensions.ShellExplosionRadius>
 
-    <Upgradable>Upgradable</Upgradable>
-    <TurretUpgradeBenefitsMain>Whether or not a turret can be upgraded to enhance its combat performance.</TurretUpgradeBenefitsMain>
-    <TurretResourceRequirements>Resources required</TurretResourceRequirements>
-    <TurretMinimumUpgradeSkill>Construction skill required</TurretMinimumUpgradeSkill>
-    <TurretResearchRequirements>Research required</TurretResearchRequirements>
-    <TurretUpgradeBenefitsUpgradable>This turret's modified stats are as follows when upgraded</TurretUpgradeBenefitsUpgradable>
-    <TurretUpgradeBenefitsNotUpgradable>This turret cannot be upgraded.</TurretUpgradeBenefitsNotUpgradable>
+    <TurretExtensions.Upgradable>Upgradable</TurretExtensions.Upgradable>
+    <TurretExtensions.TurretUpgradeBenefitsMain>Whether or not a turret can be upgraded to enhance its combat performance.</TurretExtensions.TurretUpgradeBenefitsMain>
+    <TurretExtensions.TurretResourceRequirements>Resources required</TurretExtensions.TurretResourceRequirements>
+    <TurretExtensions.TurretMinimumUpgradeSkill>Construction skill required</TurretExtensions.TurretMinimumUpgradeSkill>
+    <TurretExtensions.TurretResearchRequirements>Research required</TurretExtensions.TurretResearchRequirements>
+    <TurretExtensions.TurretUpgradeBenefitsUpgradable>This turret's modified stats are as follows when upgraded</TurretExtensions.TurretUpgradeBenefitsUpgradable>
+    <TurretExtensions.TurretUpgradeBenefitsNotUpgradable>This turret cannot be upgraded.</TurretExtensions.TurretUpgradeBenefitsNotUpgradable>
 
-    <Effective>Effective</Effective>
-    <TurretManuallyAimable>Turret becomes directly controllable by you</TurretManuallyAimable>
+    <TurretExtensions.Effective>TurretExtensions.Effective</TurretExtensions.Effective>
+    <TurretExtensions.TurretManuallyAimable>Turret becomes directly controllable by you</TurretExtensions.TurretManuallyAimable>
 
     <!-- Messages -->
-    <ConstructionSkillTooLowMessage>None of your {0} have a high enough construction skill to upgrade {1}.</ConstructionSkillTooLowMessage>
-    <UpgradeResearchNotMetMessage>Missing research that's required to upgrade {0}</UpgradeResearchNotMetMessage>
-    <TurretUpgradeCostMessage>Resource cost to upgrade {0}</TurretUpgradeCostMessage>
-    <UpgradeFailMinorMessage>{0} failed while upgrading {1}.</UpgradeFailMinorMessage>
-    <UpgradeFailMajorMessage>{0} failed while upgrading {1}, damaging it in the process.</UpgradeFailMajorMessage>
+    <TurretExtensions.ConstructionSkillTooLowMessage>None of your {0} have a high enough construction skill to upgrade {1}.</TurretExtensions.ConstructionSkillTooLowMessage>
+    <TurretExtensions.UpgradeResearchNotMetMessage>Missing research that's required to upgrade {0}</TurretExtensions.UpgradeResearchNotMetMessage>
+    <TurretExtensions.TurretUpgradeCostMessage>Resource cost to upgrade {0}</TurretExtensions.TurretUpgradeCostMessage>
+    <TurretExtensions.UpgradeFailMinorMessage>{0} failed while upgrading {1}.</TurretExtensions.UpgradeFailMinorMessage>
+    <TurretExtensions.UpgradeFailMajorMessage>{0} failed while upgrading {1}, damaging it in the process.</TurretExtensions.UpgradeFailMajorMessage>
 
-    <UpgradeFailResourceLossSmall>Most resources were successfully recovered.</UpgradeFailResourceLossSmall>
-    <UpgradeFailResourceLossMedium>Some resources have been lost.</UpgradeFailResourceLossMedium>
-    <UpgradeFailResourceLossHigh>Most resources couldn't be recovered.</UpgradeFailResourceLossHigh>
-    <UpgradeFailResourceLossTotal>No resources could be recovered.</UpgradeFailResourceLossTotal>
+    <TurretExtensions.UpgradeFailResourceLossSmall>Most resources were successfully recovered.</TurretExtensions.UpgradeFailResourceLossSmall>
+    <TurretExtensions.UpgradeFailResourceLossMedium>Some resources have been lost.</TurretExtensions.UpgradeFailResourceLossMedium>
+    <TurretExtensions.UpgradeFailResourceLossHigh>Most resources couldn't be recovered.</TurretExtensions.UpgradeFailResourceLossHigh>
+    <TurretExtensions.UpgradeFailResourceLossTotal>No resources could be recovered.</TurretExtensions.UpgradeFailResourceLossTotal>
+
+    <TurretExtensions.MessageTargetOutsideFiringCone>Target outside of firing cone.</TurretExtensions.MessageTargetOutsideFiringCone>
 
     <!-- Misc_Gameplay -->
-    <TextMote_UpgradeFail>Upgrade botched</TextMote_UpgradeFail>
-    <TurretUpgradedText>upgraded</TurretUpgradedText>
-    <TurretUpgradeProgress>Work to upgrade</TurretUpgradeProgress>
+    <TurretExtensions.TextMote_UpgradeFail>Upgrade botched</TurretExtensions.TextMote_UpgradeFail>
+    <TurretExtensions.TurretUpgradedText>upgraded</TurretExtensions.TurretUpgradedText>
+    <TurretExtensions.TurretUpgradeProgress>Work to upgrade</TurretExtensions.TurretUpgradeProgress>
 
 </LanguageData>

@@ -15,8 +15,8 @@ namespace TurretExtensions
 
         public Designator_UpgradeTurret()
         {
-            defaultLabel = "DesignatorUpgradeTurret".Translate();
-            defaultDesc = "DesignatorUpgradeTurretDesc".Translate();
+            defaultLabel = "TurretExtensions.DesignatorUpgradeTurret".Translate();
+            defaultDesc = "TurretExtensions.DesignatorUpgradeTurretDesc".Translate();
             icon = ContentFinder<Texture2D>.Get("Designations/UpgradeTurret");
             soundDragSustain = SoundDefOf.Designate_DragStandard;
             soundDragChanged = SoundDefOf.Designate_DragStandard_Changed;
@@ -35,7 +35,7 @@ namespace TurretExtensions
             if (!DebugSettings.godMode && loc.Fogged(Map))
                 return false;
             if (!UpgradableTurretsInSelection(loc).Any())
-                return "MessageMustDesignateUpgradableTurrets".Translate();
+                return "TurretExtensions.MessageMustDesignateUpgradableTurrets".Translate();
             return true;
         }
 
@@ -56,15 +56,17 @@ namespace TurretExtensions
 
         public override void DesignateThing(Thing t)
         {
+            // Godmode
             if (DebugSettings.godMode)
             {
                 CompUpgradable upgradableComp = t.TryGetComp<CompUpgradable>();
                 upgradableComp.Upgrade();
-                if (upgradableComp.upgradeCostListFinalized != null)
-                    foreach (ThingDefCountClass thing in upgradableComp.upgradeCostListFinalized)
+                if (upgradableComp.finalCostList != null)
+                    foreach (ThingDefCountClass thing in upgradableComp.finalCostList)
                         for (int i = 0; i < thing.count; i++)
                             upgradableComp.innerContainer.TryAdd(ThingMaker.MakeThing(thing.thingDef));
             }
+
             else
             {
                 Map.designationManager.AddDesignation(new Designation(t, Designation));
@@ -99,7 +101,7 @@ namespace TurretExtensions
             }
             if (!meetsMinSkill)
             {
-                Messages.Message("ConstructionSkillTooLowMessage".Translate(Faction.OfPlayer.def.pawnsPlural, t.def.label), MessageTypeDefOf.CautionInput, false);
+                Messages.Message("TurretExtensions.ConstructionSkillTooLowMessage".Translate(Faction.OfPlayer.def.pawnsPlural, t.def.label), MessageTypeDefOf.CautionInput, false);
             }
         }
 
@@ -121,7 +123,7 @@ namespace TurretExtensions
             }
             if (!researchRequirementsMet)
             {
-                string messageText = "UpgradeResearchNotMetMessage".Translate(t.def.label) + ": " + GenText.ToCommaList(researchProjectsUnfinished).CapitalizeFirst();
+                string messageText = "TurretExtensions.UpgradeResearchNotMetMessage".Translate(t.def.label) + ": " + GenText.ToCommaList(researchProjectsUnfinished).CapitalizeFirst();
                 Messages.Message(messageText, MessageTypeDefOf.CautionInput, false);
             }
         }

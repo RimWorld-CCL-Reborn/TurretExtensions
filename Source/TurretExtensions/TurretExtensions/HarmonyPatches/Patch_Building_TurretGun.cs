@@ -17,6 +17,63 @@ namespace TurretExtensions
     public static class Patch_Building_TurretGun
     {
 
+        [HarmonyPatch(typeof(Building_TurretGun), nameof(Building_TurretGun.DrawExtraSelectionOverlays))]
+        public static class DrawExtraSelectionOverlays
+        {
+
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
+            {
+                var instructionList = instructions.ToList();
+
+                var drawRadiusRingInfo = AccessTools.Method(typeof(GenDraw), nameof(GenDraw.DrawRadiusRing));
+                var tryDrawFiringConeInfo = AccessTools.Method(typeof(DrawExtraSelectionOverlays), nameof(TryDrawFiringCone));
+
+                int radRingCount = instructionList.Count(i => HarmonyPatchesUtility.CallingInstruction(i) && i.operand == drawRadiusRingInfo);
+                int radRingsFound = 0;
+
+                for (int i = 0; i < instructionList.Count; i++)
+                {
+                    var instruction = instructionList[i];
+
+                    // Look for branching instructions - start looking ahead
+                    if (radRingsFound < radRingCount && HarmonyPatchesUtility.BranchingInstruction(instruction))
+                    {
+                        int j = 1;
+                        while (i + j < instructionList.Count)
+                        {
+                            var xInstructionAhead = instructionList[i + j];
+
+                            // Terminate if another branching instruction is found, or if the branch's destination was reached
+                            if (HarmonyPatchesUtility.BranchingInstruction(xInstructionAhead) || xInstructionAhead.labels.Contains((Label)instruction.operand))
+                                break;
+
+                            // Look for a call to drawRadiusRing
+                            if (HarmonyPatchesUtility.CallingInstruction(xInstructionAhead) && xInstructionAhead.operand == drawRadiusRingInfo)
+                            {
+                                yield return instruction; // num < x or num > x
+                                yield return new CodeInstruction(OpCodes.Ldarg_0); // this
+                                yield return instructionList[i - 2].Clone(); // num
+                                yield return new CodeInstruction(OpCodes.Call, tryDrawFiringConeInfo); // TryDrawFiringCone(this, num)
+                                instruction = new CodeInstruction(OpCodes.Brtrue, instruction.operand);
+                                radRingsFound++;
+                                break;
+                            }
+
+                            j++;
+                        }
+                    }
+
+                    yield return instruction;
+                }
+            }
+
+            private static bool TryDrawFiringCone(Building_TurretGun instance, float distance)
+            {
+                return TurretExtensionsUtility.TryDrawFiringCone(instance, distance);
+            }
+
+        }
+
         [HarmonyPatch(typeof(Building_TurretGun), nameof(Building_TurretGun.Tick))]
         public static class Tick
         {
@@ -41,7 +98,7 @@ namespace TurretExtensions
         }
 
         [HarmonyPatch(typeof(Building_TurretGun), nameof(Building_TurretGun.SpawnSetup))]
-        public static class Patch_SpawnSetup
+        public static class SpawnSetup
         {
 
             public static void Postfix(Building_TurretGun __instance, TurretTop ___top)
@@ -80,6 +137,36 @@ namespace TurretExtensions
                 {
                     __result *= upgradableComp.Props.turretBurstCooldownTimeFactor;
                 }
+            }
+
+        }
+
+        [HarmonyPatch(typeof(Building_TurretGun), "IsValidTarget")]
+        public static class IsValidTarget
+        {
+
+            public static void Postfix(Building_TurretGun __instance, Thing t, ref bool __result)
+            {
+                // Cone of fire check
+                if (__result && !t.Position.WithinFiringConeOf(__instance))
+                    __result = false;
+            }
+
+        }
+
+        [HarmonyPatch(typeof(Building_TurretGun), nameof(Building_TurretGun.OrderAttack))]
+        public static class OrderAttack
+        {
+
+            public static bool Prefix(Building_TurretGun __instance, LocalTargetInfo targ)
+            {
+                // Cone of fire check
+                if (targ.IsValid && !targ.Cell.WithinFiringConeOf(__instance))
+                {
+                    Messages.Message("TurretExtensions.MessageTargetOutsideFiringCone".Translate(), MessageTypeDefOf.RejectInput, false);
+                    return false;
+                }
+                return true;
             }
 
         }
@@ -141,7 +228,7 @@ namespace TurretExtensions
         }
 
         [HarmonyPatch(typeof(Building_TurretGun), "GetInspectString")]
-        public static class Patch_GetInspectString
+        public static class GetInspectString
         {
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)

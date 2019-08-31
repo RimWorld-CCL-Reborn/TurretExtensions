@@ -2,58 +2,58 @@
 <LanguageData>
 
     <!-- Designators -->
-    <DesignatorUpgradeTurret>Geschütz verbessern</DesignatorUpgradeTurret>
-    <DesignatorUpgradeTurretDesc>Markiere Geschütze, um sie aufzuwerten und ihre Leistung zu erhöhen.</DesignatorUpgradeTurretDesc>
+    <TurretExtensions.DesignatorUpgradeTurret>Geschütz verbessern</TurretExtensions.DesignatorUpgradeTurret>
+    <TurretExtensions.DesignatorUpgradeTurretDesc>Markiere Geschütze, um sie aufzuwerten und ihre Leistung zu erhöhen.</TurretExtensions.DesignatorUpgradeTurretDesc>
 
-    <MessageMustDesignateUpgradableTurrets>Es muss ein verbesserbares Geschütz markiert werden.</MessageMustDesignateUpgradableTurrets>
+    <TurretExtensions.MessageMustDesignateUpgradableTurrets>Es muss ein verbesserbares Geschütz markiert werden.</TurretExtensions.MessageMustDesignateUpgradableTurrets>
 
     <!-- Dialogs_StatReports -->
-    <NoAlreadyUpgraded>Nein (Bereits verbessert)</NoAlreadyUpgraded>
-    <YesClickForDetails>Ja (Klicke für Details)</YesClickForDetails>
+    <TurretExtensions.NoAlreadyUpgraded>Nein (Bereits verbessert)</TurretExtensions.NoAlreadyUpgraded>
+    <TurretExtensions.YesClickForDetails>Ja (Klicke für Details)</TurretExtensions.YesClickForDetails>
 
-    <MannableTurretAccuracyDepends>Genauigkeit basiert auf der Person, welcher dieses Geschütz steuert.</MannableTurretAccuracyDepends>
-    <MannableTurretNotManned>Kein Schütze</MannableTurretNotManned>
-    <MannableTurretIsManned>Vom Schützen</MannableTurretIsManned>
+    <TurretExtensions.MannableTurretAccuracyDepends>Genauigkeit basiert auf der Person, welcher dieses Geschütz steuert.</TurretExtensions.MannableTurretAccuracyDepends>
+    <TurretExtensions.MannableTurretNotManned>Kein Schütze</TurretExtensions.MannableTurretNotManned>
+    <TurretExtensions.MannableTurretIsManned>Vom Schützen</TurretExtensions.MannableTurretIsManned>
 
     <!-- Dialogs_Various -->
-    <UpgradedTurretShootingAccuracy>Schussgenauigkeit verbessert</UpgradedTurretShootingAccuracy>
-    <UserShootingAccuracy>Schussgenauigkeit des Schützen</UserShootingAccuracy>
+    <TurretExtensions.UpgradedTurretShootingAccuracy>Schussgenauigkeit verbessert</TurretExtensions.UpgradedTurretShootingAccuracy>
+    <TurretExtensions.UserShootingAccuracy>Schussgenauigkeit des Schützen</TurretExtensions.UserShootingAccuracy>
 
-    <MannedTurretUsesShooterAccuracy>Basiert auf der Genauigkeit des Schützen</MannedTurretUsesShooterAccuracy>
-    <MannedTurretUsesShooterAccuracyExplanation>Ob dieses Geschütz die Schussgenauigkeit des Schützen übernimmt oder nicht.</MannedTurretUsesShooterAccuracyExplanation>
-    <MannedTurretUsesShooterAccuracyBonus>Die Genauigkeit des Schützen steigt um {0} wenn er {1} nutzt.</MannedTurretUsesShooterAccuracyBonus>
-    <MannedTurretUsesShooterAccuracyPenalty>Die Genauigkeit des Schützen verringert sich um {0} wenn er {1} nutzt.</MannedTurretUsesShooterAccuracyPenalty>
-    <MannedTurretUsesShooterAccuracyNoChange>{0} beeinflusst die Genauigkeit des Schützen in keiner Weise.</MannedTurretUsesShooterAccuracyNoChange>
-    <MortarShellDependent>Basiert auf der Munition</MortarShellDependent>
-    <ShellDamageType>Schadenstyp</ShellDamageType>
-    <ShellExplosionRadius>Explosionsradius</ShellExplosionRadius>
+    <TurretExtensions.MannedTurretUsesShooterAccuracy>Basiert auf der Genauigkeit des Schützen</TurretExtensions.MannedTurretUsesShooterAccuracy>
+    <TurretExtensions.MannedTurretUsesShooterAccuracyExplanation>Ob dieses Geschütz die Schussgenauigkeit des Schützen übernimmt oder nicht.</TurretExtensions.MannedTurretUsesShooterAccuracyExplanation>
+    <TurretExtensions.MannedTurretUsesShooterAccuracyBonus>Die Genauigkeit des Schützen steigt um {0} wenn er {1} nutzt.</TurretExtensions.MannedTurretUsesShooterAccuracyBonus>
+    <TurretExtensions.MannedTurretUsesShooterAccuracyPenalty>Die Genauigkeit des Schützen verringert sich um {0} wenn er {1} nutzt.</TurretExtensions.MannedTurretUsesShooterAccuracyPenalty>
+    <TurretExtensions.MannedTurretUsesShooterAccuracyNoChange>{0} beeinflusst die Genauigkeit des Schützen in keiner Weise.</TurretExtensions.MannedTurretUsesShooterAccuracyNoChange>
+    <TurretExtensions.MortarShellDependent>Basiert auf der Munition</TurretExtensions.MortarShellDependent>
+    <TurretExtensions.ShellDamageType>Schadenstyp</TurretExtensions.ShellDamageType>
+    <TurretExtensions.ShellExplosionRadius>Explosionsradius</TurretExtensions.ShellExplosionRadius>
 
-    <Upgradable>Verbesserbar</Upgradable>
-    <TurretUpgradeBenefitsMain>Ob ein Geschütz verbessert werden kann, um seine Leistung zu erhöhen.</TurretUpgradeBenefitsMain>
-    <TurretResourceRequirements>Material benötigt</TurretResourceRequirements>
-    <TurretMinimumUpgradeSkill>Konstruktionsfähigkeit benötigt</TurretMinimumUpgradeSkill>
-    <TurretResearchRequirements>Forschung benötigt</TurretResearchRequirements>
-    <TurretUpgradeBenefitsUpgradable>Die Daten des Geschütz sind folgende wenn es verbessert wurde</TurretUpgradeBenefitsUpgradable>
-    <TurretUpgradeBenefitsNotUpgradable>Dieses Geschütz kann nicht verbessert werden.</TurretUpgradeBenefitsNotUpgradable>
+    <TurretExtensions.Upgradable>Verbesserbar</TurretExtensions.Upgradable>
+    <TurretExtensions.TurretUpgradeBenefitsMain>Ob ein Geschütz verbessert werden kann, um seine Leistung zu erhöhen.</TurretExtensions.TurretUpgradeBenefitsMain>
+    <TurretExtensions.TurretResourceRequirements>Material benötigt</TurretExtensions.TurretResourceRequirements>
+    <TurretExtensions.TurretMinimumUpgradeSkill>Konstruktionsfähigkeit benötigt</TurretExtensions.TurretMinimumUpgradeSkill>
+    <TurretExtensions.TurretResearchRequirements>Forschung benötigt</TurretExtensions.TurretResearchRequirements>
+    <TurretExtensions.TurretUpgradeBenefitsUpgradable>Die Daten des Geschütz sind folgende wenn es verbessert wurde</TurretExtensions.TurretUpgradeBenefitsUpgradable>
+    <TurretExtensions.TurretUpgradeBenefitsNotUpgradable>Dieses Geschütz kann nicht verbessert werden.</TurretExtensions.TurretUpgradeBenefitsNotUpgradable>
 
-    <Effective>Effektiv</Effective>
-    <TurretManuallyAimable>Geschütz kann direkt von dir gesteuert werden</TurretManuallyAimable>
+    <TurretExtensions.Effective>Effektiv</TurretExtensions.Effective>
+    <TurretExtensions.TurretManuallyAimable>Geschütz kann direkt von dir gesteuert werden</TurretExtensions.TurretManuallyAimable>
 
     <!-- Messages -->
-    <ConstructionSkillTooLowMessage>Keiner deiner {0} hat eine ausreichende Konstruktionsfähigkeit um {1} zu verbessern.</ConstructionSkillTooLowMessage>
-    <UpgradeResearchNotMetMessage>Fehlende Forschung um {0} zu verbessern</UpgradeResearchNotMetMessage>
-    <TurretUpgradeCostMessage>Materialkosten um {0} zu verbessern</TurretUpgradeCostMessage>
-    <UpgradeFailMinorMessage>{0} hat versagt {1} zu verbessern.</UpgradeFailMinorMessage>
-    <UpgradeFailMajorMessage>{0} hat versagt {1} zu verbessern und es dabei beschädigt.</UpgradeFailMajorMessage>
+    <TurretExtensions.ConstructionSkillTooLowMessage>Keiner deiner {0} hat eine ausreichende Konstruktionsfähigkeit um {1} zu verbessern.</TurretExtensions.ConstructionSkillTooLowMessage>
+    <TurretExtensions.UpgradeResearchNotMetMessage>Fehlende Forschung um {0} zu verbessern</TurretExtensions.UpgradeResearchNotMetMessage>
+    <TurretExtensions.TurretUpgradeCostMessage>Materialkosten um {0} zu verbessern</TurretExtensions.TurretUpgradeCostMessage>
+    <TurretExtensions.UpgradeFailMinorMessage>{0} hat versagt {1} zu verbessern.</TurretExtensions.UpgradeFailMinorMessage>
+    <TurretExtensions.UpgradeFailMajorMessage>{0} hat versagt {1} zu verbessern und es dabei beschädigt.</TurretExtensions.UpgradeFailMajorMessage>
 
-    <UpgradeFailResourceLossSmall>Die meisten Ressourcen wurden erfolgreich zurückgewonnen.</UpgradeFailResourceLossSmall>
-    <UpgradeFailResourceLossMedium>Einige Ressourcen sind verloren gegangen.</UpgradeFailResourceLossMedium>
-    <UpgradeFailResourceLossHigh>Die meisten Ressourcen sind verloren gegangen.</UpgradeFailResourceLossHigh>
-    <UpgradeFailResourceLossTotal>Alle Ressourcen sind verloren gegangen.</UpgradeFailResourceLossTotal>
+    <TurretExtensions.UpgradeFailResourceLossSmall>Die meisten Ressourcen wurden erfolgreich zurückgewonnen.</TurretExtensions.UpgradeFailResourceLossSmall>
+    <TurretExtensions.UpgradeFailResourceLossMedium>Einige Ressourcen sind verloren gegangen.</TurretExtensions.UpgradeFailResourceLossMedium>
+    <TurretExtensions.UpgradeFailResourceLossHigh>Die meisten Ressourcen sind verloren gegangen.</TurretExtensions.UpgradeFailResourceLossHigh>
+    <TurretExtensions.UpgradeFailResourceLossTotal>Alle Ressourcen sind verloren gegangen.</TurretExtensions.UpgradeFailResourceLossTotal>
 
     <!-- Misc_Gameplay -->
-    <TextMote_UpgradeFail>Verbesserung fehlgeschlagen</TextMote_UpgradeFail>
-    <TurretUpgradedText>verbessertes</TurretUpgradedText>
-    <TurretUpgradeProgress>Arbeit bis verbessert</TurretUpgradeProgress>
+    <TurretExtensions.TextMote_UpgradeFail>Verbesserung fehlgeschlagen</TurretExtensions.TextMote_UpgradeFail>
+    <TurretExtensions.TurretUpgradedText>verbessertes</TurretExtensions.TurretUpgradedText>
+    <TurretExtensions.TurretUpgradeProgress>Arbeit bis verbessert</TurretExtensions.TurretUpgradeProgress>
 
 </LanguageData>
