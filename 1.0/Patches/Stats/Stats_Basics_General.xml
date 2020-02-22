@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Patch>
 
+    <!-- Max Hit Points -->
+    <Operation Class="PatchOperationSequence">
+        <success>Always</success>
+        <operations>
+            <li Class="PatchOperationTest">
+                <xpath>Defs/StatDef[defName="MaxHitPoints"]/parts</xpath>
+                <success>Invert</success>
+            </li>
+            <li Class="PatchOperationAdd">
+                <xpath>Defs/StatDef[defName="MaxHitPoints"]</xpath>
+                <value>
+                    <parts/>
+                </value>
+            </li>
+        </operations>
+    </Operation>
+
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/StatDef[defName="MaxHitPoints"]/parts</xpath>
+        <value>
+            <li Class="TurretExtensions.StatPart_HealthFromUpgrade"/>
+        </value>
+    </Operation>
+
     <!-- Market Value -->
     <Operation Class="PatchOperationAdd">
         <xpath>Defs/StatDef[defName="MarketValue"]/parts</xpath>
@@ -9,8 +33,33 @@
         </value>
     </Operation>
 
+    <!-- Flammability -->
+    <Operation Class="PatchOperationSequence">
+        <success>Always</success>
+        <operations>
+            <li Class="PatchOperationTest">
+                <xpath>Defs/StatDef[defName="Flammability"]/parts</xpath>
+                <success>Invert</success>
+            </li>
+            <li Class="PatchOperationAdd">
+                <xpath>Defs/StatDef[defName="Flammability"]</xpath>
+                <value>
+                    <parts/>
+                </value>
+            </li>
+        </operations>
+    </Operation>
+
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/StatDef[defName="Flammability"]/parts</xpath>
+        <value>
+            <li Class="TurretExtensions.StatPart_FlammabilityFromUpgrade"/>
+        </value>
+    </Operation>
+
     <!-- ShootingAccuracyTurret -->
     <Operation Class="PatchOperationSequence">
+        <success>Always</success>
         <operations>
             <li Class="PatchOperationTest">
                 <xpath>Defs/StatDef[defName="ShootingAccuracyTurret"]/parts</xpath>
@@ -28,9 +77,8 @@
     <Operation Class="PatchOperationAdd">
         <xpath>Defs/StatDef[defName="ShootingAccuracyTurret"]/parts</xpath>
         <value>
-            <li Class="TurretExtensions.StatPart_AccuracyFromCompMannable">
-                <correspondingStat>ShootingAccuracyPawn</correspondingStat>
-            </li>
+            <li Class="TurretExtensions.StatPart_AccuracyFromCompMannable"/>
+            <li Class="TurretExtensions.StatPart_AccuracyFromUpgrade"/>
         </value>
     </Operation>
 

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+    <!-- Market Value -->
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/StatDef[defName="MarketValue"]/parts</xpath>
+        <value>
+            <li Class="TurretExtensions.StatPart_ValueFromUpgrade"/>
+        </value>
+    </Operation>
+
+    <!-- ShootingAccuracyTurret -->
+    <Operation Class="PatchOperationSequence">
+        <operations>
+            <li Class="PatchOperationTest">
+                <xpath>Defs/StatDef[defName="ShootingAccuracyTurret"]/parts</xpath>
+                <success>Invert</success>
+            </li>
+            <li Class="PatchOperationAdd">
+                <xpath>Defs/StatDef[defName="ShootingAccuracyTurret"]</xpath>
+                <value>
+                    <parts/>
+                </value>
+            </li>
+        </operations>
+    </Operation>
+
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/StatDef[defName="ShootingAccuracyTurret"]/parts</xpath>
+        <value>
+            <li Class="TurretExtensions.StatPart_AccuracyFromCompMannable">
+                <correspondingStat>ShootingAccuracyPawn</correspondingStat>
+            </li>
+        </value>
+    </Operation>
+
+</Patch>

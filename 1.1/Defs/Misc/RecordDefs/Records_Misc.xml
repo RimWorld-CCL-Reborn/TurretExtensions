@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+    <RecordDef>
+        <defName>TurretsUpgraded</defName>
+        <label>turrets upgraded</label>
+        <description>The number of turrets I have upgraded.</description>
+        <type>Int</type>
+    </RecordDef>
+
+</Defs>

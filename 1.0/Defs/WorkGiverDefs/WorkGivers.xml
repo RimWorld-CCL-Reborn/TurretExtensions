@@ -8,37 +8,11 @@
         <workType>Construction</workType>
         <verb>upgrade</verb>
         <gerund>upgrading</gerund>
-        <priorityInType>52</priorityInType>
+        <priorityInType>49</priorityInType>
         <requiredCapacities>
             <li>Manipulation</li>
         </requiredCapacities>
         <prioritizeSustains>true</prioritizeSustains>
-    </WorkGiverDef>
-
-    <WorkGiverDef Name="ConstructDeliverResourcesToTurrets">
-        <defName>ConstructDeliverResourcesToTurrets</defName>
-        <label>deliver resources to turrets</label>
-        <giverClass>TurretExtensions.WorkGiver_ConstructDeliverResourcesToTurrets</giverClass>
-        <workType>Construction</workType>
-        <verb>work on</verb>
-        <gerund>working on</gerund>
-        <priorityInType>51</priorityInType>
-        <requiredCapacities>
-            <li>Manipulation</li>
-        </requiredCapacities>
-        <nonColonistsCanDo>true</nonColonistsCanDo>
-        <prioritizeSustains>true</prioritizeSustains>
-        <equivalenceGroup>AssistInConstruction</equivalenceGroup>
-
-    </WorkGiverDef>
-
-    <WorkGiverDef ParentName="ConstructDeliverResourcesToTurrets">
-        <defName>DeliverResourcesToTurrets</defName>
-        <label>deliver resources to turrets</label>
-        <workType>Hauling</workType>
-        <verb>deliver to</verb>
-        <gerund>delivering to</gerund>
-        <priorityInType>8</priorityInType>
     </WorkGiverDef>
 
 </Defs>
