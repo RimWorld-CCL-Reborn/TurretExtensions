@@ -20,9 +20,9 @@ namespace TurretExtensions
 
         public TurretGunFaceDirection gunFaceDirectionOnSpawn;
         private float firingArc = 360;
-        public bool useMannerShootingAccuracy = true;
-        public bool useMannerAimingDelayFactor = true;
-        public float mannerShootingAccuracyOffset;
+        public bool useManningPawnShootingAccuracy = true;
+        public bool useManningPawnAimingDelayFactor = true;
+        public float manningPawnShootingAccuracyOffset;
         public bool canForceAttack;
 
         public float FiringArc => Mathf.Clamp(firingArc, 0, 360);

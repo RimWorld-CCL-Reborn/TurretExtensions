@@ -19,7 +19,7 @@ namespace TurretExtensions
 
         static HarmonyPatches()
         {
-            //Harmony.DEBUG = true;
+            Harmony.DEBUG = true;
             TurretExtensions.harmonyInstance.PatchAll();
 
             // Gizmo_RefuelableFuelStatus delegate
@@ -29,9 +29,9 @@ namespace TurretExtensions
                 transpiler: new HarmonyMethod(typeof(Patch_Gizmo_RefuelableFuelStatus.manual_GizmoOnGUI_Delegate), "Transpiler"));
 
             // ThingDef.SpecialDisplayStats MoveNext method
-            var specialDisplayStatsEnumeratorType = typeof(ThingDef).GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance).First(t => t.Name.Contains("SpecialDisplayStats"));
-            Patch_ThingDef.manual_SpecialDisplayStats.enumeratorType = specialDisplayStatsEnumeratorType;
-            TurretExtensions.harmonyInstance.Patch(specialDisplayStatsEnumeratorType.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).First(m => m.Name == "MoveNext"),
+            var thingDefEnumeratorType = typeof(ThingDef).GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance).First(t => t.Name.Contains("SpecialDisplayStats"));
+            Patch_ThingDef.manual_SpecialDisplayStats.enumeratorType = thingDefEnumeratorType;
+            TurretExtensions.harmonyInstance.Patch(thingDefEnumeratorType.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).First(m => m.Name == "MoveNext"),
                 transpiler: new HarmonyMethod(typeof(Patch_ThingDef.manual_SpecialDisplayStats), "Transpiler"));
         }
 

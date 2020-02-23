@@ -77,7 +77,7 @@ namespace TurretExtensions
         public float turretBurstCooldownTimeFactor = 1;
         public ThingDef turretGunDef;
         private float firingArc = -1;
-        public float mannerShootingAccuracyOffsetBonus = 0;
+        public float manningPawnShootingAccuracyOffsetBonus = 0;
         public bool canForceAttack = false;
 
         public float FiringArc => Mathf.Clamp(firingArc, 0, 360);

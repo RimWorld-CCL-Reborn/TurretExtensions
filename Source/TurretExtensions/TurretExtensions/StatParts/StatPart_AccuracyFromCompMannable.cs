@@ -41,7 +41,7 @@ namespace TurretExtensions
         private bool ShouldApply(StatRequest req, out CompMannable mannableComp)
         {
             mannableComp = null;
-            if (req.Thing is Building_Turret turret && TurretFrameworkExtension.Get(turret.def).useMannerShootingAccuracy)
+            if (req.Thing is Building_Turret turret && TurretFrameworkExtension.Get(turret.def).useManningPawnShootingAccuracy)
                 mannableComp = turret.GetComp<CompMannable>();
 
             return mannableComp != null;

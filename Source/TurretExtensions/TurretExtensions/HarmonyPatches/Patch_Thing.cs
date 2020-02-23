@@ -30,44 +30,6 @@ namespace TurretExtensions
 
         }
 
-        [HarmonyPatch(typeof(Thing), nameof(Thing.DrawExtraSelectionOverlays))]
-        public static class DrawExtraSelectionOverlays
-        {
-
-            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-            {
-                var instructionList = instructions.ToList();
-
-                var specialDisplayRadiusInfo = AccessTools.Field(typeof(BuildableDef), nameof(BuildableDef.specialDisplayRadius));
-                var adjustedSpecialDisplayRadiusInfo = AccessTools.Method(typeof(DrawExtraSelectionOverlays), nameof(AdjustedSpecialDisplayRadius));
-
-                for (int i = 0; i < instructionList.Count; i++)
-                {
-                    var instruction = instructionList[i];
-
-                    // Look for each time the method tries to get 'special display radius'; add a call to our helper method
-                    if (instruction.opcode == OpCodes.Ldfld && (FieldInfo)instruction.operand == specialDisplayRadiusInfo)
-                    {
-                        yield return instruction; // this.def.specialDisplayRadius
-                        yield return new CodeInstruction(OpCodes.Ldarg_0); // this
-                        instruction = new CodeInstruction(OpCodes.Call, adjustedSpecialDisplayRadiusInfo); // AdjustedSpecialDisplayRadius(this.def.specialDisplayRadius, this)
-                    }
-
-                    yield return instruction;
-                }
-            }
-
-            private static float AdjustedSpecialDisplayRadius(float originalRadius, Thing instance)
-            {
-                if (instance is Building_TurretGun turret)
-                {
-                    return turret.CurrentEffectiveVerb.verbProps.range;
-                }
-                return originalRadius;
-            }
-
-        }
-
     }
 
 }

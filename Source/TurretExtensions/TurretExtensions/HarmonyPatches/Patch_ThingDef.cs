@@ -122,7 +122,7 @@ namespace TurretExtensions
 
                         // Add firing arc
                         float firingArc = req.HasThing ? TurretExtensionsUtility.FiringArcFor(req.Thing) : TurretFrameworkExtension.Get(tDef).FiringArc;
-                        gunStatList.Add(new StatDrawEntry(RimWorld.StatCategoryDefOf.Weapon, "TurretExtensions.FiringArc".Translate(), firingArc.ToString("0.#") + "°",
+                        gunStatList.Add(new StatDrawEntry(RimWorld.StatCategoryDefOf.Weapon, "TurretExtensions.FiringArc".Translate(), firingArc.ToStringDegrees(),
                             "TurretExtensions.FiringArc_Desc".Translate(), 5380));
                     }
 

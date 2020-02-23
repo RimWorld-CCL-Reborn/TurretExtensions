@@ -19,14 +19,8 @@
     <TurretExtensions.FiringArc_Desc>The total angle within which the weapon can target enemies.</TurretExtensions.FiringArc_Desc>
 
     <!-- Dialogs_Various -->
-    <TurretExtensions.UpgradedTurretShootingAccuracy>Upgraded shooting accuracy</TurretExtensions.UpgradedTurretShootingAccuracy>
-    <TurretExtensions.UserShootingAccuracy>User's shooting accuracy</TurretExtensions.UserShootingAccuracy>
+    <TurretExtensions.UserShootingAccuracyModifier>User accuracy modifier</TurretExtensions.UserShootingAccuracyModifier>
 
-    <TurretExtensions.MannedTurretUsesShooterAccuracy>Uses operator's accuracy</TurretExtensions.MannedTurretUsesShooterAccuracy>
-    <TurretExtensions.MannedTurretUsesShooterAccuracyExplanation>Whether or not this manning turret uses the manning pawn's shooting accuracy.</TurretExtensions.MannedTurretUsesShooterAccuracyExplanation>
-    <TurretExtensions.MannedTurretUsesShooterAccuracyBonus>The operator's accuracy gets increased by {0} when using {1}.</TurretExtensions.MannedTurretUsesShooterAccuracyBonus>
-    <TurretExtensions.MannedTurretUsesShooterAccuracyPenalty>The operator's accuracy gets decreased by {0} when using {1}.</TurretExtensions.MannedTurretUsesShooterAccuracyPenalty>
-    <TurretExtensions.MannedTurretUsesShooterAccuracyNoChange>The {0} doesn't modify the operator's accuracy in any way.</TurretExtensions.MannedTurretUsesShooterAccuracyNoChange>
     <TurretExtensions.MortarShellDependent>Depends on ammo</TurretExtensions.MortarShellDependent>
     <TurretExtensions.ShellDamageType>Damage type</TurretExtensions.ShellDamageType>
     <TurretExtensions.ShellDamageType_Desc>The type of damage that this weapon inflicts.</TurretExtensions.ShellDamageType_Desc>
@@ -41,8 +35,8 @@
     <TurretExtensions.TurretUpgradeBenefitsUpgradable>Upgrade bonuses</TurretExtensions.TurretUpgradeBenefitsUpgradable>
     <TurretExtensions.TurretUpgradeBenefitsNotUpgradable>This turret cannot be upgraded.</TurretExtensions.TurretUpgradeBenefitsNotUpgradable>
 
-    <TurretExtensions.Effective>TurretExtensions.Effective</TurretExtensions.Effective>
-    <TurretExtensions.TurretManuallyAimable>Turret becomes directly controllable by you</TurretExtensions.TurretManuallyAimable>
+    <TurretExtensions.TurretManuallyControllable>Turret becomes manually aimable</TurretExtensions.TurretManuallyControllable>
+    <TurretExtensions.TurretNotManuallyControllable>Turret no longer manually aimable</TurretExtensions.TurretNotManuallyControllable>
 
     <!-- Messages -->
     <TurretExtensions.ConstructionSkillTooLowMessage>None of your {0} have a high enough construction skill to upgrade {1}.</TurretExtensions.ConstructionSkillTooLowMessage>

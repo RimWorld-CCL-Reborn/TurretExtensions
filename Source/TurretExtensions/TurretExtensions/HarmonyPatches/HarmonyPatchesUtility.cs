@@ -25,6 +25,11 @@ namespace TurretExtensions
             return instruction.opcode == OpCodes.Call || instruction.opcode == OpCodes.Callvirt;
         }
 
+        public static bool LoadFieldInstruction(CodeInstruction instruction)
+        {
+            return instruction.opcode == OpCodes.Ldfld || instruction.opcode == OpCodes.Ldflda;
+        }
+
         public static bool BranchingInstruction(CodeInstruction instruction)
         {
             return instruction.opcode == OpCodes.Bge_Un || instruction.opcode == OpCodes.Bge_Un_S || instruction.opcode == OpCodes.Ble_Un || instruction.opcode == OpCodes.Ble_Un_S;

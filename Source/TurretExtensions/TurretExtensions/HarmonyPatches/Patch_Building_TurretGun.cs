@@ -175,7 +175,7 @@ namespace TurretExtensions
                 var extensionValues = TurretFrameworkExtension.Get(__instance.def);
 
                 // Multiply the burstWarmupTicksLeft by the manning pawn's aiming delay factor if applicable
-                if (extensionValues.useMannerAimingDelayFactor)
+                if (extensionValues.useManningPawnAimingDelayFactor)
                 {
                     var mannableComp = __instance.TryGetComp<CompMannable>();
                     if (mannableComp != null)
@@ -209,7 +209,7 @@ namespace TurretExtensions
                     var extensionValues = TurretFrameworkExtension.Get(__instance.def);
                     var upgradableComp = __instance.TryGetComp<CompUpgradable>();
 
-                    if (extensionValues.canForceAttack || (upgradableComp != null && upgradableComp.upgraded && upgradableComp.Props.canForceAttack))
+                    if (((upgradableComp != null || !upgradableComp.upgraded) && extensionValues.canForceAttack) || (upgradableComp.upgraded && upgradableComp.Props.canForceAttack))
                     {
                         if (!__instance.def.HasComp(typeof(CompMannable)))
                             __result = true;
