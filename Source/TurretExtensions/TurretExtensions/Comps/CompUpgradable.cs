@@ -158,7 +158,7 @@ namespace TurretExtensions
             // Update barrel durability
             if (parent.TryGetComp<CompRefuelable>() is CompRefuelable refuelableComp)
             {
-                float newFuel = (float)NonPublicFields.CompRefuelable_fuel.GetValue(refuelableComp) * Props.fuelCapacityFactor;
+                float newFuel = (float)NonPublicFields.CompRefuelable_fuel.GetValue(refuelableComp) * Props.fuelMultiplierFactor;
                 NonPublicFields.CompRefuelable_fuel.SetValue(refuelableComp, newFuel);
             }
 

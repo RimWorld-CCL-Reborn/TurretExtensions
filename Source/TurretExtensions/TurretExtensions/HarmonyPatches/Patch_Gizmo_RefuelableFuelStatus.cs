@@ -68,7 +68,7 @@ namespace TurretExtensions
 
             private static float AdjustedFuelCapacity(float original, Gizmo_RefuelableFuelStatus instance)
             {
-                return HarmonyPatchesUtility.AdjustedFuelCapacity(original, instance.refuelable.parent);
+                return TurretExtensionsUtility.AdjustedFuelCapacity(original, instance.refuelable.parent);
             }
 
         }

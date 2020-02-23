@@ -26,12 +26,10 @@ namespace TurretExtensions
                 var instructionList = instructions.ToList();
 
                 var drawRadiusRingInfo = AccessTools.Method(typeof(GenDraw), nameof(GenDraw.DrawRadiusRing), new Type[] { typeof(IntVec3), typeof(float) });
-                var tryDrawFiringConeInfo = AccessTools.Method(typeof(DrawExtraSelectionOverlays), nameof(TryDrawFiringCone));
+                var tryDrawFiringConeInfo = AccessTools.Method(typeof(TurretExtensionsUtility), nameof(TurretExtensionsUtility.TryDrawFiringCone), new Type[] { typeof(Building_Turret), typeof(float) });
 
                 int radRingCount = instructionList.Count(i => HarmonyPatchesUtility.CallingInstruction(i) && (MethodInfo)i.operand == drawRadiusRingInfo);
                 int radRingsFound = 0;
-
-                Log.Message(radRingCount.ToString());
 
                 for (int i = 0; i < instructionList.Count; i++)
                 {
@@ -40,7 +38,6 @@ namespace TurretExtensions
                     // Look for branching instructions - start looking ahead
                     if (radRingsFound < radRingCount && HarmonyPatchesUtility.BranchingInstruction(instruction))
                     {
-                        Log.Message("looking...");
                         int j = 1;
                         while (i + j < instructionList.Count)
                         {
@@ -53,11 +50,10 @@ namespace TurretExtensions
                             // Look for a call to drawRadiusRing
                             if (HarmonyPatchesUtility.CallingInstruction(xInstructionAhead) && (MethodInfo)xInstructionAhead.operand == drawRadiusRingInfo)
                             {
-                                Log.Message("m");
                                 yield return instruction; // num < x or num > x
                                 yield return new CodeInstruction(OpCodes.Ldarg_0); // this
                                 yield return instructionList[i - 2].Clone(); // num
-                                yield return new CodeInstruction(OpCodes.Call, tryDrawFiringConeInfo); // TryDrawFiringCone(this, num)
+                                yield return new CodeInstruction(OpCodes.Call, tryDrawFiringConeInfo); // TurretExtensionsUtility.TryDrawFiringCone(this, num)
                                 instruction = new CodeInstruction(OpCodes.Brtrue, instruction.operand);
                                 radRingsFound++;
                                 break;
@@ -69,11 +65,6 @@ namespace TurretExtensions
 
                     yield return instruction;
                 }
-            }
-
-            private static bool TryDrawFiringCone(Building_TurretGun instance, float distance)
-            {
-                return TurretExtensionsUtility.TryDrawFiringCone(instance, distance);
             }
 
         }
@@ -152,7 +143,7 @@ namespace TurretExtensions
             public static void Postfix(Building_TurretGun __instance, Thing t, ref bool __result)
             {
                 // Cone of fire check
-                if (__result && !t.Position.WithinFiringConeOf(__instance))
+                if (__result && !t.Position.WithinFiringArcOf(__instance))
                     __result = false;
             }
 
@@ -165,9 +156,9 @@ namespace TurretExtensions
             public static bool Prefix(Building_TurretGun __instance, LocalTargetInfo targ)
             {
                 // Cone of fire check
-                if (targ.IsValid && !targ.Cell.WithinFiringConeOf(__instance))
+                if (targ.IsValid && !targ.Cell.WithinFiringArcOf(__instance))
                 {
-                    Messages.Message("TurretExtensions.MessageTargetOutsideFiringCone".Translate(), MessageTypeDefOf.RejectInput, false);
+                    Messages.Message("TurretExtensions.MessageTargetOutsideFiringArc".Translate(), MessageTypeDefOf.RejectInput, false);
                     return false;
                 }
                 return true;

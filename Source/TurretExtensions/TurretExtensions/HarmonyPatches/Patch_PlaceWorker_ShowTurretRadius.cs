@@ -21,11 +21,22 @@ namespace TurretExtensions
         public static class get_Graphic
         {
 
-            public static bool Prefix(BuildableDef checkingDef)
+            public static bool Prefix(BuildableDef checkingDef, IntVec3 loc, Rot4 rot, ref AcceptanceReport __result)
             {
-                var extension = TurretFrameworkExtension.Get(checkingDef);
-                if (extension != null && extension.firingAngle > -1)
+                // Draw cones instead of circles if firing arc is limited
+                float firingArc = TurretFrameworkExtension.Get(checkingDef).FiringArc;
+                if (firingArc < 360)
                 {
+                    var verbProps = ((ThingDef)checkingDef).building.turretGunDef.Verbs.Find((VerbProperties v) => v.verbClass == typeof(Verb_Shoot));
+                    if (verbProps.range > 0)
+                    {
+                        TurretExtensionsUtility.TryDrawFiringCone(loc, rot, verbProps.range, firingArc);
+                    }
+                    if (verbProps.minRange > 0)
+                    {
+                        TurretExtensionsUtility.TryDrawFiringCone(loc, rot, verbProps.minRange, firingArc);
+                    }
+                    __result = true;
                     return false;
                 }
                 return true;

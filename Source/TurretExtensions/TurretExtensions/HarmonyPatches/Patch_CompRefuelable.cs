@@ -24,7 +24,7 @@ namespace TurretExtensions
         {
             var instructionList = instructions.ToList();
 
-            var adjustedFuelCapacity = AccessTools.Method(typeof(HarmonyPatchesUtility), nameof(HarmonyPatchesUtility.AdjustedFuelCapacity));
+            var adjustedFuelCapacity = AccessTools.Method(typeof(TurretExtensionsUtility), nameof(TurretExtensionsUtility.AdjustedFuelCapacity));
 
             for (int i = 0; i < instructionList.Count; i++)
             {
@@ -97,7 +97,7 @@ namespace TurretExtensions
             {
                 var instructionList = instructions.ToList();
 
-                var adjustedFuelCapacity = AccessTools.Method(typeof(HarmonyPatchesUtility), nameof(HarmonyPatchesUtility.AdjustedFuelCapacity));
+                var adjustedFuelCapacity = AccessTools.Method(typeof(TurretExtensionsUtility), nameof(TurretExtensionsUtility.AdjustedFuelCapacity));
                 var adjustedFuelCount = AccessTools.Method(typeof(GetFuelCountToFullyRefuel), nameof(AdjustedFuelCount));
 
                 for (int i = 0; i < instructionList.Count; i++)
@@ -127,7 +127,7 @@ namespace TurretExtensions
             }
 
             private static float AdjustedFuelCount(float currentFuelCount, Thing thing) =>
-                currentFuelCount / (thing.IsUpgraded(out CompUpgradable uC) ? uC.Props.fuelCapacityFactor : 1f);
+                currentFuelCount / (thing.IsUpgraded(out CompUpgradable uC) ? uC.Props.fuelMultiplierFactor : 1f);
 
         }
 

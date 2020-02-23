@@ -15,6 +15,9 @@
     <TurretExtensions.MannableTurretNotManned>No operator</TurretExtensions.MannableTurretNotManned>
     <TurretExtensions.MannableTurretIsManned>From operator</TurretExtensions.MannableTurretIsManned>
 
+    <TurretExtensions.FiringArc>Firing arc</TurretExtensions.FiringArc>
+    <TurretExtensions.FiringArc_Desc>The total angle within which the weapon can target enemies.</TurretExtensions.FiringArc_Desc>
+
     <!-- Dialogs_Various -->
     <TurretExtensions.UpgradedTurretShootingAccuracy>Upgraded shooting accuracy</TurretExtensions.UpgradedTurretShootingAccuracy>
     <TurretExtensions.UserShootingAccuracy>User's shooting accuracy</TurretExtensions.UserShootingAccuracy>
@@ -26,18 +29,16 @@
     <TurretExtensions.MannedTurretUsesShooterAccuracyNoChange>The {0} doesn't modify the operator's accuracy in any way.</TurretExtensions.MannedTurretUsesShooterAccuracyNoChange>
     <TurretExtensions.MortarShellDependent>Depends on ammo</TurretExtensions.MortarShellDependent>
     <TurretExtensions.ShellDamageType>Damage type</TurretExtensions.ShellDamageType>
-    <TurretExtensions.ShellDamageType_Desc>The type of damage that this projectile inflicts.</TurretExtensions.ShellDamageType_Desc>
+    <TurretExtensions.ShellDamageType_Desc>The type of damage that this weapon inflicts.</TurretExtensions.ShellDamageType_Desc>
     <TurretExtensions.ShellExplosionRadius>Explosion radius</TurretExtensions.ShellExplosionRadius>
-    <TurretExtensions.ShellExplosionRadius_Desc>The size of the exploison that this projectile produces upon impact.</TurretExtensions.ShellExplosionRadius_Desc>
+    <TurretExtensions.ShellExplosionRadius_Desc>The size of the explosion that this weapon's projectile produces upon impact.</TurretExtensions.ShellExplosionRadius_Desc>
 
     <TurretExtensions.MinimumRange_Desc>The minimum range of this weapon.</TurretExtensions.MinimumRange_Desc>
 
     <TurretExtensions.Upgradable>Upgradable</TurretExtensions.Upgradable>
     <TurretExtensions.TurretUpgradeBenefitsMain>Whether or not a turret can be upgraded to enhance its combat performance.</TurretExtensions.TurretUpgradeBenefitsMain>
-    <TurretExtensions.TurretResourceRequirements>Resources required</TurretExtensions.TurretResourceRequirements>
-    <TurretExtensions.TurretMinimumUpgradeSkill>Construction skill required</TurretExtensions.TurretMinimumUpgradeSkill>
-    <TurretExtensions.TurretResearchRequirements>Research required</TurretExtensions.TurretResearchRequirements>
-    <TurretExtensions.TurretUpgradeBenefitsUpgradable>This turret's modified stats are as follows when upgraded</TurretExtensions.TurretUpgradeBenefitsUpgradable>
+    <TurretExtensions.TurretResourceRequirements>Resources needed</TurretExtensions.TurretResourceRequirements>
+    <TurretExtensions.TurretUpgradeBenefitsUpgradable>Upgrade bonuses</TurretExtensions.TurretUpgradeBenefitsUpgradable>
     <TurretExtensions.TurretUpgradeBenefitsNotUpgradable>This turret cannot be upgraded.</TurretExtensions.TurretUpgradeBenefitsNotUpgradable>
 
     <TurretExtensions.Effective>TurretExtensions.Effective</TurretExtensions.Effective>
@@ -55,7 +56,7 @@
     <TurretExtensions.UpgradeFailResourceLossHigh>Most resources couldn't be recovered.</TurretExtensions.UpgradeFailResourceLossHigh>
     <TurretExtensions.UpgradeFailResourceLossTotal>No resources could be recovered.</TurretExtensions.UpgradeFailResourceLossTotal>
 
-    <TurretExtensions.MessageTargetOutsideFiringCone>Target outside of firing cone.</TurretExtensions.MessageTargetOutsideFiringCone>
+    <TurretExtensions.MessageTargetOutsideFiringArc>Target outside of firing arc.</TurretExtensions.MessageTargetOutsideFiringArc>
 
     <!-- Misc_Gameplay -->
     <TurretExtensions.TextMote_UpgradeFail>Upgrade botched</TurretExtensions.TextMote_UpgradeFail>

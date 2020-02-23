@@ -16,6 +16,15 @@ namespace TurretExtensions
             compClass = typeof(CompUpgradable);
         }
 
+        public override void ResolveReferences(ThingDef parentDef)
+        {
+            base.ResolveReferences(parentDef);
+
+            // If firing arc is unchanged, match it to DefModExtension
+            if (firingArc == -1)
+                firingArc = TurretFrameworkExtension.Get(parentDef).FiringArc;
+        }
+
         public override IEnumerable<string> ConfigErrors(ThingDef parentDef)
         {
             foreach (string e in base.ConfigErrors(parentDef))
@@ -67,9 +76,11 @@ namespace TurretExtensions
         public float turretBurstWarmupTimeFactor = 1;
         public float turretBurstCooldownTimeFactor = 1;
         public ThingDef turretGunDef;
-        public int firingAngle = -1;
+        private float firingArc = -1;
         public float mannerShootingAccuracyOffsetBonus = 0;
         public bool canForceAttack = false;
+
+        public float FiringArc => Mathf.Clamp(firingArc, 0, 360);
 
         // Destroyed
         public float baseResourceDropPct = 0.75f;

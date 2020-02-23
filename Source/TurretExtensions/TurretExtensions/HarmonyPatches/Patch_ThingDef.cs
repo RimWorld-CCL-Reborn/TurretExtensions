@@ -17,6 +17,46 @@ namespace TurretExtensions
     public static class Patch_ThingDef
     {
 
+        public static class manual_SpecialDisplayStats
+        {
+
+            public static Type enumeratorType;
+
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                // Runs inside MoveNext()
+                var instructionList = instructions.ToList();
+                var turretGunDefInfo = AccessTools.Field(typeof(BuildingProperties), nameof(BuildingProperties.turretGunDef));
+                var reqInfo = AccessTools.Field(enumeratorType, "req");
+                var actualTurretGunDefInfo = AccessTools.Method(typeof(manual_SpecialDisplayStats), nameof(manual_SpecialDisplayStats.ActualTurretGunDef));
+
+                bool done = false;
+
+                for (int i = 0; i < instructionList.Count; i++)
+                {
+                    var instruction = instructionList[i];
+
+                    // Change the turretGunDef used for stat readouts based on whether or not the turret was upgraded
+                    if (!done && instruction.opcode == OpCodes.Ldfld && (FieldInfo)instruction.operand == turretGunDefInfo)
+                    {
+                        yield return instruction; // thingDef.building.turretGunDef
+                        yield return new CodeInstruction(OpCodes.Ldarg_0); // this
+                        yield return new CodeInstruction(OpCodes.Ldfld, reqInfo); // this.req
+                        instruction = new CodeInstruction(OpCodes.Call, actualTurretGunDefInfo); // ActualTurretGunDef(this.building.turretGunDef, this.req)
+                        done = true;
+                    }
+
+                    yield return instruction;
+                }
+            }
+
+            private static ThingDef ActualTurretGunDef(ThingDef original, StatRequest req)
+            {
+                return req.HasThing && req.Thing.IsUpgraded(out var upgradableComp) && upgradableComp.Props.turretGunDef != null ? upgradableComp.Props.turretGunDef : original;
+            }
+
+        }
+
         [HarmonyPatch(typeof(ThingDef), nameof(ThingDef.SpecialDisplayStats))]
         public static class SpecialDisplayStats
         {
@@ -50,7 +90,7 @@ namespace TurretExtensions
                     if (verb.LaunchesProjectile)
                     {
                         if (verb.minRange > default(float))
-                            __result = __result.AddItem(new StatDrawEntry(verbStatCategory, "MinimumRange".Translate(), verb.minRange.ToString("F0"), "TurretExtensions.MinimumRange_Desc".Translate(), 10));
+                            __result = __result.AddItem(new StatDrawEntry(verbStatCategory, "MinimumRange".Translate(), verb.minRange.ToString("F0"), "TurretExtensions.MinimumRange_Desc".Translate(), 5385));
                     }
                 }
 
@@ -59,44 +99,13 @@ namespace TurretExtensions
                 if (buildingProps != null && buildingProps.IsTurret)
                 {
                     var gunStatList = new List<StatDrawEntry>();
-                    //if (req.HasThing)
-                    //{
-                    //    var gun = ((Building_TurretGun)req.Thing).gun;
-                    //    gunStatList.AddRange(gun.def.SpecialDisplayStats(StatRequest.For(gun)));
-                    //    gunStatList.AddRange(NonPublicMethods.StatsReportUtility_StatsToDraw_thing(gun));
-                    //}
-                    //else
-                    //{
-                    //    var defaultStuff = GenStuff.DefaultStuffFor(buildingProps.turretGunDef);
-                    //    gunStatList.AddRange(buildingProps.turretGunDef.SpecialDisplayStats(StatRequest.For(buildingProps.turretGunDef, defaultStuff)));
-                    //    gunStatList.AddRange(NonPublicMethods.StatsReportUtility_StatsToDraw_def_stuff(buildingProps.turretGunDef, defaultStuff));
-                    //}
-
-                    //// Replace cooldown
-                    //var cooldownEntry = gunStatList.FirstOrDefault(s => s.stat == StatDefOf.RangedWeapon_Cooldown);
-                    //if (cooldownEntry != null)
-                    //    cooldownEntry = new StatDrawEntry(cooldownEntry.category, cooldownEntry.LabelCap, TurretCooldown(req, buildingProps).ToStringByStyle(cooldownEntry.stat.toStringStyle),
-                    //        cooldownEntry.DisplayPriorityWithinCategory, cooldownEntry.overrideReportText);
-                    //else
-                    //{
-                    //    var cooldownStat = StatDefOf.RangedWeapon_Cooldown;
-                    //    gunStatList.Add(new StatDrawEntry(StatCategoryDefOf.Turret, cooldownStat, TurretCooldown(req, buildingProps), StatRequest.ForEmpty(), cooldownStat.toStringNumberSense));
-                    //}
-
-                    //// Replace warmup
-                    //var warmupEntry = gunStatList.FirstOrDefault(s => s.LabelCap == "WarmupTime".Translate().CapitalizeFirst());
-                    //if (warmupEntry != null)
-                    //    warmupEntry = new StatDrawEntry(warmupEntry.category, warmupEntry.LabelCap, $"{TurretWarmup(req, buildingProps).ToString("0.##")} s",
-                    //        warmupEntry.DisplayPriorityWithinCategory, warmupEntry.overrideReportText);
-                    //else
-                    //    gunStatList.Add(new StatDrawEntry(StatCategoryDefOf.Turret, "WarmupTime".Translate(), $"{TurretWarmup(req, buildingProps).ToString("0.##")} s", 40));
-
-                    // Add upgradability
+                    
                     if (req.Def is ThingDef tDef)
                     {
+                        // Add upgradability
                         string upgradableString;
                         CompProperties_Upgradable upgradableCompProps;
-                        if (req.Thing != null && req.Thing.IsUpgradable(out CompUpgradable upgradableComp))
+                        if (req.HasThing && req.Thing.IsUpgradable(out CompUpgradable upgradableComp))
                         {
                             upgradableString = (upgradableComp.upgraded ? "TurretExtensions.NoAlreadyUpgraded" : "TurretExtensions.YesClickForDetails").Translate();
                             upgradableCompProps = upgradableComp.Props;
@@ -110,20 +119,33 @@ namespace TurretExtensions
 
                         gunStatList.Add(new StatDrawEntry(RimWorld.StatCategoryDefOf.BasicsNonPawn, "TurretExtensions.Upgradable".Translate(), upgradableString,
                             TurretExtensionsUtility.UpgradeReadoutReportText(req), 999, hyperlinks: upgradeHyperlinks));
+
+                        // Add firing arc
+                        float firingArc = req.HasThing ? TurretExtensionsUtility.FiringArcFor(req.Thing) : TurretFrameworkExtension.Get(tDef).FiringArc;
+                        gunStatList.Add(new StatDrawEntry(RimWorld.StatCategoryDefOf.Weapon, "TurretExtensions.FiringArc".Translate(), firingArc.ToString("0.#") + "°",
+                            "TurretExtensions.FiringArc_Desc".Translate(), 5380));
                     }
 
-                    // Remove entries that shouldn't be shown and change 'Weapon' categories to 'Turret' categories
-                    //for (int i = 0; i < gunStatList.Count; i++)
-                    //{
-                    //    var curEntry = gunStatList[i];
-                    //    if ((curEntry.stat != null && !curEntry.stat.showNonAbstract) || (curEntry.category != RimWorld.StatCategoryDefOf.Weapon && curEntry.category != StatCategoryDefOf.Turret))
-                    //    {
-                    //        gunStatList.Remove(curEntry);
-                    //        i--;
-                    //    }
-                    //    else
-                    //        curEntry.category = StatCategoryDefOf.Turret;
-                    //}
+                    // Replace cooldown
+                    var cooldownEntry = __result.FirstOrDefault(s => s.stat == StatDefOf.RangedWeapon_Cooldown);
+                    if (cooldownEntry != null)
+                        cooldownEntry = new StatDrawEntry(cooldownEntry.category, cooldownEntry.LabelCap, TurretCooldown(req, buildingProps).ToStringByStyle(cooldownEntry.stat.toStringStyle),
+                            (string)NonPublicFields.StatDrawEntry_overrideReportText.GetValue(cooldownEntry), cooldownEntry.DisplayPriorityWithinCategory);
+                    else
+                    {
+                        var cooldownStat = StatDefOf.RangedWeapon_Cooldown;
+                        gunStatList.Add(new StatDrawEntry(cooldownStat.category, cooldownStat, TurretCooldown(req, buildingProps), StatRequest.ForEmpty(), cooldownStat.toStringNumberSense));
+                    }
+
+                    // Replace warmup
+                    var warmupEntry = __result.FirstOrDefault(s => s.LabelCap == "WarmupTime".Translate().CapitalizeFirst());
+                    if (warmupEntry != null)
+                        warmupEntry = new StatDrawEntry(warmupEntry.category, warmupEntry.LabelCap, $"{TurretWarmup(req, buildingProps).ToString("0.##")} s",
+                            (string)NonPublicFields.StatDrawEntry_overrideReportText.GetValue(warmupEntry), warmupEntry.DisplayPriorityWithinCategory);
+                    else
+                        gunStatList.Add(new StatDrawEntry(RimWorld.StatCategoryDefOf.Weapon, "WarmupTime".Translate(), $"{TurretWarmup(req, buildingProps).ToString("0.##")} s",
+                            "Stat_Thing_Weapon_MeleeWarmupTime_Desc".Translate(), 3555));
+
                     __result = __result.Concat(gunStatList);
                 }
 

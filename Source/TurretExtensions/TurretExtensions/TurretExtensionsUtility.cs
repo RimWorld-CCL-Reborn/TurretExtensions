@@ -29,37 +29,42 @@ namespace TurretExtensions
             return upgradable && upgradableComp.upgraded;
         }
 
-        public static bool WithinFiringConeOf(this IntVec3 pos, Thing thing)
+        public static float AdjustedFuelCapacity(float baseFuelCapacity, Thing t)
         {
-            return WithinFiringConeOf(pos, thing, FiringAngleFor(thing));
+            if (t.IsUpgraded(out CompUpgradable upgradableComp))
+                return baseFuelCapacity * upgradableComp.Props.fuelCapacityFactor;
+            return baseFuelCapacity;
         }
 
-        public static bool WithinFiringConeOf(this IntVec3 pos, Thing thing, float firingAngle)
+        public static bool WithinFiringArcOf(this IntVec3 pos, Thing thing)
         {
-            return GenGeo.AngleDifferenceBetween(thing.Rotation.AsAngle, (pos - thing.Position).AngleFlat) <= (firingAngle / 2);
+            return WithinFiringArcOf(pos, thing.Position, thing.Rotation, FiringArcFor(thing));
         }
 
-        public static float FiringAngleFor(Thing thing)
+        public static bool WithinFiringArcOf(this IntVec3 pos, IntVec3 pos2, Rot4 rot, float firingArc)
         {
-            // Upgraded and defined firing angle
-            if (thing.IsUpgraded(out CompUpgradable upgradableComp) && upgradableComp.Props.firingAngle > -1)
-                return upgradableComp.Props.firingAngle;
+            return GenGeo.AngleDifferenceBetween(rot.AsAngle, (pos - pos2).AngleFlat) <= (firingArc / 2);
+        }
 
-            // Defined firing angle
-            var extensionValues = TurretFrameworkExtension.Get(thing.def);
-            if (extensionValues.firingAngle > -1)
-                return extensionValues.firingAngle;
+        public static float FiringArcFor(Thing thing)
+        {
+            // Upgraded and defined firing arc
+            if (thing.IsUpgraded(out CompUpgradable upgradableComp))
+                return upgradableComp.Props.FiringArc;
 
-            // 360 degree default
-            return 360;
+            // Defined firing arc
+            return TurretFrameworkExtension.Get(thing.def).FiringArc;
         }
 
         public static bool TryDrawFiringCone(Building_Turret turret, float distance)
         {
-            var extensionValues = TurretFrameworkExtension.Get(turret.def);
-            if (extensionValues.firingAngle > -1 || (turret.IsUpgraded(out CompUpgradable upgradableComp) && upgradableComp.Props.firingAngle > -1))
+            return TryDrawFiringCone(turret.Position, turret.Rotation, distance, FiringArcFor(turret));
+        }
+
+        public static bool TryDrawFiringCone(IntVec3 centre, Rot4 rot, float distance, float arc)
+        {
+            if (arc < 360)
             {
-                float maxAngle = FiringAngleFor(turret);
                 if (distance > GenRadial.MaxRadialPatternRadius)
                 {
                     if (!(bool)NonPublicFields.GenDraw_maxRadiusMessaged.GetValue(null))
@@ -69,14 +74,13 @@ namespace TurretExtensions
                     }
                     return false;
                 }
-                var centre = turret.Position;
                 var ringDrawCells = (List<IntVec3>)NonPublicFields.GenDraw_ringDrawCells.GetValue(null);
                 ringDrawCells.Clear();
                 int num = GenRadial.NumCellsInRadius(distance);
                 for (int i = 0; i < num; i++)
                 {
                     var curCell = centre + GenRadial.RadialPattern[i];
-                    if (curCell.WithinFiringConeOf(turret, maxAngle))
+                    if (curCell.WithinFiringArcOf(centre, rot, arc))
                         ringDrawCells.Add(curCell);
                 }
                 GenDraw.DrawFieldEdges(ringDrawCells);
@@ -87,9 +91,68 @@ namespace TurretExtensions
 
         public static string UpgradeReadoutReportText(StatRequest req)
         {
+            var tDef = (ThingDef)req.Def;
+            var upgradeProps = tDef.GetCompProperties<CompProperties_Upgradable>();
+
+            // First paragraph
             var reportBuilder = new StringBuilder();
             reportBuilder.AppendLine("TurretExtensions.TurretUpgradeBenefitsMain".Translate());
 
+            // Upgradable
+            if (upgradeProps != null)
+            {
+                var upgradeComp = req.Thing?.TryGetComp<CompUpgradable>();
+
+                // Description
+                reportBuilder.AppendLine();
+                reportBuilder.AppendLine($"{"Description".Translate()}: {upgradeProps.description}");
+
+                // Resource requirements
+                if (upgradeProps.costStuffCount > 0 || !upgradeProps.costList.NullOrEmpty())
+                {
+                    reportBuilder.AppendLine();
+                    reportBuilder.AppendLine($"{"TurretExtensions.TurretResourceRequirements".Translate()}:");
+
+                    var usedCostList = upgradeComp != null ? upgradeComp.finalCostList : upgradeProps.costList;
+                    for (int i = 0; i < usedCostList.Count; i++)
+                    {
+                        var curCost = usedCostList[i];
+                        reportBuilder.AppendLine($"- {curCost.count}x {curCost.thingDef.LabelCap}");
+                    }
+
+                    if (!req.HasThing && upgradeProps.costStuffCount > 0)
+                        reportBuilder.AppendLine($"- {upgradeProps.costStuffCount}x {"StatsReport_Material".Translate()}");
+                }
+
+                // Construction skill requirement
+                if (upgradeProps.constructionSkillPrerequisite > 0)
+                {
+                    reportBuilder.AppendLine();
+                    reportBuilder.AppendLine($"{"ConstructionNeeded".Translate()}: {upgradeProps.constructionSkillPrerequisite}");
+                }
+
+                // Research requirements
+                if (!upgradeProps.researchPrerequisites.NullOrEmpty())
+                {
+                    reportBuilder.AppendLine();
+                    reportBuilder.AppendLine($"{"ResearchPrerequisites".Translate()}:");
+
+                    for (int i = 0; i < upgradeProps.researchPrerequisites.Count; i++)
+                        reportBuilder.AppendLine($"- {upgradeProps.researchPrerequisites[i].LabelCap}");
+                }
+
+                // Upgrade bonuses
+                reportBuilder.AppendLine();
+                reportBuilder.AppendLine($"{"TurretExtensions.TurretUpgradeBenefitsUpgradable".Translate()}:");
+            }
+
+            // Not upgradable :(
+            else
+            {
+                reportBuilder.AppendLine("TurretExtensions.TurretUpgradeBenefitsNotUpgradable".Translate());
+            }
+
+            // Return report text
             return reportBuilder.ToString();
         }
 

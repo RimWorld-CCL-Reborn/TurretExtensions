@@ -19,11 +19,13 @@ namespace TurretExtensions
         public static TurretFrameworkExtension Get(Def def) => def.GetModExtension<TurretFrameworkExtension>() ?? DefaultValues;
 
         public TurretGunFaceDirection gunFaceDirectionOnSpawn;
-        public int firingAngle = -1;
+        private float firingArc = 360;
         public bool useMannerShootingAccuracy = true;
         public bool useMannerAimingDelayFactor = true;
         public float mannerShootingAccuracyOffset;
         public bool canForceAttack;
+
+        public float FiringArc => Mathf.Clamp(firingArc, 0, 360);
 
     }
 

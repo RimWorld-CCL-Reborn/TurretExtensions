@@ -20,6 +20,8 @@ namespace TurretExtensions
         public static FieldInfo GenDraw_maxRadiusMessaged = AccessTools.Field(typeof(GenDraw), "maxRadiusMessaged");
         public static FieldInfo GenDraw_ringDrawCells = AccessTools.Field(typeof(GenDraw), "ringDrawCells");
 
+        public static FieldInfo StatDrawEntry_overrideReportText = AccessTools.Field(typeof(StatDrawEntry), "overrideReportText");
+
     }
 
 }
