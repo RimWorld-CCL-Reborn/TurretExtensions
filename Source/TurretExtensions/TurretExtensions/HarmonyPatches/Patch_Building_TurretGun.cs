@@ -8,7 +8,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using RimWorld;
 using Verse;
-using Harmony;
+using HarmonyLib;
 using UnityEngine;
 
 namespace TurretExtensions
@@ -25,11 +25,13 @@ namespace TurretExtensions
             {
                 var instructionList = instructions.ToList();
 
-                var drawRadiusRingInfo = AccessTools.Method(typeof(GenDraw), nameof(GenDraw.DrawRadiusRing));
+                var drawRadiusRingInfo = AccessTools.Method(typeof(GenDraw), nameof(GenDraw.DrawRadiusRing), new Type[] { typeof(IntVec3), typeof(float) });
                 var tryDrawFiringConeInfo = AccessTools.Method(typeof(DrawExtraSelectionOverlays), nameof(TryDrawFiringCone));
 
-                int radRingCount = instructionList.Count(i => HarmonyPatchesUtility.CallingInstruction(i) && i.operand == drawRadiusRingInfo);
+                int radRingCount = instructionList.Count(i => HarmonyPatchesUtility.CallingInstruction(i) && (MethodInfo)i.operand == drawRadiusRingInfo);
                 int radRingsFound = 0;
+
+                Log.Message(radRingCount.ToString());
 
                 for (int i = 0; i < instructionList.Count; i++)
                 {
@@ -38,6 +40,7 @@ namespace TurretExtensions
                     // Look for branching instructions - start looking ahead
                     if (radRingsFound < radRingCount && HarmonyPatchesUtility.BranchingInstruction(instruction))
                     {
+                        Log.Message("looking...");
                         int j = 1;
                         while (i + j < instructionList.Count)
                         {
@@ -48,8 +51,9 @@ namespace TurretExtensions
                                 break;
 
                             // Look for a call to drawRadiusRing
-                            if (HarmonyPatchesUtility.CallingInstruction(xInstructionAhead) && xInstructionAhead.operand == drawRadiusRingInfo)
+                            if (HarmonyPatchesUtility.CallingInstruction(xInstructionAhead) && (MethodInfo)xInstructionAhead.operand == drawRadiusRingInfo)
                             {
+                                Log.Message("m");
                                 yield return instruction; // num < x or num > x
                                 yield return new CodeInstruction(OpCodes.Ldarg_0); // this
                                 yield return instructionList[i - 2].Clone(); // num
@@ -227,7 +231,7 @@ namespace TurretExtensions
 
         }
 
-        [HarmonyPatch(typeof(Building_TurretGun), "GetInspectString")]
+        //[HarmonyPatch(typeof(Building_TurretGun), nameof(Building_TurretGun.GetInspectString))]
         public static class GetInspectString
         {
 

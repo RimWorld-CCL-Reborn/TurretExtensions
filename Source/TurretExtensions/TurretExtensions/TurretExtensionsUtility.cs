@@ -57,7 +57,7 @@ namespace TurretExtensions
         public static bool TryDrawFiringCone(Building_Turret turret, float distance)
         {
             var extensionValues = TurretFrameworkExtension.Get(turret.def);
-            if (extensionValues.firingAngle != -1 || (turret.IsUpgraded(out CompUpgradable upgradableComp) && upgradableComp.Props.firingAngle != -1))
+            if (extensionValues.firingAngle > -1 || (turret.IsUpgraded(out CompUpgradable upgradableComp) && upgradableComp.Props.firingAngle > -1))
             {
                 float maxAngle = FiringAngleFor(turret);
                 if (distance > GenRadial.MaxRadialPatternRadius)

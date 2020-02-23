@@ -2,12 +2,6 @@
 <Defs>
 
     <StatCategoryDef>
-        <defName>Turret</defName>
-        <label>Turret</label>
-        <displayOrder>40</displayOrder>
-    </StatCategoryDef>
-
-    <StatCategoryDef>
         <defName>TurretAmmo</defName>
         <label>Turret ammunition</label>
         <displayOrder>40</displayOrder>

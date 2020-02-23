@@ -8,7 +8,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using RimWorld;
 using Verse;
-using Harmony;
+using HarmonyLib;
 using UnityEngine;
 
 namespace TurretExtensions
@@ -18,7 +18,7 @@ namespace TurretExtensions
     {
 
         public static bool IsFuelCapacityInstruction(this CodeInstruction instruction) =>
-            instruction.opcode == OpCodes.Ldfld && instruction.operand == AccessTools.Field(typeof(CompProperties_Refuelable), nameof(CompProperties_Refuelable.fuelCapacity));
+            instruction.opcode == OpCodes.Ldfld && (FieldInfo)instruction.operand == AccessTools.Field(typeof(CompProperties_Refuelable), nameof(CompProperties_Refuelable.fuelCapacity));
 
         public static float AdjustedFuelCapacity(float baseFuelCapacity, Thing t)
         {
@@ -34,7 +34,7 @@ namespace TurretExtensions
 
         public static bool BranchingInstruction(CodeInstruction instruction)
         {
-            return instruction.opcode == OpCodes.Bge_Un || instruction.opcode == OpCodes.Ble_Un;
+            return instruction.opcode == OpCodes.Bge_Un || instruction.opcode == OpCodes.Bge_Un_S || instruction.opcode == OpCodes.Ble_Un || instruction.opcode == OpCodes.Ble_Un_S;
         }
 
     }

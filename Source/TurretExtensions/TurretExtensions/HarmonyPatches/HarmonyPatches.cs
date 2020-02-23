@@ -8,7 +8,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using RimWorld;
 using Verse;
-using Harmony;
+using HarmonyLib;
 using UnityEngine;
 
 namespace TurretExtensions
@@ -19,7 +19,7 @@ namespace TurretExtensions
 
         static HarmonyPatches()
         {
-            HarmonyInstance.DEBUG = true;
+            //Harmony.DEBUG = true;
             TurretExtensions.harmonyInstance.PatchAll();
 
             // Gizmo_RefuelableFuelStatus delegate

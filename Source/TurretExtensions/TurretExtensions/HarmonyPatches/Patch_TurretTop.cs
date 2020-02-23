@@ -8,7 +8,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using RimWorld;
 using Verse;
-using Harmony;
+using HarmonyLib;
 using UnityEngine;
 
 namespace TurretExtensions
@@ -27,7 +27,6 @@ namespace TurretExtensions
 
                 var turretTopOffsetToUse = AccessTools.Method(typeof(DrawTurret), nameof(TurretTopOffsetToUse));
                 var turretTopDrawSizeToUse = AccessTools.Method(typeof(DrawTurret), nameof(TurretTopDrawSizeToUse));
-                var turretTopMatToUse = AccessTools.Method(typeof(DrawTurret), nameof(TurretTopMatToUse));
 
                 for (int i = 0; i < instructionList.Count; i++)
                 {
@@ -52,13 +51,6 @@ namespace TurretExtensions
                             yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(TurretTop), "parentTurret"));
                             instruction = new CodeInstruction(OpCodes.Call, turretTopDrawSizeToUse);
                         }
-                        if (instruction.operand == AccessTools.Field(typeof(BuildingProperties), nameof(BuildingProperties.turretTopMat)))
-                        {
-                            yield return instruction;
-                            yield return new CodeInstruction(OpCodes.Ldarg_0);
-                            yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(TurretTop), "parentTurret"));
-                            instruction = new CodeInstruction(OpCodes.Call, turretTopMatToUse);
-                        }
                     }
 
                     yield return instruction;
@@ -76,13 +68,6 @@ namespace TurretExtensions
             {
                 if (turret.IsUpgraded(out CompUpgradable upgradableComp) && upgradableComp.Props.turretTopDrawSize != -1)
                     return upgradableComp.Props.turretTopDrawSize;
-                return original;
-            }
-
-            private static Material TurretTopMatToUse(Material original, Building_Turret turret)
-            {
-                if (turret.IsUpgraded(out CompUpgradable upgradableComp) && !upgradableComp.Props.turretTopGraphicPath.NullOrEmpty())
-                    return MaterialPool.MatFrom(upgradableComp.Props.turretTopGraphicPath);
                 return original;
             }
                 

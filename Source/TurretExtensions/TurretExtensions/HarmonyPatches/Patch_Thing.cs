@@ -8,7 +8,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using RimWorld;
 using Verse;
-using Harmony;
+using HarmonyLib;
 using UnityEngine;
 
 namespace TurretExtensions
@@ -46,7 +46,7 @@ namespace TurretExtensions
                     var instruction = instructionList[i];
 
                     // Look for each time the method tries to get 'special display radius'; add a call to our helper method
-                    if (instruction.opcode == OpCodes.Ldfld && instruction.operand == specialDisplayRadiusInfo)
+                    if (instruction.opcode == OpCodes.Ldfld && (FieldInfo)instruction.operand == specialDisplayRadiusInfo)
                     {
                         yield return instruction; // this.def.specialDisplayRadius
                         yield return new CodeInstruction(OpCodes.Ldarg_0); // this

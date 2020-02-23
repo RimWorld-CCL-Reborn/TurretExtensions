@@ -2,9 +2,11 @@
 <ModMetaData>
 	<name>[XND] Turret Extensions</name>
 	<author>XeoNovaDan</author>
+	<packageId>XeoNovaDan.TurretExtensions</packageId>
 	<url>https://github.com/RimWorld-CCL-Reborn/TurretExtensions/wiki</url>
 	<supportedVersions>
 		<li>1.0</li>
+		<li>1.1</li>
 	</supportedVersions>
 	<description>Current Version: v1.3 (25th August 2019)\n\nA quality of life mod for turret users, and a resource which allows modders to create turret mods with more flair.</description>
 </ModMetaData>

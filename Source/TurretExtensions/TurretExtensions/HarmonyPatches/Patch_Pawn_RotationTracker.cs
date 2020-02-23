@@ -8,7 +8,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using RimWorld;
 using Verse;
-using Harmony;
+using HarmonyLib;
 using UnityEngine;
 
 namespace TurretExtensions
@@ -32,7 +32,7 @@ namespace TurretExtensions
                     var instruction = instructionList[i];
 
                     // Look for all calls for pawn.Drafted
-                    if (instruction.opcode == OpCodes.Callvirt && instruction.operand == draftedGetterInfo)
+                    if (instruction.opcode == OpCodes.Callvirt && (MethodInfo)instruction.operand == draftedGetterInfo)
                     {
                         yield return instruction; // this.pawn.Drafted;
                         yield return new CodeInstruction(OpCodes.Ldarg_0); // this

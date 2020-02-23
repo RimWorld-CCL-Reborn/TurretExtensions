@@ -26,7 +26,11 @@
     <TurretExtensions.MannedTurretUsesShooterAccuracyNoChange>The {0} doesn't modify the operator's accuracy in any way.</TurretExtensions.MannedTurretUsesShooterAccuracyNoChange>
     <TurretExtensions.MortarShellDependent>Depends on ammo</TurretExtensions.MortarShellDependent>
     <TurretExtensions.ShellDamageType>Damage type</TurretExtensions.ShellDamageType>
+    <TurretExtensions.ShellDamageType_Desc>The type of damage that this projectile inflicts.</TurretExtensions.ShellDamageType_Desc>
     <TurretExtensions.ShellExplosionRadius>Explosion radius</TurretExtensions.ShellExplosionRadius>
+    <TurretExtensions.ShellExplosionRadius_Desc>The size of the exploison that this projectile produces upon impact.</TurretExtensions.ShellExplosionRadius_Desc>
+
+    <TurretExtensions.MinimumRange_Desc>The minimum range of this weapon.</TurretExtensions.MinimumRange_Desc>
 
     <TurretExtensions.Upgradable>Upgradable</TurretExtensions.Upgradable>
     <TurretExtensions.TurretUpgradeBenefitsMain>Whether or not a turret can be upgraded to enhance its combat performance.</TurretExtensions.TurretUpgradeBenefitsMain>

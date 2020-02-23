@@ -1,8 +1,8 @@
-﻿    using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Harmony;
+using HarmonyLib;
 using UnityEngine;
 using Verse;
 using RimWorld;
@@ -178,6 +178,7 @@ namespace TurretExtensions
         }
 
         public void GetChildHolders(List<IThingHolder> outChildren) => ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
+        
         public ThingOwner GetDirectlyHeldThings() => innerContainer;
 
         public List<ThingDefCountClass> MaterialsNeeded()
@@ -195,7 +196,8 @@ namespace TurretExtensions
 
             return cachedMaterialsNeeded;
         }
-        public ThingDef UIStuff() => parent.Stuff;
+
+        public ThingDef EntityToBuildStuff() => parent.Stuff;
 
         public override void PostExposeData()
         {

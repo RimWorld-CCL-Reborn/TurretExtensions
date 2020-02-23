@@ -59,7 +59,6 @@ namespace TurretExtensions
         public List<StatModifier> statOffsets;
         public List<StatModifier> statFactors;
         public GraphicData graphicData;
-        public string turretTopGraphicPath;
         public float turretTopDrawSize = -1;
         public Vector2 turretTopOffset;
         public float fuelCapacityFactor = 1;

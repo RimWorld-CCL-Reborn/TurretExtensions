@@ -5,18 +5,19 @@ using System.Text;
 using UnityEngine;
 using Verse;
 using RimWorld;
-using Harmony;
+using HarmonyLib;
 
 namespace TurretExtensions
 {
     public class TurretExtensions : Mod
     {
+
         public TurretExtensions(ModContentPack content) : base(content)
         {
-            harmonyInstance = HarmonyInstance.Create("XeoNovaDan.TurretExtensions");
+            harmonyInstance = new Harmony("XeoNovaDan.TurretExtensions");
         }
 
-        public static HarmonyInstance harmonyInstance;
+        public static Harmony harmonyInstance;
 
     }
 }

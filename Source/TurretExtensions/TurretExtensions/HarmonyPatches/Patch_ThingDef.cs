@@ -8,7 +8,7 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using RimWorld;
 using Verse;
-using Harmony;
+using HarmonyLib;
 using UnityEngine;
 
 namespace TurretExtensions
@@ -34,23 +34,23 @@ namespace TurretExtensions
                     string shellDamageDef = shellProps.damageDef.label.CapitalizeFirst();
                     float shellExplosionRadius = shellProps.explosionRadius;
 
-                    __result = __result.Add(new StatDrawEntry(StatCategoryDefOf.TurretAmmo, "Damage".Translate(), shellDamage.ToString(), 20));
-                    __result = __result.Add(new StatDrawEntry(StatCategoryDefOf.TurretAmmo, "TurretExtensions.ShellDamageType".Translate(), shellDamageDef, 19));
-                    __result = __result.Add(new StatDrawEntry(StatCategoryDefOf.TurretAmmo, "ArmorPenetration".Translate(), shellArmorPenetration.ToStringPercent(), 18, "ArmorPenetrationExplanation".Translate()));
-                    __result = __result.Add(new StatDrawEntry(StatCategoryDefOf.TurretAmmo, "StoppingPower".Translate(), shellStoppingPower.ToString(), 17, "StoppingPowerExplanation".Translate()));
+                    __result = __result.AddItem(new StatDrawEntry(StatCategoryDefOf.TurretAmmo, "Damage".Translate(), shellDamage.ToString(), "Stat_Thing_Damage_Desc".Translate(), 20));
+                    __result = __result.AddItem(new StatDrawEntry(StatCategoryDefOf.TurretAmmo, "TurretExtensions.ShellDamageType".Translate(), shellDamageDef, "TurretExtensions.ShellDamageType_Desc".Translate(), 19));
+                    __result = __result.AddItem(new StatDrawEntry(StatCategoryDefOf.TurretAmmo, "ArmorPenetration".Translate(), shellArmorPenetration.ToStringPercent(), "ArmorPenetrationExplanation".Translate(), 18));
+                    __result = __result.AddItem(new StatDrawEntry(StatCategoryDefOf.TurretAmmo, "StoppingPower".Translate(), shellStoppingPower.ToString(), "StoppingPowerExplanation".Translate(), 17));
 
-                    if (shellExplosionRadius > 0f)
-                        __result = __result.Add(new StatDrawEntry(StatCategoryDefOf.TurretAmmo, "TurretExtensions.ShellExplosionRadius".Translate(), shellExplosionRadius.ToString(), 16));
+                    if (shellExplosionRadius > 0)
+                        __result = __result.AddItem(new StatDrawEntry(StatCategoryDefOf.TurretAmmo, "TurretExtensions.ShellExplosionRadius".Translate(), shellExplosionRadius.ToString(), "TurretExtensions.ShellExplosionRadius_Desc".Translate(), 16));
                 }
 
                 // Minimum range
                 if (__instance.Verbs.FirstOrDefault(v => v.isPrimary) is VerbProperties verb)
                 {
-                    var verbStatCategory = (__instance.category != ThingCategory.Pawn) ? StatCategoryDefOf.Turret : RimWorld.StatCategoryDefOf.PawnCombat;
+                    var verbStatCategory = (__instance.category != ThingCategory.Pawn) ? RimWorld.StatCategoryDefOf.Weapon : RimWorld.StatCategoryDefOf.PawnCombat;
                     if (verb.LaunchesProjectile)
                     {
                         if (verb.minRange > default(float))
-                            __result = __result.Add(new StatDrawEntry(verbStatCategory, "MinimumRange".Translate(), verb.minRange.ToString("F0"), 10, String.Empty));
+                            __result = __result.AddItem(new StatDrawEntry(verbStatCategory, "MinimumRange".Translate(), verb.minRange.ToString("F0"), "TurretExtensions.MinimumRange_Desc".Translate(), 10));
                     }
                 }
 
@@ -59,62 +59,71 @@ namespace TurretExtensions
                 if (buildingProps != null && buildingProps.IsTurret)
                 {
                     var gunStatList = new List<StatDrawEntry>();
-                    if (req.HasThing)
-                    {
-                        var gun = ((Building_TurretGun)req.Thing).gun;
-                        gunStatList.AddRange(gun.def.SpecialDisplayStats(StatRequest.For(gun)));
-                        gunStatList.AddRange(NonPublicMethods.StatsReportUtility_StatsToDraw_thing(gun));
-                    }
-                    else
-                    {
-                        var defaultStuff = GenStuff.DefaultStuffFor(buildingProps.turretGunDef);
-                        gunStatList.AddRange(buildingProps.turretGunDef.SpecialDisplayStats(StatRequest.For(buildingProps.turretGunDef, defaultStuff)));
-                        gunStatList.AddRange(NonPublicMethods.StatsReportUtility_StatsToDraw_def_stuff(buildingProps.turretGunDef, defaultStuff));
-                    }
+                    //if (req.HasThing)
+                    //{
+                    //    var gun = ((Building_TurretGun)req.Thing).gun;
+                    //    gunStatList.AddRange(gun.def.SpecialDisplayStats(StatRequest.For(gun)));
+                    //    gunStatList.AddRange(NonPublicMethods.StatsReportUtility_StatsToDraw_thing(gun));
+                    //}
+                    //else
+                    //{
+                    //    var defaultStuff = GenStuff.DefaultStuffFor(buildingProps.turretGunDef);
+                    //    gunStatList.AddRange(buildingProps.turretGunDef.SpecialDisplayStats(StatRequest.For(buildingProps.turretGunDef, defaultStuff)));
+                    //    gunStatList.AddRange(NonPublicMethods.StatsReportUtility_StatsToDraw_def_stuff(buildingProps.turretGunDef, defaultStuff));
+                    //}
 
-                    // Replace cooldown
-                    var cooldownEntry = gunStatList.FirstOrDefault(s => s.stat == StatDefOf.RangedWeapon_Cooldown);
-                    if (cooldownEntry != null)
-                        cooldownEntry = new StatDrawEntry(cooldownEntry.category, cooldownEntry.LabelCap, TurretCooldown(req, buildingProps).ToStringByStyle(cooldownEntry.stat.toStringStyle),
-                            cooldownEntry.DisplayPriorityWithinCategory, cooldownEntry.overrideReportText);
-                    else
-                    {
-                        var cooldownStat = StatDefOf.RangedWeapon_Cooldown;
-                        gunStatList.Add(new StatDrawEntry(StatCategoryDefOf.Turret, cooldownStat, TurretCooldown(req, buildingProps), StatRequest.ForEmpty(), cooldownStat.toStringNumberSense));
-                    }
+                    //// Replace cooldown
+                    //var cooldownEntry = gunStatList.FirstOrDefault(s => s.stat == StatDefOf.RangedWeapon_Cooldown);
+                    //if (cooldownEntry != null)
+                    //    cooldownEntry = new StatDrawEntry(cooldownEntry.category, cooldownEntry.LabelCap, TurretCooldown(req, buildingProps).ToStringByStyle(cooldownEntry.stat.toStringStyle),
+                    //        cooldownEntry.DisplayPriorityWithinCategory, cooldownEntry.overrideReportText);
+                    //else
+                    //{
+                    //    var cooldownStat = StatDefOf.RangedWeapon_Cooldown;
+                    //    gunStatList.Add(new StatDrawEntry(StatCategoryDefOf.Turret, cooldownStat, TurretCooldown(req, buildingProps), StatRequest.ForEmpty(), cooldownStat.toStringNumberSense));
+                    //}
 
-                    // Replace warmup
-                    var warmupEntry = gunStatList.FirstOrDefault(s => s.LabelCap == "WarmupTime".Translate().CapitalizeFirst());
-                    if (warmupEntry != null)
-                        warmupEntry = new StatDrawEntry(warmupEntry.category, warmupEntry.LabelCap, $"{TurretWarmup(req, buildingProps).ToString("0.##")} s",
-                            warmupEntry.DisplayPriorityWithinCategory, warmupEntry.overrideReportText);
-                    else
-                        gunStatList.Add(new StatDrawEntry(StatCategoryDefOf.Turret, "WarmupTime".Translate(), $"{TurretWarmup(req, buildingProps).ToString("0.##")} s", 40));
+                    //// Replace warmup
+                    //var warmupEntry = gunStatList.FirstOrDefault(s => s.LabelCap == "WarmupTime".Translate().CapitalizeFirst());
+                    //if (warmupEntry != null)
+                    //    warmupEntry = new StatDrawEntry(warmupEntry.category, warmupEntry.LabelCap, $"{TurretWarmup(req, buildingProps).ToString("0.##")} s",
+                    //        warmupEntry.DisplayPriorityWithinCategory, warmupEntry.overrideReportText);
+                    //else
+                    //    gunStatList.Add(new StatDrawEntry(StatCategoryDefOf.Turret, "WarmupTime".Translate(), $"{TurretWarmup(req, buildingProps).ToString("0.##")} s", 40));
 
                     // Add upgradability
                     if (req.Def is ThingDef tDef)
                     {
                         string upgradableString;
+                        CompProperties_Upgradable upgradableCompProps;
                         if (req.Thing != null && req.Thing.IsUpgradable(out CompUpgradable upgradableComp))
+                        {
                             upgradableString = (upgradableComp.upgraded ? "TurretExtensions.NoAlreadyUpgraded" : "TurretExtensions.YesClickForDetails").Translate();
+                            upgradableCompProps = upgradableComp.Props;
+                        }
                         else
-                            upgradableString = (tDef.IsUpgradable(out CompProperties_Upgradable compProps) ? "TurretExtensions.YesClickForDetails" : "No").Translate();
+                            upgradableString = (tDef.IsUpgradable(out upgradableCompProps) ? "TurretExtensions.YesClickForDetails" : "No").Translate();
 
-                        gunStatList.Add(new StatDrawEntry(StatCategoryDefOf.Turret, "TurretExtensions.Upgradable".Translate(), upgradableString, 999, TurretExtensionsUtility.UpgradeReadoutReportText(req)));
+                        var upgradeHyperlinks = new List<Dialog_InfoCard.Hyperlink>();
+                        if (upgradableCompProps.turretGunDef != null)
+                            upgradeHyperlinks.Add(new Dialog_InfoCard.Hyperlink(upgradableCompProps.turretGunDef));
+
+                        gunStatList.Add(new StatDrawEntry(RimWorld.StatCategoryDefOf.BasicsNonPawn, "TurretExtensions.Upgradable".Translate(), upgradableString,
+                            TurretExtensionsUtility.UpgradeReadoutReportText(req), 999, hyperlinks: upgradeHyperlinks));
                     }
 
                     // Remove entries that shouldn't be shown and change 'Weapon' categories to 'Turret' categories
-                    for (int i = 0; i < gunStatList.Count; i++)
-                    {
-                        var curEntry = gunStatList[i];
-                        if ((curEntry.stat != null && !curEntry.stat.showNonAbstract) || (curEntry.category != RimWorld.StatCategoryDefOf.Weapon && curEntry.category != StatCategoryDefOf.Turret))
-                        {
-                            gunStatList.Remove(curEntry);
-                            i--;
-                        }
-                        else
-                            curEntry.category = StatCategoryDefOf.Turret;
-                    }
+                    //for (int i = 0; i < gunStatList.Count; i++)
+                    //{
+                    //    var curEntry = gunStatList[i];
+                    //    if ((curEntry.stat != null && !curEntry.stat.showNonAbstract) || (curEntry.category != RimWorld.StatCategoryDefOf.Weapon && curEntry.category != StatCategoryDefOf.Turret))
+                    //    {
+                    //        gunStatList.Remove(curEntry);
+                    //        i--;
+                    //    }
+                    //    else
+                    //        curEntry.category = StatCategoryDefOf.Turret;
+                    //}
                     __result = __result.Concat(gunStatList);
                 }
 

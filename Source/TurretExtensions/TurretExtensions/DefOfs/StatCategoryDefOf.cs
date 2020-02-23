@@ -10,8 +10,8 @@ namespace TurretExtensions
     [DefOf]
     public static class StatCategoryDefOf
     {
-        public static StatCategoryDef Turret;
 
         public static StatCategoryDef TurretAmmo;
+
     }
 }

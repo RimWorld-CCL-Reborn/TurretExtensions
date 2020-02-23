@@ -5,7 +5,7 @@ using System.Text;
 using System.Reflection.Emit;
 using RimWorld;
 using Verse;
-using Harmony;
+using HarmonyLib;
 using UnityEngine;
 
 namespace TurretExtensions
