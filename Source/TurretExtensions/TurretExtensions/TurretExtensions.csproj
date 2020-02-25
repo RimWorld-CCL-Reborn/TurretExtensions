@@ -37,8 +37,8 @@
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=2.0.0.5, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Lib.Harmony.2.0.0.5\lib\net472\0Harmony.dll</HintPath>
+    <Reference Include="0Harmony, Version=2.0.0.6, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lib.Harmony.2.0.0.6\lib\net472\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
@@ -62,6 +62,7 @@
     <Compile Include="Enums\TurretGunFaceDirection.cs" />
     <Compile Include="HarmonyPatches\HarmonyPatchesUtility.cs" />
     <Compile Include="HarmonyPatches\Patch_Building_Turret.cs" />
+    <Compile Include="HarmonyPatches\Patch_JobDriver_ManTurret.cs" />
     <Compile Include="HarmonyPatches\Patch_Verb.cs" />
     <Compile Include="HarmonyPatches\Patch_Pawn_RotationTracker.cs" />
     <Compile Include="HarmonyPatches\Patch_Designator_Cancel.cs" />
