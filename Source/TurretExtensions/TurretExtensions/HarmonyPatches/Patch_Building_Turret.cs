@@ -23,7 +23,6 @@ namespace TurretExtensions
 
             public static void Postfix(Building_Turret __instance, ref float __result)
             {
-                Log.Message(__instance.ToStringSafe());
                 // Set to 0 if turret is manned
                 if (__instance.TryGetComp<CompMannable>() is CompMannable mannableComp && mannableComp.MannedNow)
                     __result = 0;
