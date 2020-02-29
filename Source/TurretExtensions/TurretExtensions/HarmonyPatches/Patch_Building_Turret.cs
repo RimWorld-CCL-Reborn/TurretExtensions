@@ -23,8 +23,9 @@ namespace TurretExtensions
 
             public static void Postfix(Building_Turret __instance, ref float __result)
             {
+                Log.Message(__instance.ToStringSafe());
                 // Set to 0 if turret is manned
-                if (__instance.TryGetComp<CompMannable>() is var mannableComp && mannableComp.MannedNow)
+                if (__instance.TryGetComp<CompMannable>() is CompMannable mannableComp && mannableComp.MannedNow)
                     __result = 0;
             }
 
@@ -49,7 +50,7 @@ namespace TurretExtensions
                     if (instruction.opcode == OpCodes.Ldc_I4_1)
                     {
                         var nextInstruction = instructionList[i + 1];
-                        if (nextInstruction.opcode == OpCodes.Call && nextInstruction.operand == notifyDamageAppliedInfo)
+                        if (nextInstruction.opcode == OpCodes.Callvirt && nextInstruction.operand == notifyDamageAppliedInfo)
                         {
                             yield return new CodeInstruction(OpCodes.Ldarg_0); // this
                             yield return instruction.Clone(); // true

@@ -190,11 +190,11 @@ namespace TurretExtensions
                 }
 
                 // Fuel capacity
-                if (upgradeProps.fuelCapacityFactor != 1 && tDef.GetCompProperties<CompProperties_Refuelable>() is var refuelProps)
+                if (upgradeProps.fuelCapacityFactor != 1 && tDef.GetCompProperties<CompProperties_Refuelable>() is CompProperties_Refuelable refuelProps)
                     reportBuilder.AppendLine($"- {refuelProps.FuelGizmoLabel}: {refuelProps.fuelCapacity} => {Mathf.Round(refuelProps.fuelCapacity * upgradeProps.fuelCapacityFactor)}");
 
                 // Power consumption
-                if (upgradeProps.basePowerConsumptionFactor != 1 && tDef.GetCompProperties<CompProperties_Power>() is var powerProps)
+                if (upgradeProps.basePowerConsumptionFactor != 1 && tDef.GetCompProperties<CompProperties_Power>() is CompProperties_Power powerProps)
                     reportBuilder.AppendLine($"- {"PowerConsumption".Translate()}: {powerProps.basePowerConsumption.ToString("F0")} =>" +
                         $" {Mathf.Round(powerProps.basePowerConsumption * upgradeProps.basePowerConsumptionFactor)}");
 

@@ -60,7 +60,7 @@ namespace TurretExtensions
                         return original(t);
 
                     // AI - any projectile that fits and causes harm
-                    if (t.def.projectileWhenLoaded is var loadedProjDef)
+                    if (t.def.projectileWhenLoaded is ThingDef loadedProjDef)
                     {
                         var projDamageDef = loadedProjDef.projectile.damageDef;
                         return original(t) && gun.gun.TryGetComp<CompChangeableProjectile>().GetParentStoreSettings().AllowedToAccept(t) &&
