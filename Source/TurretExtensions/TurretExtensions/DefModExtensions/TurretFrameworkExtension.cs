@@ -24,6 +24,7 @@ namespace TurretExtensions
         public bool useManningPawnAimingDelayFactor = true;
         public float manningPawnShootingAccuracyOffset;
         public bool canForceAttack;
+        public bool affectedByEMP = true;
 
         public float FiringArc => Mathf.Clamp(firingArc, 0, 360);
 

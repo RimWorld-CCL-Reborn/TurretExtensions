@@ -57,7 +57,7 @@ namespace TurretExtensions
             };
             upgrade.FailOnThingMissingDesignation(TurretInd, DesignationDefOf.UpgradeTurret);
             upgrade.FailOnCannotTouch(TurretInd, PathEndMode.Touch);
-            upgrade.WithEffect(TargetThingA.def.repairEffect, TurretInd);
+            upgrade.WithEffect(UpgradableComp.Props.UpgradeEffect((Building)job.GetTarget(TurretInd).Thing), TurretInd);
             upgrade.WithProgressBar(TurretInd, () => UpgradableComp.upgradeWorkDone / UpgradableComp.upgradeWorkTotal);
             upgrade.defaultCompleteMode = ToilCompleteMode.Never;
             upgrade.activeSkill = (() => SkillDefOf.Construction);

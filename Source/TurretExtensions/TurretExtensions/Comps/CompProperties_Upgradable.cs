@@ -57,12 +57,15 @@ namespace TurretExtensions
         // Job Driver
         public bool upgradeWorkFactorStuff = true;
         public bool upgradeFailable = true;
+        private EffecterDef upgradeEffect;
         public float upgradeSuccessChanceFactor = 1;
         public float upgradeFailMinorResourcesRecovered = 0.5f;
         public float upgradeFailMajorResourcesRecovered;
         public bool upgradeFailAlwaysMajor = false;
         public FloatRange upgradeFailMajorDmgPctRange = new FloatRange(0.1f, 0.5f);
         public float upgradeFailMajorChanceFactor = 2;
+
+        public EffecterDef UpgradeEffect(Building building) => upgradeEffect ?? building.def.repairEffect;
 
         // Results
         public List<StatModifier> statOffsets;
@@ -79,6 +82,7 @@ namespace TurretExtensions
         private float firingArc = -1;
         public float manningPawnShootingAccuracyOffsetBonus = 0;
         public bool canForceAttack = false;
+        public bool? affectedByEMP;
 
         public float FiringArc => Mathf.Clamp(firingArc, 0, 360);
 

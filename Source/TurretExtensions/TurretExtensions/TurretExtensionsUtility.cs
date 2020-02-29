@@ -29,6 +29,16 @@ namespace TurretExtensions
             return upgradable && upgradableComp.upgraded;
         }
 
+        public static bool AffectedByEMP(this Building_Turret turret)
+        {
+            // If turret is upgraded and affectedByEMP is defined, return upgradeComp' affectedByEMP
+            if (turret.IsUpgraded(out var upgradableComp) && upgradableComp.Props.affectedByEMP.HasValue)
+                return upgradableComp.Props.affectedByEMP.Value;
+
+            // Otherwise return the DefModExtension's value
+            return TurretFrameworkExtension.Get(turret.def).affectedByEMP;
+        }
+
         public static float AdjustedFuelCapacity(float baseFuelCapacity, Thing t)
         {
             if (t.IsUpgraded(out CompUpgradable upgradableComp))

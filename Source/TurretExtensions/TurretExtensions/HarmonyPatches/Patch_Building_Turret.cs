@@ -30,6 +30,45 @@ namespace TurretExtensions
 
         }
 
+        [HarmonyPatch(typeof(Building_Turret), nameof(Building_Turret.PreApplyDamage))]
+        public static class PreApplyDamage
+        {
+
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var instructionList = instructions.ToList();
+
+                for (int i = 0; i < instructionList.Count; i++)
+                {
+                    var instruction = instructionList[i];
+
+                    var notifyDamageAppliedInfo = AccessTools.Method(typeof(StunHandler), nameof(StunHandler.Notify_DamageApplied));
+                    var affectedByEMPInfo = AccessTools.Method(typeof(PreApplyDamage), nameof(TurretExtensionsUtility.AffectedByEMP));
+
+                    // Look for the 'true' parameter that is passed to calls to Notify_DamageApplied
+                    if (instruction.opcode == OpCodes.Ldc_I4_1)
+                    {
+                        var nextInstruction = instructionList[i + 1];
+                        if (nextInstruction.opcode == OpCodes.Call && nextInstruction.operand == notifyDamageAppliedInfo)
+                        {
+                            yield return new CodeInstruction(OpCodes.Ldarg_0); // this
+                            yield return instruction.Clone(); // true
+                            instruction = new CodeInstruction(OpCodes.Call, affectedByEMPInfo); // AffectedByEMP(this, true)
+                        }
+                    }
+
+                    yield return instruction;
+                }
+            }
+
+            private static bool AffectedByEMP(Building_Turret instance, bool dummyParam)
+            {
+                // Only taking the original bool as a parameter so that other transpilers may hook
+                return instance.AffectedByEMP();
+            }
+
+        }
+
     }
 
 }
