@@ -222,7 +222,7 @@ namespace TurretExtensions
 
         }
 
-        //[HarmonyPatch(typeof(Building_TurretGun), nameof(Building_TurretGun.GetInspectString))]
+        [HarmonyPatch(typeof(Building_TurretGun), nameof(Building_TurretGun.GetInspectString))]
         public static class GetInspectString
         {
 
@@ -234,8 +234,9 @@ namespace TurretExtensions
                 {
                     var instruction = instructionList[i];
 
+                    // Cooldown remaining shows on all turret inspect strings instead of just those with a cooldown > 5 seconds
                     if (instruction.opcode == OpCodes.Ldc_R4 && (float)instruction.operand == 5)
-                        instruction.operand = 0;
+                        instruction.operand = float.Epsilon;
 
                     yield return instruction;
                 }

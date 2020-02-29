@@ -1,0 +1,3 @@
+D:\Documents\GitHub\TurretExtensions\1.1\Assemblies\TurretExtensions.dll
+D:\Documents\GitHub\TurretExtensions\Source\TurretExtensions\TurretExtensions\obj\Debug\TurretExtensions.csprojAssemblyReference.cache
+D:\Documents\GitHub\TurretExtensions\Source\TurretExtensions\TurretExtensions\obj\Debug\TurretExtensions.dll

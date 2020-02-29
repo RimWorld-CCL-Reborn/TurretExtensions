@@ -127,24 +127,14 @@ namespace TurretExtensions
                     }
 
                     // Replace cooldown
-                    var cooldownEntry = __result.FirstOrDefault(s => s.stat == StatDefOf.RangedWeapon_Cooldown);
-                    if (cooldownEntry != null)
-                        cooldownEntry = new StatDrawEntry(cooldownEntry.category, cooldownEntry.LabelCap, TurretCooldown(req, buildingProps).ToStringByStyle(cooldownEntry.stat.toStringStyle),
-                            (string)NonPublicFields.StatDrawEntry_overrideReportText.GetValue(cooldownEntry), cooldownEntry.DisplayPriorityWithinCategory);
-                    else
-                    {
-                        var cooldownStat = StatDefOf.RangedWeapon_Cooldown;
-                        gunStatList.Add(new StatDrawEntry(cooldownStat.category, cooldownStat, TurretCooldown(req, buildingProps), StatRequest.ForEmpty(), cooldownStat.toStringNumberSense));
-                    }
+                    __result = __result.Where(s => s.stat != StatDefOf.RangedWeapon_Cooldown);
+                    var cooldownStat = StatDefOf.RangedWeapon_Cooldown;
+                    gunStatList.Add(new StatDrawEntry(cooldownStat.category, cooldownStat, TurretCooldown(req, buildingProps), StatRequest.ForEmpty(), cooldownStat.toStringNumberSense));
 
                     // Replace warmup
-                    var warmupEntry = __result.FirstOrDefault(s => s.LabelCap == "WarmupTime".Translate().CapitalizeFirst());
-                    if (warmupEntry != null)
-                        warmupEntry = new StatDrawEntry(warmupEntry.category, warmupEntry.LabelCap, $"{TurretWarmup(req, buildingProps).ToString("0.##")} s",
-                            (string)NonPublicFields.StatDrawEntry_overrideReportText.GetValue(warmupEntry), warmupEntry.DisplayPriorityWithinCategory);
-                    else
-                        gunStatList.Add(new StatDrawEntry(RimWorld.StatCategoryDefOf.Weapon, "WarmupTime".Translate(), $"{TurretWarmup(req, buildingProps).ToString("0.##")} s",
-                            "Stat_Thing_Weapon_MeleeWarmupTime_Desc".Translate(), 3555));
+                    __result = __result.Where(s => s.LabelCap != "WarmupTime".Translate().CapitalizeFirst());
+                    gunStatList.Add(new StatDrawEntry(RimWorld.StatCategoryDefOf.Weapon, "WarmupTime".Translate(), $"{TurretWarmup(req, buildingProps).ToString("0.##")} s",
+                        "Stat_Thing_Weapon_MeleeWarmupTime_Desc".Translate(), StatDisplayOrder.Thing_Weapon_MeleeWarmupTime));
 
                     __result = __result.Concat(gunStatList);
                 }
@@ -154,15 +144,12 @@ namespace TurretExtensions
             private static float TurretCooldown(StatRequest req, BuildingProperties buildingProps)
             {
                 if (req.Thing is Building_TurretGun gunTurret)
-                {
-                    if (gunTurret.IsUpgraded(out CompUpgradable upgradableComp))
-                        return NonPublicMethods.Building_TurretGun_BurstCooldownTime(gunTurret) * upgradableComp.Props.turretBurstCooldownTimeFactor;
                     return NonPublicMethods.Building_TurretGun_BurstCooldownTime(gunTurret);
-                }
-                else if (buildingProps.turretBurstCooldownTime > 0)
+
+                if (buildingProps.turretBurstCooldownTime > 0)
                     return buildingProps.turretBurstCooldownTime;
-                else
-                    return buildingProps.turretGunDef.GetStatValueAbstract(StatDefOf.RangedWeapon_Cooldown);
+
+                return buildingProps.turretGunDef.GetStatValueAbstract(StatDefOf.RangedWeapon_Cooldown);
             }
 
             private static float TurretWarmup(StatRequest req, BuildingProperties buildingProps)
