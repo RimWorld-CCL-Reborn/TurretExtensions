@@ -23,6 +23,11 @@ namespace TurretExtensions
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
+                #if DEBUG
+                    Log.Message("Transpiler start: JobDriver_ManTurret.FindAmmoForTurret (1 match)");
+                #endif
+
+
                 var instructionList = instructions.ToList();
 
                 var pawnInfo = typeof(JobDriver_ManTurret).GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance).
@@ -39,6 +44,10 @@ namespace TurretExtensions
                     // Update the validator
                     if (instruction == originalValidatorStore)
                     {
+                        #if DEBUG
+                            Log.Message("JobDriver_ManTurret.FindAmmoForTurret match 1 of 1");
+                        #endif
+
                         yield return instruction;
                         yield return new CodeInstruction(OpCodes.Ldloc_1); // validator
                         yield return new CodeInstruction(OpCodes.Ldloc_0);

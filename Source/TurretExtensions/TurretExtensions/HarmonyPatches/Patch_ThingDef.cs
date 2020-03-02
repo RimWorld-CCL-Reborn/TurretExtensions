@@ -24,6 +24,10 @@ namespace TurretExtensions
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
+                #if DEBUG
+                    Log.Message("Transpiler start: ThingDef.manual_SpecialDisplayStats (1 match)");
+                #endif
+
                 // Runs inside MoveNext()
                 var instructionList = instructions.ToList();
                 var turretGunDefInfo = AccessTools.Field(typeof(BuildingProperties), nameof(BuildingProperties.turretGunDef));
@@ -39,6 +43,10 @@ namespace TurretExtensions
                     // Change the turretGunDef used for stat readouts based on whether or not the turret was upgraded
                     if (!done && instruction.opcode == OpCodes.Ldfld && (FieldInfo)instruction.operand == turretGunDefInfo)
                     {
+                        #if DEBUG
+                            Log.Message("ThingDef.manual_SpecialDisplayStats match 1 of 1");
+                        #endif
+
                         yield return instruction; // thingDef.building.turretGunDef
                         yield return new CodeInstruction(OpCodes.Ldarg_0); // this
                         yield return new CodeInstruction(OpCodes.Ldfld, reqInfo); // this.req

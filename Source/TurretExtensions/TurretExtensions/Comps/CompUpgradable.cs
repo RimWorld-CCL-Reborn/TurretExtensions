@@ -44,10 +44,12 @@ namespace TurretExtensions
         {
             if (parent.def.MadeFromStuff && Props.costStuffCount > 0)
                 finalCostList.Add(new ThingDefCountClass(parent.Stuff, Props.costStuffCount));
-            if (Props.costList != null)
+            var costList = Props.costList;
+            if (costList != null)
             {
-                foreach (ThingDefCountClass thing in Props.costList)
+                for (int i = 0; i < costList.Count; i++)
                 {
+                    var thing = costList[i];
                     var duplicate = finalCostList.FirstOrDefault(t => t.thingDef == thing.thingDef);
                     if (duplicate != null)
                         duplicate.count += thing.count;
@@ -77,8 +79,9 @@ namespace TurretExtensions
             {
                 float resourceDropFraction = (mode == DestroyMode.KillFinalize) ? Props.destroyedResourceDropPct : Props.baseResourceDropPct;
 
-                foreach (Thing thing in innerContainer)
+                for (int i = 0; i < innerContainer.Count; i++)
                 {
+                    var thing = innerContainer[i];
                     thing.stackCount = GenMath.RoundRandom(thing.stackCount * resourceDropFraction);
                     if (thing.stackCount == 0)
                         thing.Destroy();
@@ -102,8 +105,9 @@ namespace TurretExtensions
                 if (!finalCostList.NullOrEmpty())
                 {
                     inspectBuilder.AppendLine($"{"ContainedResources".Translate()}:");
-                    foreach (var cost in finalCostList)
+                    for (int i = 0; i < finalCostList.Count; i++)
                     {
+                        var cost = finalCostList[i];
                         var costDef = cost.thingDef;
                         inspectBuilder.AppendLine($"{costDef.LabelCap}: {innerContainer.TotalStackCountOfDef(costDef)} / {cost.count}");
                     }
@@ -122,8 +126,9 @@ namespace TurretExtensions
         {
             get
             {
-                foreach (var cost in finalCostList)
+                for (int i = 0; i < finalCostList.Count; i++)
                 {
+                    var cost = finalCostList[i];
                     int thingCount = innerContainer.TotalStackCountOfDef(cost.thingDef);
                     if (thingCount < cost.count)
                         return false;
@@ -186,8 +191,9 @@ namespace TurretExtensions
             cachedMaterialsNeeded.Clear();
 
             // Determine needed materials
-            foreach (var cost in finalCostList)
+            for (int i = 0; i < finalCostList.Count; i++)
             {
+                var cost = finalCostList[i];
                 int resourceCount = innerContainer.TotalStackCountOfDef(cost.thingDef);
                 int amountNeeded = cost.count - resourceCount;
                 if (amountNeeded > 0)

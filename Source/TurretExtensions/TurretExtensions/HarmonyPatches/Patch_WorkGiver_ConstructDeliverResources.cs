@@ -20,6 +20,10 @@ namespace TurretExtensions
         #region Shared Transpiler
         public static IEnumerable<CodeInstruction> IConstructibleCastCorrecterTranspiler(IEnumerable<CodeInstruction> instructions, OpCode iConstructibleOpcode)
         {
+            #if DEBUG
+                Log.Message("Transpiler start: Patch_WorkGiver_ConstructDeliverResources.IConstructibleCastCorrecterTranspiler (1 match)");
+            #endif
+
             var instructionList = instructions.ToList();
 
             var iConstructibleThingInfo = AccessTools.Method(typeof(Patch_WorkGiver_ConstructDeliverResources), nameof(IConstructibleThing));
@@ -34,6 +38,10 @@ namespace TurretExtensions
                     var nextInstruction = instructionList[i + 1];
                     if (nextInstruction.opcode == OpCodes.Castclass || nextInstruction.opcode == OpCodes.Isinst)
                     {
+                        #if DEBUG
+                            Log.Message("Patch_WorkGiver_ConstructDeliverResources.IConstructibleCastCorrecterTranspiler match 1 of 1");
+                        #endif
+
                         yield return instruction; // c
                         instruction = new CodeInstruction(OpCodes.Call, iConstructibleThingInfo); // IConstructibleThing(c)
                     }

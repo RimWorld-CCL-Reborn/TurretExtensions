@@ -22,6 +22,10 @@ namespace TurretExtensions
         // As of 25th July 2019, still haven't been able to top this one in terms of copypasta potential
         public static IEnumerable<CodeInstruction> FuelCapacityTranspiler(IEnumerable<CodeInstruction> instructions)
         {
+            #if DEBUG
+                Log.Message("Transpiler start: CompRefuelable.FuelCapacityTranspiler (1 match)");
+            #endif
+
             var instructionList = instructions.ToList();
 
             var adjustedFuelCapacity = AccessTools.Method(typeof(TurretExtensionsUtility), nameof(TurretExtensionsUtility.AdjustedFuelCapacity));
@@ -32,10 +36,15 @@ namespace TurretExtensions
 
                 if (instruction.IsFuelCapacityInstruction())
                 {
+                    #if DEBUG
+                        Log.Message("Patch_CompRefuelable.FuelCapacityTranspiler match 1 of 1");
+                    #endif
+
+
                     yield return instruction;
-                    yield return new CodeInstruction(OpCodes.Ldarg_0);
-                    yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(CompRefuelable), nameof(CompRefuelable.parent)));
-                    instruction = new CodeInstruction(OpCodes.Call, adjustedFuelCapacity);
+                    yield return new CodeInstruction(OpCodes.Ldarg_0); // this
+                    yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(CompRefuelable), nameof(CompRefuelable.parent))); // this.parent
+                    instruction = new CodeInstruction(OpCodes.Call, adjustedFuelCapacity); // TurretExtensionsUtility.AdjustedFuelCapacity(this.parent)
                 }
 
                 yield return instruction;
@@ -95,39 +104,8 @@ namespace TurretExtensions
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-                var instructionList = instructions.ToList();
-
-                var adjustedFuelCapacity = AccessTools.Method(typeof(TurretExtensionsUtility), nameof(TurretExtensionsUtility.AdjustedFuelCapacity));
-                var adjustedFuelCount = AccessTools.Method(typeof(GetFuelCountToFullyRefuel), nameof(AdjustedFuelCount));
-
-                for (int i = 0; i < instructionList.Count; i++)
-                {
-                    CodeInstruction instruction = instructionList[i];
-
-                    if (instruction.IsFuelCapacityInstruction())
-                    {
-                        yield return instruction;
-                        yield return new CodeInstruction(OpCodes.Ldarg_0);
-                        yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(CompRefuelable), nameof(CompRefuelable.parent)));
-                        instruction = new CodeInstruction(OpCodes.Call, adjustedFuelCapacity);
-                    }
-
-                    if (instruction.opcode == OpCodes.Stloc_0)
-                    {
-                        yield return instruction;
-                        yield return new CodeInstruction(OpCodes.Ldloc_0);
-                        yield return new CodeInstruction(OpCodes.Ldarg_0);
-                        yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(CompRefuelable), nameof(CompRefuelable.parent)));
-                        yield return new CodeInstruction(OpCodes.Call, adjustedFuelCount);
-                        instruction = new CodeInstruction(OpCodes.Stloc_0);
-                    }
-
-                    yield return instruction;
-                }
+                return FuelCapacityTranspiler(instructions);
             }
-
-            private static float AdjustedFuelCount(float currentFuelCount, Thing thing) =>
-                currentFuelCount / (thing.IsUpgraded(out CompUpgradable uC) ? uC.Props.fuelMultiplierFactor : 1f);
 
         }
 

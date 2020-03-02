@@ -23,6 +23,10 @@ namespace TurretExtensions
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
             {
+                #if DEBUG
+                    Log.Message("Transpiler start: Building_TurretGun.DrawExtraSelectionOverlays (1 match)");
+                #endif
+                
                 var instructionList = instructions.ToList();
 
                 var drawRadiusRingInfo = AccessTools.Method(typeof(GenDraw), nameof(GenDraw.DrawRadiusRing), new Type[] { typeof(IntVec3), typeof(float) });
@@ -48,8 +52,12 @@ namespace TurretExtensions
                                 break;
 
                             // Look for a call to drawRadiusRing
-                            if (HarmonyPatchesUtility.CallingInstruction(xInstructionAhead) && (MethodInfo)xInstructionAhead.operand == drawRadiusRingInfo)
+                            if (HarmonyPatchesUtility.CallingInstruction(xInstructionAhead) && xInstructionAhead.OperandIs(drawRadiusRingInfo))
                             {
+                                #if DEBUG
+                                    Log.Message("Building_TurretGun.DrawExtraSelectionOverlays match 1 of 1");
+                                #endif
+
                                 yield return instruction; // num < x or num > x
                                 yield return new CodeInstruction(OpCodes.Ldarg_0); // this
                                 yield return instructionList[i - 2].Clone(); // num

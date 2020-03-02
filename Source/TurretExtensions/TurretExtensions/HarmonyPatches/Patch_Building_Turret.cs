@@ -36,6 +36,10 @@ namespace TurretExtensions
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
+                #if DEBUG
+                    Log.Message("Transpiler start: Building_Turret.PreApplyDamage (1 match)");
+                #endif
+
                 var instructionList = instructions.ToList();
 
                 for (int i = 0; i < instructionList.Count; i++)
@@ -49,8 +53,12 @@ namespace TurretExtensions
                     if (instruction.opcode == OpCodes.Ldc_I4_1)
                     {
                         var nextInstruction = instructionList[i + 1];
-                        if (nextInstruction.opcode == OpCodes.Callvirt && nextInstruction.operand == notifyDamageAppliedInfo)
+                        if (nextInstruction.opcode == OpCodes.Callvirt && nextInstruction.OperandIs(notifyDamageAppliedInfo))
                         {
+                            #if DEBUG
+                                Log.Message("Building_Turret.PreApplyDamage match 1 of 1");
+                            #endif
+
                             yield return new CodeInstruction(OpCodes.Ldarg_0); // this
                             yield return instruction.Clone(); // true
                             instruction = new CodeInstruction(OpCodes.Call, affectedByEMPInfo); // AffectedByEMP(this, true)

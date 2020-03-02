@@ -114,16 +114,7 @@ namespace TurretExtensions
                     t.stackCount = c;
                 else
                     t.Destroy();
-            });
-            //List<ThingDefCountClass> ingredientCount = UpgradableComp.finalCostList;
-            //foreach (ThingDefCountClass thing in ingredientCount)
-            //{
-            //    int yieldCount = GenMath.RoundRandom(thing.count * yield);
-            //    Thing yieldItem = ThingMaker.MakeThing(thing.thingDef);
-            //    yieldItem.stackCount = yieldCount;
-            //    if (yieldCount > 0) { GenPlace.TryPlaceThing(yieldItem, TargetThingA.Position, TargetThingA.Map, ThingPlaceMode.Near); }
-            //}
-        }
+            });        }
 
         private CompUpgradable UpgradableComp
         {

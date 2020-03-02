@@ -45,12 +45,14 @@ namespace TurretExtensions
 
         public override void DesignateSingleCell(IntVec3 c)
         {
-            foreach (Thing t in UpgradableTurretsInSelection(c))
+            var upgradableTurrets = UpgradableTurretsInSelection(c).ToList();
+            for (int i = 0; i < upgradableTurrets.Count; i++)
             {
+                var turret = upgradableTurrets[i];
                 if (DebugSettings.godMode)
-                    t.TryGetComp<CompUpgradable>().upgraded = true;
+                    turret.TryGetComp<CompUpgradable>().upgraded = true;
                 else
-                    DesignateThing(t);;
+                    DesignateThing(turret);;
             }
         }
 
@@ -62,9 +64,16 @@ namespace TurretExtensions
                 CompUpgradable upgradableComp = t.TryGetComp<CompUpgradable>();
                 upgradableComp.Upgrade();
                 if (upgradableComp.finalCostList != null)
-                    foreach (ThingDefCountClass thing in upgradableComp.finalCostList)
-                        for (int i = 0; i < thing.count; i++)
+                {
+                    for (int i = 0; i < upgradableComp.finalCostList.Count; i++)
+                    {
+                        var thing = upgradableComp.finalCostList[i];
+                        var initThingCount = upgradableComp.innerContainer.TotalStackCountOfDef(thing.thingDef);
+                        for (int j = initThingCount; j < thing.count; j++)
                             upgradableComp.innerContainer.TryAdd(ThingMaker.MakeThing(thing.thingDef));
+
+                    }
+                }
             }
 
             else
@@ -77,11 +86,14 @@ namespace TurretExtensions
         protected override void FinalizeDesignationSucceeded()
         {
             if (!DebugSettings.godMode)
-                foreach (Building_Turret turret in designatedTurrets)
+            {
+                for (int i = 0; i < designatedTurrets.Count; i++)
                 {
+                    var turret = designatedTurrets[i];
                     NotifyPlayerOfInsufficientSkill(turret);
                     NotifyPlayerOfInsufficientResearch(turret);
                 }
+            }
             designatedTurrets.Clear();
         }
 
@@ -91,8 +103,10 @@ namespace TurretExtensions
         {
             bool meetsMinSkill = false;
             int minimumSkill = t.TryGetComp<CompUpgradable>().Props.constructionSkillPrerequisite;
-            foreach (Pawn pawn in Find.CurrentMap.mapPawns.FreeColonists)
+            var freeColonists = Find.CurrentMap.mapPawns.FreeColonists;
+            for (int i = 0; i < freeColonists.Count; i++)
             {
+                var pawn = freeColonists[i];
                 if (pawn.skills.GetSkill(SkillDefOf.Construction).Level >= minimumSkill)
                 {
                     meetsMinSkill = true;
@@ -112,8 +126,9 @@ namespace TurretExtensions
             List<string> researchProjectsUnfinished = new List<string>();
             if (researchRequirements != null)
             {
-                foreach (ResearchProjectDef research in researchRequirements)
+                for (int i = 0; i < researchRequirements.Count; i++)
                 {
+                    var research = researchRequirements[i];
                     if (!research.IsFinished)
                     {
                         researchRequirementsMet = false;

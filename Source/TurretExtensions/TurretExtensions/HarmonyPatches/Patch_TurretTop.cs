@@ -23,17 +23,27 @@ namespace TurretExtensions
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
+                #if DEBUG
+                    Log.Message("Transpiler start: TurretTop.DrawTurret (2 matches)");
+                #endif
+
                 var instructionList = instructions.ToList();
 
                 var turretTopOffsetToUse = AccessTools.Method(typeof(DrawTurret), nameof(TurretTopOffsetToUse));
                 var turretTopDrawSizeToUse = AccessTools.Method(typeof(DrawTurret), nameof(TurretTopDrawSizeToUse));
+                var turretTopOffsetInfo = AccessTools.Field(typeof(BuildingProperties), nameof(BuildingProperties.turretTopOffset));
+                var turretTopDrawSizeInfo = AccessTools.Field(typeof(BuildingProperties), nameof(BuildingProperties.turretTopDrawSize));
 
                 for (int i = 0; i < instructionList.Count; i++)
                 {
                     var instruction = instructionList[i];
 
-                    if (instruction.opcode == OpCodes.Ldflda && instruction.operand == AccessTools.Field(typeof(BuildingProperties), nameof(BuildingProperties.turretTopOffset)))
+                    if (instruction.opcode == OpCodes.Ldflda && instruction.OperandIs(turretTopOffsetInfo))
                     {
+                        #if DEBUG
+                            Log.Message("TurretTop.DrawTurret match 1 of 2");
+                        #endif
+
                         instruction.opcode = OpCodes.Ldfld;
                         yield return instruction;
                         yield return new CodeInstruction(OpCodes.Ldarg_0);
@@ -42,15 +52,16 @@ namespace TurretExtensions
 
                     }
 
-                    if (instruction.opcode == OpCodes.Ldfld)
+                    if (instruction.opcode == OpCodes.Ldfld && instruction.OperandIs(turretTopDrawSizeInfo))
                     {
-                        if (instruction.operand == AccessTools.Field(typeof(BuildingProperties), nameof(BuildingProperties.turretTopDrawSize)))
-                        {
-                            yield return instruction;
-                            yield return new CodeInstruction(OpCodes.Ldarg_0);
-                            yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(TurretTop), "parentTurret"));
-                            instruction = new CodeInstruction(OpCodes.Call, turretTopDrawSizeToUse);
-                        }
+                        #if DEBUG
+                            Log.Message("TurretTop.DrawTurret match 2 of 2");
+                        #endif
+
+                        yield return instruction;
+                        yield return new CodeInstruction(OpCodes.Ldarg_0);
+                        yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(TurretTop), "parentTurret"));
+                        instruction = new CodeInstruction(OpCodes.Call, turretTopDrawSizeToUse);
                     }
 
                     yield return instruction;

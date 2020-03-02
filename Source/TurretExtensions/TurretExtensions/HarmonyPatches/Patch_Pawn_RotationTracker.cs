@@ -23,6 +23,10 @@ namespace TurretExtensions
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
+                #if DEBUG
+                    Log.Message("Transpiler start: Pawn_RotationTracker.UpdateRotation (1 match)");
+                #endif
+
                 var instructionList = instructions.ToList();
                 var draftedGetterInfo = AccessTools.Property(typeof(Pawn), nameof(Pawn.Drafted)).GetGetMethod();
                 var canRotateDraftedPawnInfo = AccessTools.Method(typeof(UpdateRotation), nameof(CanRotateDraftedPawn));
@@ -34,6 +38,10 @@ namespace TurretExtensions
                     // Look for all calls for pawn.Drafted
                     if (instruction.opcode == OpCodes.Callvirt && (MethodInfo)instruction.operand == draftedGetterInfo)
                     {
+                        #if DEBUG
+                            Log.Message("Pawn_RotationTracker.UpdateRotation match 1 of 1");
+                        #endif
+
                         yield return instruction; // this.pawn.Drafted;
                         yield return new CodeInstruction(OpCodes.Ldarg_0); // this
                         yield return new CodeInstruction(OpCodes.Ldfld, instructionList[i - 1].operand); // this.pawn

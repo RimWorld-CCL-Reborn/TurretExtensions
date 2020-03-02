@@ -21,8 +21,12 @@ namespace TurretExtensions
 
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
-            foreach (Designation des in pawn.Map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.UpgradeTurret))
+            var upgradeDesignations = pawn.Map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.UpgradeTurret).ToList();
+            for (int i = 0; i < upgradeDesignations.Count; i++)
+            {
+                var des = upgradeDesignations[i];
                 yield return des.target.Thing;
+            }
         }
 
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)

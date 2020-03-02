@@ -24,6 +24,10 @@ namespace TurretExtensions
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, MethodBase method, ILGenerator ilGen)
             {
+                #if DEBUG
+                    Log.Message("Transpiler start: Gizmo_RefuelableFuelStatus.manual_GizmoOnGUI_Delegate (1 match)");
+                #endif
+
                 var instructionList = instructions.ToList();
 
                 // Add local
@@ -40,8 +44,12 @@ namespace TurretExtensions
                     var instruction = instructionList[i];
 
                     // Adjust all calls to fuel capacity to factor in upgraded status
-                    if (instruction.operand == fuelCapacityInfo)
+                    if (instruction.OperandIs(fuelCapacityInfo))
                     {
+                        #if DEBUG
+                            Log.Message("Gizmo_RefuelableFuelStatus.manual_GizmoOnGUI_Delegate match 1 of 1");
+                        #endif
+
                         bool addr = false;
                         if (instruction.opcode == OpCodes.Ldflda)
                         {

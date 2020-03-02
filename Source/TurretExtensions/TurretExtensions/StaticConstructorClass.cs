@@ -15,8 +15,11 @@ namespace TurretExtensions
 
         static StaticConstructorClass()
         {
-            foreach (var tDef in DefDatabase<ThingDef>.AllDefs)
+            var allThingDefs = DefDatabase<ThingDef>.AllDefsListForReading;
+            for (int i = 0; i < allThingDefs.Count; i++)
             {
+                var tDef = allThingDefs[i];
+
                 // Make sure that all turrets have accuracy readouts by defining ShootingAccuracyTurret
                 if (tDef.building != null && tDef.building.IsTurret && (tDef.statBases == null || !tDef.statBases.Any(s => s.stat == StatDefOf.ShootingAccuracyTurret)))
                 {

@@ -23,11 +23,15 @@ namespace TurretExtensions
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator ilGen)
             {
+                #if DEBUG
+                    Log.Message("Transpiler start: Verb.DrawHighlight (no matches)");
+                #endif
+
                 var instructionList = instructions.ToList();
                 var drawRadiusRingInfo = AccessTools.Method(typeof(VerbProperties), nameof(VerbProperties.DrawRadiusRing));
                 var tryDrawFiringConeInfo = AccessTools.Method(typeof(DrawHighlight), nameof(DrawHighlight.TryDrawFiringCone));
 
-                var instructionToBranchTo = instructionList[instructionList.FirstIndexOf(i => i.operand == drawRadiusRingInfo) + 1];
+                var instructionToBranchTo = instructionList[instructionList.FirstIndexOf(i => i.OperandIs(drawRadiusRingInfo)) + 1];
                 var branchLabel = ilGen.DefineLabel();
                 instructionToBranchTo.labels.Add(branchLabel);
 

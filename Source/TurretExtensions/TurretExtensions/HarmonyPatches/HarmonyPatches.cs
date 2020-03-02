@@ -19,7 +19,10 @@ namespace TurretExtensions
 
         static HarmonyPatches()
         {
-            //Harmony.DEBUG = true;
+            #if DEBUG
+                Harmony.DEBUG = true;
+            #endif
+
             TurretExtensions.harmonyInstance.PatchAll();
 
             // Gizmo_RefuelableFuelStatus delegate
@@ -33,6 +36,10 @@ namespace TurretExtensions
             Patch_ThingDef.manual_SpecialDisplayStats.enumeratorType = thingDefEnumeratorType;
             TurretExtensions.harmonyInstance.Patch(thingDefEnumeratorType.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).First(m => m.Name == "MoveNext"),
                 transpiler: new HarmonyMethod(typeof(Patch_ThingDef.manual_SpecialDisplayStats), "Transpiler"));
+
+            // Fully refuel devmode gizmo
+            TurretExtensions.harmonyInstance.Patch(typeof(CompRefuelable).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).Last(m => m.Name.Contains("CompGetGizmosExtra")),
+                transpiler: new HarmonyMethod(typeof(Patch_CompRefuelable), nameof(Patch_CompRefuelable.FuelCapacityTranspiler)));
         }
 
 

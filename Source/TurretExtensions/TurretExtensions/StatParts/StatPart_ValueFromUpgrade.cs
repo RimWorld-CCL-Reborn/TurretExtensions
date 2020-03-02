@@ -13,11 +13,11 @@ namespace TurretExtensions
         {
             if (req.Thing?.GetInnerIfMinified() is Building_Turret turret && turret.IsUpgradable(out CompUpgradable uC))
             {
-                //Log.Message(uC.ToStringSafe());
                 if (!uC.finalCostList.NullOrEmpty())
                 {
-                    foreach (Thing thing in uC.innerContainer)
+                    for (int i = 0; i < uC.innerContainer.Count; i++)
                     {
+                        var thing = uC.innerContainer[i];
                         val += thing.MarketValue * thing.stackCount;
                     }
                 }
