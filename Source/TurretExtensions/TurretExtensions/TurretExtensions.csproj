@@ -64,6 +64,7 @@
     <Compile Include="HarmonyPatches\HarmonyPatchesUtility.cs" />
     <Compile Include="HarmonyPatches\Patch_Building_Turret.cs" />
     <Compile Include="HarmonyPatches\Patch_JobDriver_ManTurret.cs" />
+    <Compile Include="HarmonyPatches\Patch_Verb_Shoot.cs" />
     <Compile Include="HarmonyPatches\Patch_Verb.cs" />
     <Compile Include="HarmonyPatches\Patch_Pawn_RotationTracker.cs" />
     <Compile Include="HarmonyPatches\Patch_Designator_Cancel.cs" />
