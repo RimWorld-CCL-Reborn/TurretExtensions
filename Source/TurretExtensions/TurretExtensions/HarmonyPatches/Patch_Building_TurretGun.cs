@@ -180,26 +180,7 @@ namespace TurretExtensions
 
             public static void Postfix(Building_TurretGun __instance, ref int ___burstWarmupTicksLeft)
             {
-                var extensionValues = TurretFrameworkExtension.Get(__instance.def);
-
-                // Multiply the burstWarmupTicksLeft by the manning pawn's aiming delay factor if applicable
-                if (extensionValues.useManningPawnAimingDelayFactor)
-                {
-                    var mannableComp = __instance.TryGetComp<CompMannable>();
-                    if (mannableComp != null)
-                    {
-                        var manner = mannableComp.ManningPawn;
-                        if (manner != null)
-                        {
-                            float mannerAimingDelayFactor = manner.GetStatValue(StatDefOf.AimingDelayFactor);
-                            ___burstWarmupTicksLeft = Mathf.RoundToInt(___burstWarmupTicksLeft * mannerAimingDelayFactor);
-                        }
-                    }
-                }
-
-                // Multiply based on upgrade
-                if (__instance.IsUpgraded(out CompUpgradable upgradableComp))
-                    ___burstWarmupTicksLeft = Mathf.RoundToInt(___burstWarmupTicksLeft * upgradableComp.Props.turretBurstWarmupTimeFactor);
+                ___burstWarmupTicksLeft = TurretExtensionsUtility.AdjustedTurretBurstWarmupTicks(___burstWarmupTicksLeft, __instance);
             }
 
         }
@@ -217,7 +198,9 @@ namespace TurretExtensions
                     var extensionValues = TurretFrameworkExtension.Get(__instance.def);
                     var upgradableComp = __instance.TryGetComp<CompUpgradable>();
 
-                    if (((upgradableComp != null || !upgradableComp.upgraded) && extensionValues.canForceAttack) || (upgradableComp.upgraded && upgradableComp.Props.canForceAttack))
+                    // Upgradable comp doesn't exist/isn't upgraded and can force attack, or exists and upgraded and can force attack
+                    if (((upgradableComp == null || !upgradableComp.upgraded) && extensionValues.canForceAttack) ||
+                        (upgradableComp != null && upgradableComp.upgraded && upgradableComp.Props.canForceAttack.Value))
                     {
                         if (!__instance.def.HasComp(typeof(CompMannable)))
                             __result = true;

@@ -19,10 +19,15 @@ namespace TurretExtensions
         public override void ResolveReferences(ThingDef parentDef)
         {
             base.ResolveReferences(parentDef);
+            var extensionValues = TurretFrameworkExtension.Get(parentDef);
+
+            // If canForceAttack is unassigned, match it to DefModExtension
+            if (!canForceAttack.HasValue)
+                canForceAttack = extensionValues.canForceAttack;
 
             // If firing arc is unchanged, match it to DefModExtension
             if (firingArc == -1)
-                firingArc = TurretFrameworkExtension.Get(parentDef).FiringArc;
+                firingArc = extensionValues.FiringArc;
         }
 
         public override IEnumerable<string> ConfigErrors(ThingDef parentDef)
@@ -80,8 +85,8 @@ namespace TurretExtensions
         public float turretBurstCooldownTimeFactor = 1;
         public ThingDef turretGunDef;
         private float firingArc = -1;
-        public float manningPawnShootingAccuracyOffsetBonus = 0;
-        public bool canForceAttack = false;
+        public float manningPawnShootingAccuracyOffset = 0;
+        public bool? canForceAttack;
         public bool? affectedByEMP;
 
         public float FiringArc => Mathf.Clamp(firingArc, 0, 360);

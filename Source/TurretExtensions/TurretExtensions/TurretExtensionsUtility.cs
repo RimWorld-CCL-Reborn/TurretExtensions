@@ -46,6 +46,33 @@ namespace TurretExtensions
             return baseFuelCapacity;
         }
 
+        public static int AdjustedTurretBurstWarmupTicks(int warmupTicks, Building_Turret turret)
+        {
+            var extensionValues = TurretFrameworkExtension.Get(turret.def);
+            float warmupTicksFloat = warmupTicks;
+
+            // Multiply the burstWarmupTicksLeft by the manning pawn's aiming delay factor if applicable
+            if (extensionValues.useManningPawnAimingDelayFactor)
+            {
+                var mannableComp = turret.TryGetComp<CompMannable>();
+                if (mannableComp != null)
+                {
+                    var manningPawn = mannableComp.ManningPawn;
+                    if (manningPawn != null)
+                    {
+                        float manningPawnAimingDelayFactor = manningPawn.GetStatValue(StatDefOf.AimingDelayFactor);
+                        warmupTicksFloat *= manningPawnAimingDelayFactor;
+                    }
+                }
+            }
+
+            // Multiply based on upgrade
+            if (turret.IsUpgraded(out CompUpgradable upgradableComp))
+                warmupTicksFloat *= upgradableComp.Props.turretBurstWarmupTimeFactor;
+
+            return Mathf.RoundToInt(warmupTicksFloat);
+        }
+
         public static string ToStringDegrees(this float degrees) => degrees.ToString("0.#") + "°";
 
         public static bool WithinFiringArcOf(this IntVec3 pos, Thing thing)
@@ -109,6 +136,7 @@ namespace TurretExtensions
             // First paragraph
             var reportBuilder = new StringBuilder();
             reportBuilder.AppendLine("TurretExtensions.TurretUpgradeBenefitsMain".Translate());
+            reportBuilder.AppendLine();
 
             // Upgradable
             if (upgradeProps != null)
@@ -119,7 +147,6 @@ namespace TurretExtensions
                 bool hasThing = req.HasThing;
 
                 // Description
-                reportBuilder.AppendLine();
                 reportBuilder.AppendLine($"{"Description".Translate()}: {upgradeProps.description}");
 
                 // Resource requirements
@@ -211,15 +238,15 @@ namespace TurretExtensions
                     reportBuilder.AppendLine($"- {"TurretExtensions.FiringArc".Translate()}: {extensionValues.FiringArc.ToStringDegrees()} => {upgradeProps.FiringArc.ToStringDegrees()}");
 
                 // User accuracy modifier
-                if (upgradeProps.manningPawnShootingAccuracyOffsetBonus != 0 && tDef.HasComp(typeof(CompMannable)))
+                if ((extensionValues.manningPawnShootingAccuracyOffset != 0 || upgradeProps.manningPawnShootingAccuracyOffset != 0) && tDef.HasComp(typeof(CompMannable)))
                     reportBuilder.AppendLine($"- {"TurretExtensions.UserShootingAccuracyModifier".Translate()}: " +
                         $"{extensionValues.manningPawnShootingAccuracyOffset.ToStringByStyle(ToStringStyle.FloatOne, ToStringNumberSense.Offset)} => " +
-                        $"{(extensionValues.manningPawnShootingAccuracyOffset + upgradeProps.manningPawnShootingAccuracyOffsetBonus).ToStringByStyle(ToStringStyle.FloatOne, ToStringNumberSense.Offset)}");
+                        $"{(upgradeProps.manningPawnShootingAccuracyOffset).ToStringByStyle(ToStringStyle.FloatOne, ToStringNumberSense.Offset)}");
 
                 // Manually controllable
                 if (extensionValues.canForceAttack != upgradeProps.canForceAttack && !tDef.HasComp(typeof(CompMannable)))
                 {
-                    if (upgradeProps.canForceAttack)
+                    if (upgradeProps.canForceAttack.Value)
                         reportBuilder.AppendLine($"- {"TurretExtensions.TurretManuallyControllable".Translate()}");
                     else
                         reportBuilder.AppendLine($"- {"TurretExtensions.TurretNotManuallyControllable".Translate()}");

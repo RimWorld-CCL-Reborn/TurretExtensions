@@ -11,17 +11,31 @@ namespace TurretExtensions
     {
         public override void TransformValue(StatRequest req, ref float val)
         {
-            if (req.Thing?.GetInnerIfMinified() is Building_Turret turret && turret.IsUpgradable(out CompUpgradable uC))
+            int failPoint = 1;
+            try
             {
-                if (!uC.finalCostList.NullOrEmpty())
+                if (req.HasThing && req.Thing.GetInnerIfMinified() is Building_Turret turret && turret.IsUpgradable(out CompUpgradable uC))
                 {
-                    for (int i = 0; i < uC.innerContainer.Count; i++)
+                    failPoint = 2;
+                    if (!uC.finalCostList.NullOrEmpty())
                     {
-                        var thing = uC.innerContainer[i];
-                        val += thing.MarketValue * thing.stackCount;
+                        failPoint = 3;
+                        for (int i = 0; i < uC.innerContainer.Count; i++)
+                        {
+                            failPoint = 4;
+                            var thing = uC.innerContainer[i];
+                            failPoint = 5;
+                            val += thing.MarketValue * thing.stackCount;
+                        }
                     }
+                    failPoint = 6;
+                    val += Math.Min(uC.upgradeWorkDone, uC.upgradeWorkTotal) * StatWorker_MarketValue.ValuePerWork;
                 }
-                val += Math.Min(uC.upgradeWorkDone, uC.upgradeWorkTotal) * StatWorker_MarketValue.ValuePerWork;
+
+            }
+            catch (Exception ex)
+            {
+                Log.Message($"Exception in getting value from upgrade (failPoint={failPoint}): {ex.ToString()}");
             }
         }
 

@@ -38,7 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\workshop\content\294100\2009463077\Assemblies\0Harmony.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\workshop\content\294100\2009463077\v1.1\Assemblies\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
@@ -64,6 +64,7 @@
     <Compile Include="HarmonyPatches\HarmonyPatchesUtility.cs" />
     <Compile Include="HarmonyPatches\Patch_Building_Turret.cs" />
     <Compile Include="HarmonyPatches\Patch_JobDriver_ManTurret.cs" />
+    <Compile Include="HarmonyPatches\Patch_VerbProperties.cs" />
     <Compile Include="HarmonyPatches\Patch_Verb_Shoot.cs" />
     <Compile Include="HarmonyPatches\Patch_Verb.cs" />
     <Compile Include="HarmonyPatches\Patch_Pawn_RotationTracker.cs" />

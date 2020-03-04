@@ -122,7 +122,7 @@ namespace TurretExtensions
                             upgradableString = (tDef.IsUpgradable(out upgradableCompProps) ? "TurretExtensions.YesClickForDetails" : "No").Translate();
 
                         var upgradeHyperlinks = new List<Dialog_InfoCard.Hyperlink>();
-                        if (upgradableCompProps.turretGunDef != null)
+                        if (upgradableCompProps?.turretGunDef != null)
                             upgradeHyperlinks.Add(new Dialog_InfoCard.Hyperlink(upgradableCompProps.turretGunDef));
 
                         gunStatList.Add(new StatDrawEntry(RimWorld.StatCategoryDefOf.BasicsNonPawn, "TurretExtensions.Upgradable".Translate(), upgradableString,

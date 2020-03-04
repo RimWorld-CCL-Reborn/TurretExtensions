@@ -15,9 +15,7 @@ namespace TurretExtensions
             if (ShouldApply(req, out Building_Turret turret))
             {
                 var extensionValues = TurretFrameworkExtension.Get(turret.def);
-                val += extensionValues.manningPawnShootingAccuracyOffset;
-                if (turret.IsUpgraded(out CompUpgradable uC))
-                    val += uC.Props.manningPawnShootingAccuracyOffsetBonus;
+                val += turret.IsUpgraded(out var upgradableComp) ? upgradableComp.Props.manningPawnShootingAccuracyOffset : extensionValues.manningPawnShootingAccuracyOffset;
             }
         }
 
@@ -25,15 +23,11 @@ namespace TurretExtensions
         {
             if (ShouldApply(req, out Building_Turret turret))
             {
-                var extensionValues = turret.def.GetModExtension<TurretFrameworkExtension>();
+                var extensionValues = TurretFrameworkExtension.Get(req.Def);
+                float offset = turret.IsUpgraded(out var upgradableComp) ? upgradableComp.Props.manningPawnShootingAccuracyOffset : extensionValues.manningPawnShootingAccuracyOffset;
 
-                float totalOffset = 0f;
-                if (extensionValues != null)
-                    totalOffset += extensionValues.manningPawnShootingAccuracyOffset;
-                if (turret.IsUpgraded(out CompUpgradable uC))
-                    totalOffset += uC.Props.manningPawnShootingAccuracyOffsetBonus;
-
-                return $"{turret.def.LabelCap}: {totalOffset.ToStringByStyle(parentStat.ToStringStyleUnfinalized, ToStringNumberSense.Offset)}";
+                if (offset != 0)
+                    return $"{turret.def.LabelCap}: {offset.ToStringByStyle(parentStat.ToStringStyleUnfinalized, ToStringNumberSense.Offset)}";
             }
             return null;
         }
