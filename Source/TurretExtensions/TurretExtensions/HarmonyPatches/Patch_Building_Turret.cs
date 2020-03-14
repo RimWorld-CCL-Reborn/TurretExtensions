@@ -46,8 +46,8 @@ namespace TurretExtensions
                 {
                     var instruction = instructionList[i];
 
-                    var notifyDamageAppliedInfo = AccessTools.Method(typeof(StunHandler), nameof(StunHandler.Notify_DamageApplied));
-                    var affectedByEMPInfo = AccessTools.Method(typeof(PreApplyDamage), nameof(TurretExtensionsUtility.AffectedByEMP));
+                    var notifyDamageAppliedInfo = AccessTools.Method(typeof(StunHandler), nameof(StunHandler.Notify_DamageApplied), new Type[] { typeof(DamageInfo), typeof(bool) } );
+                    var affectedByEMPInfo = AccessTools.Method(typeof(PreApplyDamage), nameof(TurretExtensionsUtility.AffectedByEMP), new Type[] { typeof(DamageInfo), typeof(bool) } );
 
                     // Look for the 'true' parameter that is passed to calls to Notify_DamageApplied
                     if (instruction.opcode == OpCodes.Ldc_I4_1)
